@@ -1,0 +1,76 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EscolarAppPadres.Views.School.AbsencesView"
+             Title="ESCOLAR"
+             BackgroundColor="#f5f8fa"
+             Padding="{OnPlatform iOS='0,20,0,0', Android='0'}">
+
+    <Grid>
+        <Grid>
+            <RefreshView
+                Command="{Binding LoadAbsencesCommand}"
+                IsRefreshing="{Binding IsRefreshing}">
+
+                <ScrollView>
+                    <StackLayout Padding="15" Spacing="15">
+
+                        <Label Text="No se encontraron ausencias"
+                               FontSize="16"
+                               TextColor="Gray"
+                               HorizontalOptions="Center"
+                               IsVisible="{Binding SinResultados}" />
+
+                        <CollectionView ItemsSource="{Binding StudentAbsences}"
+                                        SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame Padding="20"
+                                           CornerRadius="16"
+                                           HasShadow="True"
+                                           BackgroundColor="White"
+                                           Margin="0,10">
+
+                                        <Grid ColumnDefinitions="*,Auto"
+                                              RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+
+                                            <Label Text="{Binding Materia}"
+                                                   FontAttributes="Bold"
+                                                   FontSize="16"
+                                                   TextColor="#273840"
+                                                   Grid.Row="0"
+                                                   Grid.Column="0" />
+
+                                            <Label Text="{Binding Fecha, StringFormat='Fecha: {0:dd/MM/yyyy}'}"
+                                                   FontSize="14"
+                                                   TextColor="Gray"
+                                                   Margin="0,4,0,0"
+                                                   Grid.Row="1"
+                                                   Grid.Column="0" />
+
+                                            <Label Text="{Binding NombreProfesor, StringFormat='Prof. {0}'}"
+                                                   FontSize="14"
+                                                   FontAttributes="Italic"
+                                                   TextColor="Gray"
+                                                   Margin="0,4,0,0"
+                                                   Grid.Row="2"
+                                                   Grid.Column="0" />
+
+                                            <Label Text="{Binding TipoAsistenciaNombre, StringFormat='Motivo: {0}'}"
+                                                   FontSize="14"
+                                                   TextColor="Black"
+                                                   Margin="0,4,0,0"
+                                                   Grid.Row="3"
+                                                   Grid.Column="0" />
+
+                                        </Grid>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                    </StackLayout>
+                </ScrollView>
+            </RefreshView>
+        </Grid>
+    </Grid>
+</ContentPage>

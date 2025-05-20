@@ -1,0 +1,105 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Gerardo\\Documents\\Proyectos RESO Sistemas\\Pereyra\\App Movil Padres\\EscolarAppPadres\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A6C0CBAD-0B9D-4F63-88DC-10286EE8A5B9}|EscolarAppPadres\\EscolarAppPadres.csproj|c:\\users\\gerardo\\documents\\proyectos reso sistemas\\pereyra\\app movil padres\\escolarapppadres\\escolarapppadres\\views\\account\\colorpickerpopup.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{A6C0CBAD-0B9D-4F63-88DC-10286EE8A5B9}|EscolarAppPadres\\EscolarAppPadres.csproj|solutionrelative:escolarapppadres\\views\\account\\colorpickerpopup.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A6C0CBAD-0B9D-4F63-88DC-10286EE8A5B9}|EscolarAppPadres\\EscolarAppPadres.csproj|c:\\users\\gerardo\\documents\\proyectos reso sistemas\\pereyra\\app movil padres\\escolarapppadres\\escolarapppadres\\views\\account\\colorpickerpopup.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A6C0CBAD-0B9D-4F63-88DC-10286EE8A5B9}|EscolarAppPadres\\EscolarAppPadres.csproj|solutionrelative:escolarapppadres\\views\\account\\colorpickerpopup.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A6C0CBAD-0B9D-4F63-88DC-10286EE8A5B9}|EscolarAppPadres\\EscolarAppPadres.csproj|c:\\users\\gerardo\\documents\\proyectos reso sistemas\\pereyra\\app movil padres\\escolarapppadres\\escolarapppadres\\helpers\\colorconverters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A6C0CBAD-0B9D-4F63-88DC-10286EE8A5B9}|EscolarAppPadres\\EscolarAppPadres.csproj|solutionrelative:escolarapppadres\\helpers\\colorconverters.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A6C0CBAD-0B9D-4F63-88DC-10286EE8A5B9}|EscolarAppPadres\\EscolarAppPadres.csproj|c:\\users\\gerardo\\documents\\proyectos reso sistemas\\pereyra\\app movil padres\\escolarapppadres\\escolarapppadres\\viewmodels\\login\\logoutviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A6C0CBAD-0B9D-4F63-88DC-10286EE8A5B9}|EscolarAppPadres\\EscolarAppPadres.csproj|solutionrelative:escolarapppadres\\viewmodels\\login\\logoutviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A6C0CBAD-0B9D-4F63-88DC-10286EE8A5B9}|EscolarAppPadres\\EscolarAppPadres.csproj|c:\\users\\gerardo\\documents\\proyectos reso sistemas\\pereyra\\app movil padres\\escolarapppadres\\escolarapppadres\\views\\account\\accountview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{A6C0CBAD-0B9D-4F63-88DC-10286EE8A5B9}|EscolarAppPadres\\EscolarAppPadres.csproj|solutionrelative:escolarapppadres\\views\\account\\accountview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ColorConverters.cs",
+              "DocumentMoniker": "C:\\Users\\Gerardo\\Documents\\Proyectos RESO Sistemas\\Pereyra\\App Movil Padres\\EscolarAppPadres\\EscolarAppPadres\\Helpers\\ColorConverters.cs",
+              "RelativeDocumentMoniker": "EscolarAppPadres\\Helpers\\ColorConverters.cs",
+              "ToolTip": "C:\\Users\\Gerardo\\Documents\\Proyectos RESO Sistemas\\Pereyra\\App Movil Padres\\EscolarAppPadres\\EscolarAppPadres\\Helpers\\ColorConverters.cs",
+              "RelativeToolTip": "EscolarAppPadres\\Helpers\\ColorConverters.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-19T20:41:29.817Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ColorPickerPopup.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\Gerardo\\Documents\\Proyectos RESO Sistemas\\Pereyra\\App Movil Padres\\EscolarAppPadres\\EscolarAppPadres\\Views\\Account\\ColorPickerPopup.xaml.cs",
+              "RelativeDocumentMoniker": "EscolarAppPadres\\Views\\Account\\ColorPickerPopup.xaml.cs",
+              "ToolTip": "C:\\Users\\Gerardo\\Documents\\Proyectos RESO Sistemas\\Pereyra\\App Movil Padres\\EscolarAppPadres\\EscolarAppPadres\\Views\\Account\\ColorPickerPopup.xaml.cs",
+              "RelativeToolTip": "EscolarAppPadres\\Views\\Account\\ColorPickerPopup.xaml.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAADwvyQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-19T19:37:25.609Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ColorPickerPopup.xaml",
+              "DocumentMoniker": "C:\\Users\\Gerardo\\Documents\\Proyectos RESO Sistemas\\Pereyra\\App Movil Padres\\EscolarAppPadres\\EscolarAppPadres\\Views\\Account\\ColorPickerPopup.xaml",
+              "RelativeDocumentMoniker": "EscolarAppPadres\\Views\\Account\\ColorPickerPopup.xaml",
+              "ToolTip": "C:\\Users\\Gerardo\\Documents\\Proyectos RESO Sistemas\\Pereyra\\App Movil Padres\\EscolarAppPadres\\EscolarAppPadres\\Views\\Account\\ColorPickerPopup.xaml",
+              "RelativeToolTip": "EscolarAppPadres\\Views\\Account\\ColorPickerPopup.xaml",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAkwAkAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-05-19T19:36:37.919Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "LogoutViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\Gerardo\\Documents\\Proyectos RESO Sistemas\\Pereyra\\App Movil Padres\\EscolarAppPadres\\EscolarAppPadres\\ViewModels\\Login\\LogoutViewModel.cs",
+              "RelativeDocumentMoniker": "EscolarAppPadres\\ViewModels\\Login\\LogoutViewModel.cs",
+              "ToolTip": "C:\\Users\\Gerardo\\Documents\\Proyectos RESO Sistemas\\Pereyra\\App Movil Padres\\EscolarAppPadres\\EscolarAppPadres\\ViewModels\\Login\\LogoutViewModel.cs",
+              "RelativeToolTip": "EscolarAppPadres\\ViewModels\\Login\\LogoutViewModel.cs",
+              "ViewState": "AgIAAHEAAAAAAAAAAAAmwEsBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-19T18:11:13.659Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AccountView.xaml",
+              "DocumentMoniker": "C:\\Users\\Gerardo\\Documents\\Proyectos RESO Sistemas\\Pereyra\\App Movil Padres\\EscolarAppPadres\\EscolarAppPadres\\Views\\Account\\AccountView.xaml",
+              "RelativeDocumentMoniker": "EscolarAppPadres\\Views\\Account\\AccountView.xaml",
+              "ToolTip": "C:\\Users\\Gerardo\\Documents\\Proyectos RESO Sistemas\\Pereyra\\App Movil Padres\\EscolarAppPadres\\EscolarAppPadres\\Views\\Account\\AccountView.xaml",
+              "RelativeToolTip": "EscolarAppPadres\\Views\\Account\\AccountView.xaml",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAQwCAAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-05-19T18:10:56.396Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

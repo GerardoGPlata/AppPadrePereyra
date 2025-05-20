@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EscolarAppPadres.Views.Calendar.CalendarView"
+             xmlns:calendar="clr-namespace:Plugin.Maui.Calendar.Controls;assembly=Plugin.Maui.Calendar"
+             xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+             Title="CALENDARIO">
+
+    <AbsoluteLayout>
+        <ScrollView AbsoluteLayout.LayoutFlags="All"
+                    AbsoluteLayout.LayoutBounds="0,0,1,1"
+                    HorizontalOptions="FillAndExpand"
+                    VerticalOptions="FillAndExpand">
+            <Grid>
+                <!--<core:SfBusyIndicator x:Name="busyIndicator"
+                              IsRunning="True"
+                              AnimationType="CircularMaterial" />-->
+                <calendar:Calendar x:Name="Calendar"
+                                   CalendarLayout="{Binding SelectedCalendarLayout}"
+                                   SelectedDate="{Binding SelectedDate}"
+                                   Events="{Binding Events}"
+                                   IsVisible="{Binding IsCalendarVisible}"
+                                   FooterArrowVisible="{Binding FooterArrowVisible}"
+                                   FooterSectionVisible="True"
+                                   HorizontalOptions="FillAndExpand"
+                                   VerticalOptions="FillAndExpand"
+                                   ArrowsFontSize="20"
+                                   ArrowsBorderWidth="1.5"
+                                   ArrowsFontAttribute="Bold"
+                                   MonthLabelColor="Black"
+                                   YearLabelColor="Black"
+                                   FirstDayOfWeek="Monday"
+                                   DaysTitleWeekendColor="Gray"
+                                   WeekendDayColor="Gray"
+                                   DaysTitleMaximumLength="ThreeChars"
+                                   SelectedDateColor="Black"
+                                   SelectedDayBackgroundColor="{ StaticResource StaticButtonColorGreen }"
+                                   EventIndicatorColor="Red"
+                                   EventIndicatorSelectedColor="{ StaticResource StaticButtonColorGreen }"
+                                   EventIndicatorType="BackgroundFull"
+                                   EventsScrollViewVisible="True"
+                                   AnimateCalendar="True"
+                                   SwipeToChangeMonthEnabled="True"
+                                   SwipeUpToHideEnabled="True">
+                    <calendar:Calendar.EventTemplate>
+                        <DataTemplate>
+                            <VerticalStackLayout>
+                                <Frame CornerRadius="10"
+                                       Padding="10"
+                                       HasShadow="True"
+                                       BackgroundColor="White"
+                                       BorderColor="LightGray"
+                                       Margin="10">
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={x:Reference Calendar}, Path=BindingContext.EventCalendarCommand}" 
+                                                              CommandParameter="{Binding .}" />
+                                    </Frame.GestureRecognizers>
+
+                                    <Grid RowDefinitions="Auto,Auto" RowSpacing="5">
+
+                                        <Label Grid.Row="0" 
+                                               Text="{Binding TipoEvento}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               TextColor="Black"
+                                               HorizontalOptions="CenterAndExpand" />
+
+                                        <Border Grid.Row="1"
+                                                BackgroundColor="{Binding ColorIndicador}"
+                                                Padding="10">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="10,10,10,10" />
+                                            </Border.StrokeShape>
+                                            <Label Text="{Binding Nombre}"
+                                                   FontSize="15"
+                                                   FontAttributes="Bold"
+                                                   TextColor="Black"
+                                                   HorizontalOptions="Center" />
+                                        </Border>
+
+                                    </Grid>
+
+                                </Frame>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </calendar:Calendar.EventTemplate>
+                </calendar:Calendar>
+                <Label Text="No hay eventos para la fecha seleccionada"
+                       TextColor="Black"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       Margin="0,400,0,0"
+                       IsVisible="{Binding SelectedDateResult}" />
+
+                <CollectionView IsVisible="{Binding IsAgendaVisible}" ItemsSource="{Binding AgendaEvents}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame CornerRadius="10"
+                                   Padding="10"
+                                   HasShadow="True"
+                                   BackgroundColor="White"
+                                   BorderColor="LightGray"
+                                   Margin="10">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type CollectionView}}, Path=BindingContext.EventCalendarCommand}" 
+                                                          CommandParameter="{Binding .}" />
+                                </Frame.GestureRecognizers>
+
+                                <Grid RowDefinitions="Auto,Auto" RowSpacing="5">
+
+                                    <Label Grid.Row="0" 
+                                           Text="{Binding FechaInicio, StringFormat='{}{0:ddd. dd MMM, yyyy}'}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="Black"
+                                           HorizontalOptions="CenterAndExpand" />
+
+                                    <Border Grid.Row="1"
+                                            BackgroundColor="{Binding ColorIndicador}"
+                                            Padding="10">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="10,10,10,10" />
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding Nombre}"
+                                               FontSize="15"
+                                               FontAttributes="Bold"
+                                               TextColor="Black"
+                                               HorizontalOptions="Center" />
+                                    </Border>
+
+                                </Grid>
+
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <Label Text="No hay eventos programados"
+                       TextColor="Black"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       Margin="10"
+                       IsVisible="{Binding SelectedAgendaResult}" />
+            </Grid>
+        </ScrollView>
+
+        <Button x:Name="Filtros" 
+            FontSize="18"
+            TextColor="Black"
+            CornerRadius="20"
+            BackgroundColor="{StaticResource StaticBackgroundColorGreen}"
+            AbsoluteLayout.LayoutFlags="PositionProportional"
+            AbsoluteLayout.LayoutBounds="1,1,AutoSize,AutoSize"
+            Margin="10"
+            HeightRequest="65"
+            WidthRequest="65"
+            Command="{Binding OpenFilterPopupCalendarCommand}">
+            <Button.ImageSource>
+                <FileImageSource File="filter_outline.svg" />
+            </Button.ImageSource>
+        </Button>
+    </AbsoluteLayout>
+</ContentPage>

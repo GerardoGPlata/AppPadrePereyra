@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mopups:PopupPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               x:Class="EscolarAppPadres.Views.FiltersPopup.PopupFilterCalendarView"
+               xmlns:mopups="clr-namespace:Mopups.Pages;assembly=Mopups"
+               xmlns:mopupsani="clr-namespace:Mopups.Animations;assembly=Mopups"
+               CloseWhenBackgroundIsClicked="True"
+               BackgroundInputTransparent="False"
+               BackgroundColor="#80000000" >
+
+    <mopups:PopupPage.Animation>
+        <mopupsani:MoveAnimation 
+            DurationIn="700"
+            EasingIn="CubicInOut" 
+            PositionIn="Bottom" 
+            PositionOut="Bottom" 
+            HasBackgroundAnimation="True" />
+    </mopups:PopupPage.Animation>
+    <Frame Padding="0" Margin="15" CornerRadius="25" BackgroundColor="White" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand" HasShadow="True" BorderColor="Gray">
+        <Grid RowDefinitions="Auto,*">
+
+            <Grid Grid.Row="0" BackgroundColor="{ StaticResource StaticBorderDarkGray }" Padding="10" RowDefinitions="Auto" ColumnDefinitions="*,Auto">
+
+                <Label Grid.Column="0" Text="FILTRAR" FontSize="18" FontAttributes="Bold" TextColor="White" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
+
+                <ImageButton Grid.Column="1"
+                     Source="close_outline.svg"
+                     WidthRequest="30"
+                     HeightRequest="30"
+                     BackgroundColor="White"
+                     BorderColor="Transparent"
+                     VerticalOptions="Center"
+                     CornerRadius="20"
+                     HorizontalOptions="End"
+                     Clicked="OnClosePopupFilterCalendarButtonClicked"/>
+            </Grid>
+
+            <VerticalStackLayout Grid.Row="1" Padding="10">
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="*,*,*" ColumnSpacing="10" Padding="10">
+
+                    <Label Grid.Row="0" Grid.Column="0" Text="Vista:" FontSize="18" FontAttributes="Bold" />
+                    <Grid Grid.Row="1" Grid.ColumnSpan="3" RowDefinitions="Auto" ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="10">
+                        <RadioButton Grid.Row="0" Grid.Column="0"
+                                     GroupName="ViewModes"
+                                     Content="Agenda"
+                                     IsChecked="{Binding IsAgendaSelected, Mode=TwoWay}"/>
+                        <RadioButton Grid.Row="0" Grid.Column="1"
+                                     GroupName="ViewModes"
+                                     Content="Semana"
+                                     IsChecked="{Binding IsSemanaSelected, Mode=TwoWay}"/>
+                        <RadioButton Grid.Row="0" Grid.Column="2"
+                                     GroupName="ViewModes"
+                                     Content="Mes"
+                                     IsChecked="{Binding IsMesSelected, Mode=TwoWay}"/>
+                    </Grid>
+
+                    <Label Grid.Row="2" Grid.Column="0" Text="Tipos:" FontSize="18" FontAttributes="Bold" />
+                    <RadioButton Grid.Row="3" Grid.ColumnSpan="3" 
+                                 Content="Evento" 
+                                 GroupName="Evento" 
+                                 IsChecked="{Binding IsEventoChecked, Mode=TwoWay}" />
+                    <RadioButton Grid.Row="4" Grid.ColumnSpan="3" 
+                                 Content="Dia Festivo" 
+                                 GroupName="Dia Festivo" 
+                                 IsChecked="{Binding IsDiaFestivoChecked, Mode=TwoWay}" />
+                    <RadioButton Grid.Row="5" Grid.ColumnSpan="3" 
+                                 Content="Exámenes" 
+                                 GroupName="Exámenes" 
+                                 IsChecked="{Binding IsExamenesChecked, Mode=TwoWay}" />
+                    <RadioButton Grid.Row="6" Grid.ColumnSpan="3" 
+                                 Content="Tareas" 
+                                 GroupName="Tareas" 
+                                 IsChecked="{Binding IsTareasChecked, Mode=TwoWay}" />
+                    <RadioButton Grid.Row="7" Grid.ColumnSpan="3" 
+                                 Content="Becas" 
+                                 GroupName="Becas" 
+                                 IsChecked="{Binding IsBecasChecked, Mode=TwoWay}" />
+                    <RadioButton Grid.Row="8" Grid.ColumnSpan="3" 
+                                 Content="Admisiones" 
+                                 GroupName="Admisiones" 
+                                 IsChecked="{Binding IsAdmisionesChecked, Mode=TwoWay}" />
+
+                    <Grid Grid.Row="9" Grid.ColumnSpan="3" ColumnDefinitions="*,*" ColumnSpacing="10" Padding="0,20,0,0">
+                        <Button Grid.Column="0"
+                                Text="RESTAURAR"
+                                BackgroundColor="{StaticResource StaticButtonColorDarkGray}"
+                                TextColor="White"
+                                CornerRadius="20"
+                                HorizontalOptions="FillAndExpand"
+                                VerticalOptions="Center"
+                                HeightRequest="50"
+                                Clicked="OnRestorePopupFilterCalendarButtonClicked"/>
+
+                        <Button Grid.Column="1"
+                                Text="APLICAR"
+                                BackgroundColor="{StaticResource StaticButtonColorGreen}"
+                                TextColor="White"
+                                CornerRadius="20"
+                                HorizontalOptions="FillAndExpand"
+                                VerticalOptions="Center"
+                                HeightRequest="50"
+                                Clicked="OnSendPopupFilterCalendarButtonClicked"/>
+                    </Grid>
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </Frame>
+</mopups:PopupPage>

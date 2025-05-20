@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mopups:PopupPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               x:Class="EscolarAppPadres.Views.FiltersPopup.PopupFilterReadEventCalendarView"
+               xmlns:mopups="clr-namespace:Mopups.Pages;assembly=Mopups"
+               xmlns:mopupsani="clr-namespace:Mopups.Animations;assembly=Mopups"
+               CloseWhenBackgroundIsClicked="True"
+               BackgroundInputTransparent="False"
+               BackgroundColor="#80000000" >
+
+    <mopups:PopupPage.Animation>
+        <mopupsani:MoveAnimation 
+            DurationIn="700"
+            EasingIn="CubicInOut" 
+            PositionIn="Bottom" 
+            PositionOut="Bottom" 
+            HasBackgroundAnimation="True" />
+    </mopups:PopupPage.Animation>
+    <Frame Padding="0" Margin="15" CornerRadius="25" BackgroundColor="White" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand" HasShadow="True" BorderColor="Gray">
+        <Grid RowDefinitions="Auto,*">
+
+            <Grid Grid.Row="0" BackgroundColor="{ StaticResource StaticBorderDarkGray }" Padding="10" RowDefinitions="Auto" ColumnDefinitions="*,Auto">
+
+                <Label x:Name="LeerNoticiaLabel" Grid.Column="0" Text="LEER NOTICIA" FontSize="18" FontAttributes="Bold" TextColor="White" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
+
+                <ImageButton Grid.Column="1"
+                     Source="close_outline.svg"
+                     WidthRequest="30"
+                     HeightRequest="30"
+                     BackgroundColor="White"
+                     BorderColor="Transparent"
+                     VerticalOptions="Center"
+                     CornerRadius="20"
+                     HorizontalOptions="End"
+                     Clicked="OnClosePopupFilterEventCalendarReminderButtonClicked"/>
+            </Grid>
+
+            <VerticalStackLayout Grid.Row="1" Padding="10">
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="*,*" ColumnSpacing="20" Padding="10">
+
+                    <Button Grid.Row="0"
+                            Grid.ColumnSpan="2"
+                            Text="AGREGAR AL CALENDARIO"
+                            BackgroundColor="{StaticResource StaticButtonColorGreen}"
+                            TextColor="White"
+                            CornerRadius="20"
+                            HorizontalOptions="FillAndExpand"
+                            VerticalOptions="Center"
+                            HeightRequest="50"
+                            Clicked="OnAddToEventCalendarClicked"/>
+
+                    <Label Grid.Row="1" Grid.ColumnSpan="2" Text="Programar notificaciones" FontSize="18" FontAttributes="Bold" Margin="10"/>
+
+                    <Grid Grid.Row="2" Grid.ColumnSpan="2">
+                        <CollectionView ItemsSource="{Binding RemindNotificationOptions}" 
+                            SelectionMode="Single"
+                            SelectedItem="{Binding SelectedNotification}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border x:Name="itemBorder"
+                                            Stroke="Gray"
+                                            StrokeThickness="2"
+                                            Padding="10"
+                                            HeightRequest="60">
+
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="{Binding CornerRadius}" />
+                                        </Border.StrokeShape>
+
+                                        <StackLayout Orientation="Horizontal" Spacing="10">
+                                            <Image Source="{Binding Icon}" WidthRequest="30" HeightRequest="30" VerticalOptions="Center"/>
+                                            <Label Text="{Binding Label}" VerticalOptions="Center" FontSize="16"/>
+                                        </StackLayout>
+
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroup Name="CommonStates">
+                                                <VisualState Name="Normal">
+                                                    <VisualState.Setters>
+                                                        <Setter TargetName="itemBorder" Property="BackgroundColor" Value="Transparent"/>
+                                                        <Setter TargetName="itemBorder" Property="Stroke" Value="Gray"/>
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                                <VisualState Name="Selected">
+                                                    <VisualState.Setters>
+                                                        <Setter TargetName="itemBorder" Property="BackgroundColor" Value="Transparent"/>
+                                                        <Setter TargetName="itemBorder" Property="Stroke" Value="#008347"/>
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Grid>
+
+                    <Grid Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="0.2*, 0.3*, 0.3*, 0.2*">
+                        <Label Grid.Column="0"
+                               Text="Fecha: "
+                               VerticalOptions="Center"
+                               HorizontalOptions="End"
+                               FontSize="15"
+                               FontAttributes="Bold"/>
+
+                        <DatePicker Grid.Column="1"
+                                    FontSize="15"
+                                    FontAttributes="Bold"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Start"
+                                    Date="{Binding SelectedNotification.SelectedDate}" 
+                                    Format="dd/MM/yyyy"/>
+
+                        <Label Grid.Column="2"
+                               Text="Hora: "
+                               VerticalOptions="Center"
+                               HorizontalOptions="End"
+                               FontSize="15"
+                               FontAttributes="Bold"/>
+
+                        <TimePicker Grid.Column="3"
+                                    FontSize="15"
+                                    FontAttributes="Bold"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Start"
+                                    Time="{Binding SelectedNotification.SelectedTime}" 
+                                    Format="t" />
+                    </Grid>
+
+                    <Grid Grid.Row="4" Grid.ColumnSpan="2" ColumnDefinitions="*,*" ColumnSpacing="10" Padding="0,20,0,0">
+                        <Button Grid.Column="0"
+                                Text="CANCELAR"
+                                BackgroundColor="{StaticResource StaticButtonColorDarkGray}"
+                                TextColor="White"
+                                CornerRadius="20"
+                                HorizontalOptions="FillAndExpand"
+                                VerticalOptions="Center"
+                                HeightRequest="50"
+                                Clicked="OnCancelFilterEventCalendarReminderButtonClicked"/>
+
+                        <Button Grid.Column="1"
+                                Text="RECORDAR"
+                                BackgroundColor="{StaticResource StaticButtonColorGreen}"
+                                TextColor="White"
+                                CornerRadius="20"
+                                HorizontalOptions="FillAndExpand"
+                                VerticalOptions="Center"
+                                HeightRequest="50"
+                                Clicked="OnSendPopupEventFilterCalendarReminderButtonClicked"/>
+                    </Grid>
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </Frame>
+</mopups:PopupPage>

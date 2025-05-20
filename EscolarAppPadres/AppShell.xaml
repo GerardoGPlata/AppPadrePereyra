@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="EscolarAppPadres.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:EscolarAppPadres"
+    xmlns:news="clr-namespace:EscolarAppPadres.Views.News"
+    xmlns:school="clr-namespace:EscolarAppPadres.Views.School"
+    xmlns:account="clr-namespace:EscolarAppPadres.Views.Account"
+    xmlns:calendar="clr-namespace:EscolarAppPadres.Views.Calendar"
+    Shell.FlyoutBehavior="Disabled"
+    Title="EscolarAppAlumnos">
+
+    <Shell.Resources>
+        <Style TargetType="Shell">
+            <Setter Property="BackgroundColor" Value="{StaticResource ToolbarBackgroundColor}" />
+            <Setter Property="ForegroundColor" Value="{StaticResource ToolbarTextColor}" />
+        </Style>
+
+        <Style TargetType="TabBar">
+            <Setter Property="Shell.TabBarBackgroundColor" Value="{StaticResource TabBarBackgroundColor}" />
+        </Style>
+
+        <Style TargetType="ShellContent">
+            <Setter Property="Shell.TabBarForegroundColor" Value="{StaticResource TabBarSelectedColor}" />
+            <Setter Property="Shell.TabBarTitleColor" Value="{StaticResource TabBarTitleColor}" />
+            <Setter Property="Shell.TabBarUnselectedColor" Value="{StaticResource TabBarUnselectedColor}" />
+        </Style>
+    </Shell.Resources>
+
+    <TabBar>
+        <Tab Title="Noticias" Icon="newspaper_outline.svg">
+            <ShellContent 
+                ContentTemplate="{DataTemplate news:NewsView}"
+                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+                Shell.TitleColor="White" />
+        </Tab>
+
+        <Tab Title="Calendario" Icon="calendar_outline.svg">
+            <ShellContent 
+                ContentTemplate="{DataTemplate calendar:CalendarView}"
+                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+                Shell.TitleColor="White" />
+        </Tab>
+
+        <Tab Title="Escolar" Icon="school_outline.svg">
+            <ShellContent
+                Title="Materias"
+                Icon="subjects_icon.png"
+                ContentTemplate="{DataTemplate school:SubjectsView}"
+                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+                Shell.TitleColor="White" />
+
+            <ShellContent
+                Title="Inasistencias"
+                Icon="absences_icon.png"
+                ContentTemplate="{DataTemplate school:AbsencesView}"
+                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+                Shell.TitleColor="White" />
+
+            <ShellContent
+                Title="Calificaciones"
+                Icon="qualifications_icon.png"
+                ContentTemplate="{DataTemplate school:QualificationsView}"
+                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+                Shell.TitleColor="White" />
+        </Tab>
+
+        <Tab Title="Cuenta" Icon="person_outline.svg">
+            <ShellContent
+                 Route="AccountView"
+                 ContentTemplate="{DataTemplate account:AccountView}"
+                 Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+                Shell.TitleColor="White" />
+        </Tab>
+    </TabBar>
+
+    <!-- Rutas -->
+    <ShellContent 
+        Route="PrivacyView"
+        ContentTemplate="{ DataTemplate account:PrivacyView }" />
+
+    <ShellContent 
+        Route="ChangePasswordView"
+        ContentTemplate="{ DataTemplate account:ChangePasswordView }" />
+    
+    <ShellContent 
+        Route="VinculoView"
+        ContentTemplate="{ DataTemplate news:VinculoView }" />
+</Shell>

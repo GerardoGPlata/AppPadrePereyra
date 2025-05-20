@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EscolarAppPadres.Views.Login.StudentLoginView"
+             xmlns:handlers="clr-namespace:EscolarAppPadres.Handlers"
+             Title="StudentLoginView"
+             BackgroundColor="{ StaticResource StaticBackgroundColorLight }">
+
+    <ScrollView>
+        <VerticalStackLayout
+        Padding="30,0"
+        Spacing="25"
+        VerticalOptions="Center">
+
+            <Image Source="icono_logo.png" HeightRequest="200" WidthRequest="200" />
+
+            <VerticalStackLayout Spacing="5">
+                <Label Text="¡Bienvenido!" FontSize="28" TextColor="Black" HorizontalTextAlignment="Center"/>
+                <Label Text="Inicie sesión en su cuenta" FontSize="18" TextColor="Black" HorizontalTextAlignment="Center"/>
+            </VerticalStackLayout>
+
+            <StackLayout Orientation="Horizontal">
+                <Frame ZIndex="1" HasShadow="True" BorderColor="White" HeightRequest="56" WidthRequest="56" CornerRadius="28">
+                    <Image Source="reader_outline.svg" HeightRequest="20" WidthRequest="20"/>
+                </Frame>
+                <Frame ZIndex="1" HeightRequest="45" Margin="-20,0,0,0" Padding="0" HasShadow="True" BorderColor="White" HorizontalOptions="FillAndExpand">
+                    <handlers:BorderEntry x:Name="MatriculaEntry" 
+                                          VerticalOptions="Center" 
+                                          Margin="20,0,0,0" 
+                                          Placeholder="Matricula" 
+                                          PlaceholderColor="Gray" 
+                                          TextColor="Black" 
+                                          Keyboard="Numeric"
+                                          Text="{Binding Matricula, Mode=TwoWay}"/>
+                </Frame>
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal">
+                <Frame ZIndex="1" HasShadow="True" BorderColor="White" HeightRequest="56" WidthRequest="56" CornerRadius="28">
+                    <Image Source="person_outline.svg" HeightRequest="20" WidthRequest="20"/>
+                </Frame>
+                <Frame ZIndex="1" HeightRequest="45" Margin="-20,0,0,0" Padding="0" HasShadow="True" BorderColor="White" HorizontalOptions="FillAndExpand">
+                    <handlers:BorderEntry x:Name="EmailEntry" 
+                                          VerticalOptions="Center" 
+                                          Margin="20,0,0,0" 
+                                          Placeholder="Correo electónico" 
+                                          PlaceholderColor="Gray" 
+                                          TextColor="Black" 
+                                          Keyboard="Email"
+                                          Text="{Binding Email, Mode=TwoWay}"/>
+                </Frame>
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal">
+                <Frame ZIndex="1" HasShadow="True" BorderColor="White" HeightRequest="56" WidthRequest="56" CornerRadius="28">
+                    <Image Source="lock_closed_outline.svg" HeightRequest="20" WidthRequest="20"/>
+                </Frame>
+
+                <Frame ZIndex="1" HeightRequest="45" Margin="-20,0,0,0" Padding="0" HasShadow="True" BorderColor="White" HorizontalOptions="FillAndExpand">
+                    <Grid>
+                        <handlers:BorderEntry x:Name="PasswordEntry"
+                                              VerticalOptions="Center"
+                                              Margin="20,0,40,0"
+                                              Placeholder="Contraseña"
+                                              PlaceholderColor="Gray"
+                                              TextColor="Black"
+                                              IsPassword="True"
+                                              Text="{Binding Password, Mode=TwoWay}"/>
+
+                        <ImageButton x:Name="TogglePasswordVisibilityButton"
+                                     Source="eye_off_outline.svg"
+                                     WidthRequest="24"
+                                     HeightRequest="24"
+                                     VerticalOptions="Center"
+                                     HorizontalOptions="End"
+                                     Margin="0,0,10,0"
+                                     Clicked="OnTogglePasswordVisibilityClicked"/>
+                    </Grid>
+                </Frame>
+            </StackLayout>
+
+            <Button x:Name="LoginButton" 
+                Text="Iniciar Sesión"
+                TextColor="{Binding LoginButtonTextColor}"
+                WidthRequest="200" 
+                CornerRadius="20" 
+                HorizontalOptions="Center" 
+                BackgroundColor="{Binding LoginButtonBackgroundColor}"
+                BorderColor="#008347"
+                BorderWidth="2"
+                Command="{ Binding LoginCommand }"/>
+
+            <StackLayout Orientation="Horizontal" Spacing="5" HorizontalOptions="Center">
+                <Label Text="¿Olvidaste la contraseña?" TextColor="Black" FontAttributes="Bold">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{ Binding ForgotPasswordCommand }"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </StackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

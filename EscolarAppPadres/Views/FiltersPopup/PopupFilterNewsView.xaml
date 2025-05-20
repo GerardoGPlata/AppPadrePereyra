@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mopups:PopupPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               x:Class="EscolarAppPadres.Views.FiltersPopup.PopupFilterNewsView"
+               xmlns:mopups="clr-namespace:Mopups.Pages;assembly=Mopups"
+               xmlns:mopupsani="clr-namespace:Mopups.Animations;assembly=Mopups"
+               CloseWhenBackgroundIsClicked="True"
+               BackgroundInputTransparent="False"
+               BackgroundColor="#80000000" >
+
+    <mopups:PopupPage.Animation>
+        <mopupsani:MoveAnimation 
+            DurationIn="700"
+            EasingIn="CubicInOut" 
+            PositionIn="Bottom" 
+            PositionOut="Bottom" 
+            HasBackgroundAnimation="True" />
+    </mopups:PopupPage.Animation>
+    <Frame Padding="0" Margin="15" CornerRadius="25" BackgroundColor="White" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand" HasShadow="True" BorderColor="Gray">
+        <Grid RowDefinitions="Auto,*">
+
+            <Grid Grid.Row="0" BackgroundColor="{ StaticResource StaticBorderDarkGray }" Padding="10" RowDefinitions="Auto" ColumnDefinitions="*,Auto">
+
+                <Label Grid.Column="0" Text="FILTRAR" FontSize="18" FontAttributes="Bold" TextColor="White" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
+
+                <ImageButton Grid.Column="1"
+                             Source="close_outline.svg"
+                             WidthRequest="30"
+                             HeightRequest="30"
+                             BackgroundColor="White"
+                             BorderColor="Transparent"
+                             VerticalOptions="Center"
+                             CornerRadius="20"
+                             HorizontalOptions="End"
+                             Clicked="OnClosePopupFilterNewsButtonClicked"/>
+            </Grid>
+
+            <VerticalStackLayout Grid.Row="1" Padding="10">
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,*" ColumnSpacing="10" Padding="10">
+
+                    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Tipo:" FontSize="18" FontAttributes="Bold" />
+                    <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Spacing="5">
+                        <CheckBox IsChecked="{Binding FiltroNoLeidos, Mode=TwoWay}" />
+                        <Label Text="No leídos" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Spacing="5">
+                        <CheckBox IsChecked="{Binding FiltroLeidos, Mode=TwoWay}" />
+                        <Label Text="Leídos" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <Grid Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="*,*" ColumnSpacing="10" Padding="0,20,0,0">
+                        <Button Grid.Column="0"
+                                Text="RESTAURAR" 
+                                BackgroundColor="{StaticResource StaticButtonColorDarkGray}" 
+                                TextColor="White"
+                                CornerRadius="20"
+                                HeightRequest="50"
+                                WidthRequest="130"
+                                HorizontalOptions="FillAndExpand" 
+                                VerticalOptions="FillAndExpand"
+                                Clicked="OnRestorePopupFilterNewsButtonClicked"/>
+
+                        <Button Grid.Column="1"
+                                Text="APLICAR" 
+                                BackgroundColor="{StaticResource StaticButtonColorGreen}" 
+                                TextColor="White"
+                                CornerRadius="20"
+                                HeightRequest="50"
+                                WidthRequest="130"
+                                HorizontalOptions="FillAndExpand" 
+                                VerticalOptions="FillAndExpand"
+                                Clicked="OnSendReadPopupFilterNewsButtonClicked"/>
+                    </Grid>
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </Frame>
+
+</mopups:PopupPage>

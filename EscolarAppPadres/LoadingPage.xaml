@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+             x:Class="EscolarAppPadres.LoadingPage">
+
+    <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+        <Image x:Name="LoadingLogo" Source="icono_logo.png" HeightRequest="200" WidthRequest="200"
+           HorizontalOptions="Center" />
+
+        <Image x:Name="LoadingIcon"
+           Source="reload_outline.svg"
+           WidthRequest="45"
+           HeightRequest="45"
+           IsVisible="False"
+           HorizontalOptions="Center" />
+
+        <core:SfBusyIndicator x:Name="busyIndicator"
+                          IsRunning="True"
+                          Title="Cargando..."
+                          AnimationType="CircularMaterial"
+                          IndicatorColor="#303030"
+                          FontAttributes="Bold"
+                          FontSize="16"
+                          TitleSpacing="20"
+                          WidthRequest="150"
+                          HeightRequest="150"/>
+
+        <Label x:Name="LoadingText"
+           Text="Cargando..."
+           FontSize="18"
+           TextColor="Black"
+           IsVisible="False"
+           FontAttributes="Bold"
+           HorizontalOptions="Center" />
+    </StackLayout>
+
+</ContentPage>
