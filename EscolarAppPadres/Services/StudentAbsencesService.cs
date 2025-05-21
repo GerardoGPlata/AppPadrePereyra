@@ -28,7 +28,7 @@ namespace EscolarAppPadres.Services
             };
         }
 
-        public async Task<ResponseModel<StudentAbsence>?> GetAbsencesAsync(string token)
+        public async Task<ResponseModel<StudentAbsence>?> GetAbsencesAsync(string token, string studentId)
         {
             const int timeoutSeconds = 30;
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
@@ -37,7 +37,8 @@ namespace EscolarAppPadres.Services
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                var url = $"{ApiRoutes.BaseUrl}{ApiRoutes.StudentAbsences.GetStudentAbsences}";
+                // Reemplazar {studentId} en la URL
+                var url = $"{ApiRoutes.BaseUrl}{ApiRoutes.StudentAbsences.GetStudentAbsences.Replace("{studentId}", studentId)}";
                 Console.WriteLine($"URL de la solicitud: {url}");
 
                 var response = await _httpClient.GetAsync(url, cts.Token);
@@ -81,7 +82,7 @@ namespace EscolarAppPadres.Services
                     Valoration = tempResponse.Valoration,
                     Message = tempResponse.Message,
                     Log = tempResponse.Log?.ToString(),
-                    Data = tempResponse.Data?.SelectMany(d => d).ToList() // Aplanar la lista de listas
+                    Data = tempResponse.Data?.FirstOrDefault() ?? new List<StudentAbsence>()
                 };
             }
             catch (JsonException jsonEx)
@@ -127,7 +128,7 @@ namespace EscolarAppPadres.Services
             public bool Valoration { get; set; }
             public string Message { get; set; }
             public object Log { get; set; }
-            public List<List<StudentAbsence>> Data { get; set; }  // Cambiado para reflejar la estructura de la respuesta
+            public List<List<StudentAbsence>> Data { get; set; }
         }
     }
 }

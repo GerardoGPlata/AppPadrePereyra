@@ -66,10 +66,11 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
 		<PackageReference Include="Mopups" Version="1.3.2" />
 		<PackageReference Include="Plugin.Maui.Calendar" Version="1.2.2" />
-		<PackageReference Include="Syncfusion.Maui.Core" Version="29.2.4" />
-		<PackageReference Include="Syncfusion.Maui.DataGrid" Version="29.2.4" />
-		<PackageReference Include="Syncfusion.Maui.ListView" Version="29.2.4" />
-		<PackageReference Include="Syncfusion.Maui.Popup" Version="29.2.4" />
+		<PackageReference Include="Syncfusion.Maui.Core" Version="29.2.5" />
+		<PackageReference Include="Syncfusion.Maui.DataGrid" Version="29.2.5" />
+		<PackageReference Include="Syncfusion.Maui.ListView" Version="29.2.5" />
+		<PackageReference Include="Syncfusion.Maui.Picker" Version="29.2.5" />
+		<PackageReference Include="Syncfusion.Maui.Popup" Version="29.2.5" />
 	</ItemGroup>
 
 	<ItemGroup>

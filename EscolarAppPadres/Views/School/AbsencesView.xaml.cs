@@ -1,20 +1,22 @@
 using EscolarAppPadres.ViewModels.Absences;
 
-namespace EscolarAppPadres.Views.School;
-
-public partial class AbsencesView : ContentPage
+namespace EscolarAppPadres.Views.School
 {
-	private readonly StudentAbsencesViewModel _studentAbsenceViewModel;
-    public AbsencesView()
-	{
-		InitializeComponent();
-        _studentAbsenceViewModel = new StudentAbsencesViewModel();
-        BindingContext = _studentAbsenceViewModel;
-    }
-
-    protected override async void OnAppearing()
+    public partial class AbsencesView : ContentPage
     {
-        base.OnAppearing();
-        await _studentAbsenceViewModel.LoadAbsencesAsync();
+        private readonly StudentAbsencesViewModel _studentAbsenceViewModel;
+
+        public AbsencesView()
+        {
+            InitializeComponent();
+            _studentAbsenceViewModel = new StudentAbsencesViewModel();
+            BindingContext = _studentAbsenceViewModel;
+        }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await _studentAbsenceViewModel.InitializeAsync();
+        }
     }
 }

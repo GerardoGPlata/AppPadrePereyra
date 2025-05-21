@@ -1,0 +1,78 @@
+## Build results
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+*.log
+
+## VS temporary files
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## OS files
+.DS_Store
+Thumbs.db
+
+## Rider / JetBrains
+.idea/
+*.sln.iml
+
+## MAUI specific
+*.apk
+*.aab
+*.ipa
+*.app
+*.xcuserstate
+*.xcworkspace
+*.xcodeproj
+*.xcconfig
+
+# Android specific
+platforms/android/app/build/
+platforms/android/.gradle/
+platforms/android/.idea/
+platforms/android/local.properties
+.gradle/
+local.properties
+
+# iOS specific
+platforms/ios/build/
+platforms/ios/Pods/
+platforms/ios/DerivedData/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+
+## Node / npm (si usas librerías JS para UI)
+node_modules/
+npm-debug.log
+package-lock.json
+
+## Others
+*.pdb
+*.mdb
+*.db
+*.cache
+*.bak
+*.swp
+*.tmp
+*.ncb
+*.aps
+*.ilk
+*.map
+*.obj
+*.tlog
+*.vspscc
+*.vssscc
+
+# Exclude secrets/settings
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# MAUI Hot Reload cache
+.maui-cache/

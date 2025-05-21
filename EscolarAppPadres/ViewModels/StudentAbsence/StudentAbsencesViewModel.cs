@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -15,29 +16,39 @@ namespace EscolarAppPadres.ViewModels.Absences
     {
         private readonly StudentAbsencesService _absencesService;
 
-        private ObservableCollection<StudentAbsence> _studentAbsences;
+        public ObservableCollection<StudentAbsence> StudentAbsences { get; set; }
+        public ObservableCollection<Hijo> Hijos { get; set; } = new ObservableCollection<Hijo>();
+
+        private Hijo _selectedHijo;
+        public Hijo SelectedHijo
+        {
+            get => _selectedHijo;
+            set
+            {
+                if (_selectedHijo != value)
+                {
+                    _selectedHijo = value;
+                    OnPropertyChanged(nameof(SelectedHijo));
+                    _ = LoadAbsencesAsync(); // Cargar al cambiar hijo
+                }
+            }
+        }
+
         private bool _isRefreshing;
-        private bool _sinResultados;
-        private bool _isLoading;
-
-        public ObservableCollection<StudentAbsence> StudentAbsences
-        {
-            get => _studentAbsences;
-            set { _studentAbsences = value; OnPropertyChanged(nameof(StudentAbsences)); }
-        }
-
-        public bool SinResultados
-        {
-            get => _sinResultados;
-            set { _sinResultados = value; OnPropertyChanged(nameof(SinResultados)); }
-        }
-
         public bool IsRefreshing
         {
             get => _isRefreshing;
             set { _isRefreshing = value; OnPropertyChanged(nameof(IsRefreshing)); }
         }
 
+        private bool _sinResultados;
+        public bool SinResultados
+        {
+            get => _sinResultados;
+            set { _sinResultados = value; OnPropertyChanged(nameof(SinResultados)); }
+        }
+
+        private bool _isLoading;
         public bool IsLoading
         {
             get => _isLoading;
@@ -71,8 +82,13 @@ namespace EscolarAppPadres.ViewModels.Absences
             try
             {
                 var token = await SecureStorage.GetAsync("auth_token");
-                var profileId = await SecureStorage.GetAsync("Tipo_Usuario_Id");
-                var alumnoId = await SecureStorage.GetAsync("Alumno_Id");
+                string alumnoId = SelectedHijo?.AlumnoId.ToString();
+
+                if (string.IsNullOrEmpty(alumnoId))
+                {
+                    await DialogsHelper2.ShowErrorMessage("Seleccione un hijo válido.");
+                    return;
+                }
 
                 if (string.IsNullOrEmpty(token))
                 {
@@ -80,13 +96,7 @@ namespace EscolarAppPadres.ViewModels.Absences
                     return;
                 }
 
-                if (!long.TryParse(profileId, out _) || !long.TryParse(alumnoId, out _))
-                {
-                    await DialogsHelper2.ShowErrorMessage("Información del usuario inválida.");
-                    return;
-                }
-
-                var response = await _absencesService.GetAbsencesAsync(token);
+                var response = await _absencesService.GetAbsencesAsync(token, alumnoId);
 
                 StudentAbsences.Clear();
 
@@ -113,10 +123,45 @@ namespace EscolarAppPadres.ViewModels.Absences
             }
         }
 
+        public async Task LoadChildrenData()
+        {
+            try
+            {
+                var childrenJson = await SecureStorage.GetAsync("Hijos");
+
+                if (!string.IsNullOrEmpty(childrenJson))
+                {
+                    var hijos = JsonSerializer.Deserialize<List<Hijo>>(childrenJson);
+
+                    if (hijos != null)
+                    {
+                        Hijos.Clear();
+                        foreach (var hijo in hijos)
+                        {
+                            Hijos.Add(hijo);
+                            Console.WriteLine($"AlumnoID: {hijo.AlumnoId}, NombreCompleto: {hijo.NombreCompleto}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cargando hijos: {ex.Message}");
+            }
+        }
+
+        public async Task InitializeAsync()
+        {
+            await LoadChildrenData();
+
+            if (Hijos.Any())
+            {
+                SelectedHijo = Hijos.First(); // Triggea LoadAbsencesAsync()
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-
 }
