@@ -3,7 +3,7 @@ using EscolarAppPadres.Models;
 using EscolarAppPadres.Models.Response;
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading;
@@ -27,7 +27,7 @@ namespace EscolarAppPadres.Services
             };
         }
 
-        public async Task<ResponseModel<EvaluationPeriod>?> GetGradesAsync(string token)
+        public async Task<ResponseModel<EvaluationPeriod>?> GetGradesAsync(string token, string studentId)
         {
             const int timeoutSeconds = 30;
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
@@ -35,7 +35,7 @@ namespace EscolarAppPadres.Services
             try
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var url = $"{ApiRoutes.BaseUrl}{ApiRoutes.StudentGrades.GetStudentGrades}";
+                var url = $"{ApiRoutes.BaseUrl}{ApiRoutes.StudentGrades.GetStudentGrades.Replace("{studentId}", studentId)}";
                 Console.WriteLine($"URL de la solicitud: {url}");
 
                 var response = await _httpClient.GetAsync(url, cts.Token);

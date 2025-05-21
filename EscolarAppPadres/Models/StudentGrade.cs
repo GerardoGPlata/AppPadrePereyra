@@ -14,8 +14,8 @@ namespace EscolarAppPadres.Models
         public string MateriaNombre { get; set; }
         public string NombreCorto { get; set; }
         public decimal? Calificacion { get; set; }
-        public string Ponderacion { get; set; }
-        public string Observacion { get; set; }
+        public string? Ponderacion { get; set; }
+        public string? Observacion { get; set; }
         public int? CalificacionFinalPeriodoPorAlumnoId { get; set; }
         public bool SeImprimeEnBoleta { get; set; }
     }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -17,42 +18,44 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
         public Dictionary<string, double?> CalificacionesPorPeriodo { get; set; } = new();
     }
 
-
-    class StudentGradeViewModel : INotifyPropertyChanged
+    public class StudentGradeViewModel : INotifyPropertyChanged
     {
         #region Services
         private readonly GradeService _gradeService;
         #endregion
 
         #region Properties
-        private ObservableCollection<EvaluationPeriod> _evaluationPeriods;
-        private ObservableCollection<SubjectGrades> _materiasConCalificaciones;
-        private bool _isRefreshing;
-        private bool _sinResultados;
+        public ObservableCollection<EvaluationPeriod> EvaluationPeriods { get; set; } = new();
+        public ObservableCollection<SubjectGrades> MateriasConCalificaciones { get; set; } = new();
+        public ObservableCollection<Hijo> Hijos { get; set; } = new();
 
-        public ObservableCollection<EvaluationPeriod> EvaluationPeriods
+        private List<string> _nombresPeriodos = new();
+        public List<string> NombresPeriodos
         {
-            get => _evaluationPeriods;
+            get => _nombresPeriodos;
             set
             {
-                _evaluationPeriods = value;
-                OnPropertyChanged(nameof(EvaluationPeriods));
+                _nombresPeriodos = value;
+                OnPropertyChanged(nameof(NombresPeriodos));
             }
         }
 
-        public bool SinResultados
+        private Hijo _selectedHijo;
+        public Hijo SelectedHijo
         {
-            get => _sinResultados;
+            get => _selectedHijo;
             set
             {
-                if (_sinResultados != value)
+                if (_selectedHijo != value)
                 {
-                    _sinResultados = value;
-                    OnPropertyChanged(nameof(SinResultados));
+                    _selectedHijo = value;
+                    OnPropertyChanged(nameof(SelectedHijo));
+                    _ = LoadGradesAsync(); // Al cambiar hijo, cargar calificaciones
                 }
             }
         }
 
+        private bool _isRefreshing;
         public bool IsRefreshing
         {
             get => _isRefreshing;
@@ -60,6 +63,17 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             {
                 _isRefreshing = value;
                 OnPropertyChanged(nameof(IsRefreshing));
+            }
+        }
+
+        private bool _sinResultados;
+        public bool SinResultados
+        {
+            get => _sinResultados;
+            set
+            {
+                _sinResultados = value;
+                OnPropertyChanged(nameof(SinResultados));
             }
         }
         #endregion
@@ -72,15 +86,41 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
         public StudentGradeViewModel()
         {
             _gradeService = new GradeService();
-            EvaluationPeriods = new ObservableCollection<EvaluationPeriod>();
-            MateriasConCalificaciones = new ObservableCollection<SubjectGrades>();
             LoadGradesCommand = new Command(async () => await LoadGradesAsync());
         }
         #endregion
 
         #region Methods
-        public ObservableCollection<SubjectGrades> MateriasConCalificaciones { get; set; } = new();
-        public List<string> NombresPeriodos { get; set; } = new();
+        public async Task InitializeAsync()
+        {
+            await LoadChildrenData();
+
+            if (Hijos.Any())
+                SelectedHijo = Hijos.First(); // Esto dispara LoadGradesAsync
+        }
+
+        private async Task LoadChildrenData()
+        {
+            try
+            {
+                var json = await SecureStorage.GetAsync("Hijos");
+
+                if (!string.IsNullOrEmpty(json))
+                {
+                    var hijos = JsonSerializer.Deserialize<List<Hijo>>(json);
+                    if (hijos != null)
+                    {
+                        Hijos.Clear();
+                        foreach (var hijo in hijos)
+                            Hijos.Add(hijo);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cargando hijos: {ex.Message}");
+            }
+        }
 
         public async Task LoadGradesAsync()
         {
@@ -90,95 +130,84 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             try
             {
                 var token = await SecureStorage.GetAsync("auth_token");
-                var profileId = await SecureStorage.GetAsync("Tipo_Usuario_Id");
-                var alumnoId = await SecureStorage.GetAsync("Alumno_Id");
-
-                if (string.IsNullOrEmpty(token))
+                var profileId = "3";
+                //var alumnoId = await SecureStorage.GetAsync("Alumno_Id");
+                var alumnoId = SelectedHijo?.AlumnoId.ToString();
+                if (string.IsNullOrEmpty(alumnoId))
                 {
-                    await DialogsHelper2.ShowErrorMessage("Sesión expirada. Por favor inicie sesión nuevamente.");
+                    await DialogsHelper2.ShowErrorMessage("Seleccione un hijo válido.");
                     return;
                 }
 
-                if (!long.TryParse(profileId, out _) || !long.TryParse(alumnoId, out _))
+
+                if (string.IsNullOrEmpty(token) || SelectedHijo == null)
+                {
+                    await DialogsHelper2.ShowErrorMessage("Sesión expirada o hijo no seleccionado.");
+                    return;
+                }
+
+                if (!long.TryParse(profileId, out _) || SelectedHijo.AlumnoId <= 0)
                 {
                     await DialogsHelper2.ShowErrorMessage("Información del usuario inválida.");
                     return;
                 }
 
-                var response = await _gradeService.GetGradesAsync(token);
+                var response = await _gradeService.GetGradesAsync(token, SelectedHijo.AlumnoId.ToString());
 
-                if (response == null)
+                if (response == null || response.Data == null || !response.Data.Any())
                 {
-                    await DialogsHelper2.ShowErrorMessage("No se recibió respuesta del servidor.");
+                    SinResultados = true;
                     return;
                 }
 
-                if (response.Data != null && response.Data.Any())
+                EvaluationPeriods.Clear();
+                MateriasConCalificaciones.Clear();
+
+                foreach (var period in response.Data)
+                    EvaluationPeriods.Add(period);
+
+                var materias = response.Data
+                    .SelectMany(p => p.Calificaciones)
+                    .GroupBy(c => c.MateriaNombre)
+                    .Select(g => g.Key)
+                    .ToList();
+
+                NombresPeriodos = response.Data.Select(p => p.DescripcionCorta).ToList();
+
+                foreach (var materia in materias)
                 {
-                    EvaluationPeriods.Clear();
-                    foreach (var period in response.Data)
-                        EvaluationPeriods.Add(period);
+                    var calificaciones = new Dictionary<string, double?>();
 
-                    // Obtener nombres únicos de materias
-                    var materias = response.Data
-                        .SelectMany(p => p.Calificaciones)
-                        .GroupBy(c => c.MateriaNombre)
-                        .Select(g => g.Key)
-                        .ToList();
-
-                    // Obtener nombres de periodos
-                    NombresPeriodos = response.Data
-                        .Select(p => p.DescripcionCorta)
-                        .ToList();
-
-                    // Construir la colección de MateriasConCalificaciones
-                    MateriasConCalificaciones.Clear();
-                    foreach (var materia in materias)
+                    foreach (var periodo in EvaluationPeriods)
                     {
-                        var calificacionesPorPeriodoDecimal = new Dictionary<string, decimal?>();
+                        var calificacion = periodo.Calificaciones
+                            .FirstOrDefault(c => c.MateriaNombre == materia)?.Calificacion;
 
-                        foreach (var periodo in EvaluationPeriods)
-                        {
-                            var calificacion = periodo.Calificaciones
-                                .FirstOrDefault(c => c.MateriaNombre == materia)?.Calificacion;
-
-                            calificacionesPorPeriodoDecimal[periodo.DescripcionCorta] = calificacion;
-                        }
-
-                        var calificacionesPorPeriodoDouble = calificacionesPorPeriodoDecimal
-                            .ToDictionary(
-                                kvp => kvp.Key,
-                                kvp => kvp.Value.HasValue ? (double?)kvp.Value.Value : null
-                            );
-
-                        MateriasConCalificaciones.Add(new SubjectGrades
-                        {
-                            MateriaNombre = materia,
-                            CalificacionesPorPeriodo = calificacionesPorPeriodoDouble
-                        });
+                        calificaciones[periodo.DescripcionCorta] = calificacion.HasValue ? (double?)calificacion.Value : null;
                     }
 
+                    MateriasConCalificaciones.Add(new SubjectGrades
+                    {
+                        MateriaNombre = materia,
+                        CalificacionesPorPeriodo = calificaciones
+                    });
+                }
 
-                    if (MateriasConCalificaciones.Count == 0)
-                        SinResultados = true;
-                }
-                else
-                {
+                if (MateriasConCalificaciones.Count == 0)
                     SinResultados = true;
-                }
             }
             catch (HttpRequestException)
             {
-                await DialogsHelper2.ShowErrorMessage("No se pudo conectar al servidor. Verifique su conexión a Internet e intente de nuevo.");
+                await DialogsHelper2.ShowErrorMessage("No se pudo conectar al servidor.");
             }
             catch (TaskCanceledException)
             {
-                await DialogsHelper2.ShowErrorMessage("La solicitud ha expirado. Intente nuevamente.");
+                await DialogsHelper2.ShowErrorMessage("La solicitud ha expirado.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error inesperado: {ex.Message}");
-                await DialogsHelper2.ShowErrorMessage("Ocurrió un error inesperado: " + ex.Message);
+                await DialogsHelper2.ShowErrorMessage("Error inesperado: " + ex.Message);
             }
             finally
             {
@@ -187,12 +216,9 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                 OnPropertyChanged(nameof(NombresPeriodos));
             }
         }
-
-
-       
         #endregion
 
-        #region INotifyPropertyChanged Implementation
+        #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
