@@ -9,7 +9,7 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = EscolarAppPadres
-build_property.ProjectDir = C:\Users\Gerardo\Documents\Proyectos RESO Sistemas\Pereyra\App Movil Padres\EscolarAppPadres\EscolarAppPadres\
+build_property.ProjectDir = C:\Users\Gerardo\Documents\Proyectos RESO Sistemas\Pereyra\AppPadrePereyra\EscolarAppPadres\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTAotOptimizerEnabled = true
@@ -23,151 +23,151 @@ build_property.CsWinRTUseWindowsUIXamlProjections = false
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/App.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/App.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.App.xaml
 build_metadata.AdditionalFiles.TargetPath = App.xaml
 build_metadata.AdditionalFiles.RelativePath = App.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/AppShell.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/AppShell.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.AppShell.xaml
 build_metadata.AdditionalFiles.TargetPath = AppShell.xaml
 build_metadata.AdditionalFiles.RelativePath = AppShell.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/LoadingPage.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/LoadingPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.LoadingPage.xaml
 build_metadata.AdditionalFiles.TargetPath = LoadingPage.xaml
 build_metadata.AdditionalFiles.RelativePath = LoadingPage.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/MainPage.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/MainPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.MainPage.xaml
 build_metadata.AdditionalFiles.TargetPath = MainPage.xaml
 build_metadata.AdditionalFiles.RelativePath = MainPage.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Resources/Styles/Colors.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Resources/Styles/Colors.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Resources.Styles.Colors.xaml
 build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Colors.xaml
 build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Colors.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Resources/Styles/Styles.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Resources/Styles/Styles.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Resources.Styles.Styles.xaml
 build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Styles.xaml
 build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Styles.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/Account/AccountView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/Account/AccountView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.Account.AccountView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\Account\AccountView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\Account\AccountView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/Account/ChangePasswordView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/Account/ChangePasswordView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.Account.ChangePasswordView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\Account\ChangePasswordView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\Account\ChangePasswordView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/Account/ColorPickerPopup.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/Account/ColorPickerPopup.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.Account.ColorPickerPopup.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\Account\ColorPickerPopup.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\Account\ColorPickerPopup.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/Account/PrivacyView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/Account/PrivacyView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.Account.PrivacyView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\Account\PrivacyView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\Account\PrivacyView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/Calendar/CalendarView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/Calendar/CalendarView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.Calendar.CalendarView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\Calendar\CalendarView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\Calendar\CalendarView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/Calendar/EventCalendar.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/Calendar/EventCalendar.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.Calendar.EventCalendar.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\Calendar\EventCalendar.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\Calendar\EventCalendar.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/FiltersPopup/PopupFilterCalendarView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/FiltersPopup/PopupFilterCalendarView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.FiltersPopup.PopupFilterCalendarView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\FiltersPopup\PopupFilterCalendarView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\FiltersPopup\PopupFilterCalendarView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/FiltersPopup/PopupFilterNewsView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/FiltersPopup/PopupFilterNewsView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.FiltersPopup.PopupFilterNewsView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\FiltersPopup\PopupFilterNewsView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\FiltersPopup\PopupFilterNewsView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/FiltersPopup/PopupFilterReadCalendarView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/FiltersPopup/PopupFilterReadCalendarView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.FiltersPopup.PopupFilterReadCalendarView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\FiltersPopup\PopupFilterReadCalendarView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\FiltersPopup\PopupFilterReadCalendarView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/FiltersPopup/PopupFilterReadEventCalendarView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/FiltersPopup/PopupFilterReadEventCalendarView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.FiltersPopup.PopupFilterReadEventCalendarView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\FiltersPopup\PopupFilterReadEventCalendarView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\FiltersPopup\PopupFilterReadEventCalendarView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/FiltersPopup/PopupFilterTasksView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/FiltersPopup/PopupFilterTasksView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.FiltersPopup.PopupFilterTasksView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\FiltersPopup\PopupFilterTasksView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\FiltersPopup\PopupFilterTasksView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/Login/ForgetPasswordView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/Login/ForgetPasswordView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.Login.ForgetPasswordView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\Login\ForgetPasswordView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\Login\ForgetPasswordView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/Login/StudentLoginView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/Login/StudentLoginView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.Login.StudentLoginView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\Login\StudentLoginView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\Login\StudentLoginView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/News/NewsView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/News/NewsView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.News.NewsView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\News\NewsView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\News\NewsView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/News/VinculoView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/News/VinculoView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.News.VinculoView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\News\VinculoView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\News\VinculoView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/School/AbsencesView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/School/AbsencesView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.School.AbsencesView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\School\AbsencesView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\School\AbsencesView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/School/QualificationsView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/School/QualificationsView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.School.QualificationsView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\School\QualificationsView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\School\QualificationsView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/School/SubjectsView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/School/SubjectsView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.School.SubjectsView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\School\SubjectsView.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\School\SubjectsView.xaml
 
-[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/App Movil Padres/EscolarAppPadres/EscolarAppPadres/Views/School/TasksView.xaml]
+[C:/Users/Gerardo/Documents/Proyectos RESO Sistemas/Pereyra/AppPadrePereyra/EscolarAppPadres/Views/School/TasksView.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = EscolarAppPadres.Views.School.TasksView.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\School\TasksView.xaml

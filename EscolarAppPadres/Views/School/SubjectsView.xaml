@@ -7,102 +7,123 @@
              Padding="{OnPlatform iOS='0,20,0,0', Android='0'}">
 
     <Grid>
-        <Grid>
-            <RefreshView x:Name="refreshView"
-                         Command="{Binding LoadSubjectsCommand}"
-                         IsRefreshing="{Binding IsRefreshing}">
+        <!-- Capa principal con el contenido -->
+        <RefreshView x:Name="refreshView"
+                     Command="{Binding LoadSubjectsCommand}"
+                     IsRefreshing="{Binding IsRefreshing}">
+            <ScrollView>
+                <StackLayout Padding="15" Spacing="15" Margin="0,0,0,60">
+                    <!-- Deja espacio para el picker flotante -->
+                    <Label Text="No se encontraron materias"
+                           FontSize="16"
+                           TextColor="Gray"
+                           HorizontalOptions="Center"
+                           IsVisible="{Binding SinResultados}" />
 
-                <ScrollView>
-                    <StackLayout Padding="15" Spacing="15">
-                        <Label Text="No se encontraron materias"
-                               FontSize="16"
-                               TextColor="Gray"
-                               HorizontalOptions="Center"
-                               IsVisible="{Binding SinResultados}" />
+                    <CollectionView x:Name="collectionView"
+                                    ItemsSource="{Binding StudentSubjects}"
+                                    SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame BackgroundColor="White"
+                                       CornerRadius="16"
+                                       HasShadow="True"
+                                       Margin="0,10"
+                                       Padding="20">
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={x:Reference collectionView}, Path=BindingContext.SubjectTappedCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Frame.GestureRecognizers>
+
+                                    <Grid ColumnDefinitions="*,Auto"
+                                          RowDefinitions="Auto,Auto">
+                                        <Label Text="{Binding Materia}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               TextColor="#273840"
+                                               TextTransform="Uppercase"
+                                               Grid.Row="0"
+                                               Grid.Column="0" />
+
+                                        <Label Text="{Binding Profesor, StringFormat='Prof. {0}'}"
+                                               FontSize="14"
+                                               FontAttributes="Italic"
+                                               TextColor="Gray"
+                                               Margin="0,4,0,0"
+                                               Grid.Row="1"
+                                               Grid.Column="0" />
+
+                                        <Image Source="chevron_right.svg"
+                                               WidthRequest="18"
+                                               HeightRequest="18"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center"
+                                               Grid.RowSpan="2"
+                                               Grid.Column="1"
+                                               Margin="8,0,0,0" />
+                                    </Grid>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+            </ScrollView>
+        </RefreshView>
+
+        <!-- Picker flotante abajo -->
+        <Frame BackgroundColor="White"
+       CornerRadius="20"
+       HasShadow="True"
+       Padding="6,2"
+       Margin="0,0,0,25"
+       HeightRequest="44"
+       WidthRequest="280"
+       HorizontalOptions="Center"
+       VerticalOptions="End"
+       TranslationY="0">
+            <Picker Title="Seleccionar hijo"
+            ItemsSource="{Binding Hijos}"
+            ItemDisplayBinding="{Binding NombreCompleto}"
+            SelectedItem="{Binding SelectedHijo}"
+            FontSize="13"
+            TextColor="#273840"
+            HorizontalOptions="FillAndExpand" />
+        </Frame>
 
 
-                        <CollectionView x:Name="collectionView"
-                                        ItemsSource="{Binding StudentSubjects}"
-                                        SelectionMode="None">
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Frame BackgroundColor="White"
-                                           CornerRadius="16"
-                                           HasShadow="True"
-                                           Margin="0,10"
-                                           Padding="20">
 
-                                        <Frame.GestureRecognizers>
-                                            <TapGestureRecognizer
-                                                Command="{Binding Source={x:Reference collectionView}, Path=BindingContext.SubjectTappedCommand}"
-                                                CommandParameter="{Binding .}" />
-                                        </Frame.GestureRecognizers>
 
-                                        <Grid ColumnDefinitions="*,Auto"
-                                              RowDefinitions="Auto,Auto">
-                                            <Label Text="{Binding Materia}"
-                                                   FontSize="16"
-                                                   FontAttributes="Bold"
-                                                   TextColor="#273840"
-                                                   TextTransform="Uppercase"
-                                                   Grid.Row="0"
-                                                   Grid.Column="0" />
-
-                                            <Label Text="{Binding Profesor, StringFormat='Prof. {0}'}"
-                                                   FontSize="14"
-                                                   FontAttributes="Italic"
-                                                   TextColor="Gray"
-                                                   Margin="0,4,0,0"
-                                                   Grid.Row="1"
-                                                   Grid.Column="0" />
-
-                                            <Image Source="chevron_right.svg"
-                                                   WidthRequest="18"
-                                                   HeightRequest="18"
-                                                   HorizontalOptions="End"
-                                                   VerticalOptions="Center"
-                                                   Grid.RowSpan="2"
-                                                   Grid.Column="1"
-                                                   Margin="8,0,0,0" />
-                                        </Grid>
-                                    </Frame>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                    </StackLayout>
-                </ScrollView>
-            </RefreshView>
-
-            <syncfusionPopup:SfPopup x:Name="sfPopup"
-                                     StaysOpen="True"
-                                     OverlayMode="Blur"
-                                     ShowCloseButton="True"
-                                     IsOpen="False"
-                                     AutoSizeMode="Height"
-                                     AnimationMode="Fade"
-                                     WidthRequest="312"
-                                     HeightRequest="250"
-                                     HeaderHeight="70"
-                                     HeaderTitle="Tareas">
-                <syncfusionPopup:SfPopup.PopupStyle>
-                    <syncfusionPopup:PopupStyle HeaderBackground="#273840"
-                                                HeaderFontSize="14"
-                                                HeaderTextColor="White"
-                                                PopupBackground="White"
-                                                BlurIntensity="Dark"/>
-                </syncfusionPopup:SfPopup.PopupStyle>
-                <syncfusionPopup:SfPopup.ContentTemplate>
-                    <DataTemplate>
-                        <ScrollView Padding="10">
-                            <Label Text="{Binding PopupContent}"
-                                   TextColor="#49454E"
-                                   BackgroundColor="White"
-                                   FontSize="14"
-                                   LineBreakMode="WordWrap" />
-                        </ScrollView>
-                    </DataTemplate>
-                </syncfusionPopup:SfPopup.ContentTemplate>
-            </syncfusionPopup:SfPopup>
-        </Grid>
+        <!-- Popup -->
+        <syncfusionPopup:SfPopup x:Name="sfPopup"
+                                 StaysOpen="True"
+                                 OverlayMode="Blur"
+                                 ShowCloseButton="True"
+                                 IsOpen="False"
+                                 AutoSizeMode="Height"
+                                 AnimationMode="Fade"
+                                 WidthRequest="312"
+                                 HeightRequest="250"
+                                 HeaderHeight="70"
+                                 HeaderTitle="Tareas">
+            <syncfusionPopup:SfPopup.PopupStyle>
+                <syncfusionPopup:PopupStyle HeaderBackground="#273840"
+                                            HeaderFontSize="14"
+                                            HeaderTextColor="White"
+                                            PopupBackground="White"
+                                            BlurIntensity="Dark"/>
+            </syncfusionPopup:SfPopup.PopupStyle>
+            <syncfusionPopup:SfPopup.ContentTemplate>
+                <DataTemplate>
+                    <ScrollView Padding="10">
+                        <Label Text="{Binding PopupContent}"
+                               TextColor="#49454E"
+                               BackgroundColor="White"
+                               FontSize="14"
+                               LineBreakMode="WordWrap" />
+                    </ScrollView>
+                </DataTemplate>
+            </syncfusionPopup:SfPopup.ContentTemplate>
+        </syncfusionPopup:SfPopup>
     </Grid>
 </ContentPage>

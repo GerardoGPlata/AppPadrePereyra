@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EscolarAppPadres")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+b5fc7bdd262b8043d0e6ced3631294ef1bd82c09")]
 [assembly: System.Reflection.AssemblyProductAttribute("EscolarAppPadres")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EscolarAppPadres")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

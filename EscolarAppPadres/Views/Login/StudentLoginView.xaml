@@ -19,7 +19,7 @@
                 <Label Text="Inicie sesión en su cuenta" FontSize="18" TextColor="Black" HorizontalTextAlignment="Center"/>
             </VerticalStackLayout>
 
-            <StackLayout Orientation="Horizontal">
+            <!--<StackLayout Orientation="Horizontal">
                 <Frame ZIndex="1" HasShadow="True" BorderColor="White" HeightRequest="56" WidthRequest="56" CornerRadius="28">
                     <Image Source="reader_outline.svg" HeightRequest="20" WidthRequest="20"/>
                 </Frame>
@@ -33,7 +33,7 @@
                                           Keyboard="Numeric"
                                           Text="{Binding Matricula, Mode=TwoWay}"/>
                 </Frame>
-            </StackLayout>
+            </StackLayout>-->
 
             <StackLayout Orientation="Horizontal">
                 <Frame ZIndex="1" HasShadow="True" BorderColor="White" HeightRequest="56" WidthRequest="56" CornerRadius="28">

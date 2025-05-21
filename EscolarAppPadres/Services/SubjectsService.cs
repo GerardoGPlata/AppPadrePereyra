@@ -26,7 +26,7 @@ namespace EscolarAppPadres.Services
                 BaseAddress = new Uri(ApiRoutes.BaseUrl)
             };
         }
-        public async Task<ResponseModel<StudentSubject>?> GetStudentSubjectsAsync(string token)
+        public async Task<ResponseModel<StudentSubject>?> GetStudentSubjectsAsync(string token ,string studentId)
         {
             const int timeoutSeconds = 30;
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
@@ -35,7 +35,7 @@ namespace EscolarAppPadres.Services
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                var url = $"{ApiRoutes.BaseUrl}{ApiRoutes.StudentSubjects.GetStudentSubjects}";
+                var url = $"{ApiRoutes.BaseUrl}{ApiRoutes.StudentSubjects.GetStudentSubjects.Replace("{studentId}", studentId)}";
                 Console.WriteLine($"URL de la solicitud: {url}");
 
                 var response = await _httpClient.GetAsync(url, cts.Token);

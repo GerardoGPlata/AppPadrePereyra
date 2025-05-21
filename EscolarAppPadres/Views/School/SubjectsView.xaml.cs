@@ -29,7 +29,7 @@ namespace EscolarAppPadres.Views.School
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await _viewModel.LoadSubjectsAsync();
+            await _viewModel.InitializeAsync();
         }
     }
 

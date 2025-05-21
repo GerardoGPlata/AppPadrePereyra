@@ -1,12 +1,14 @@
 ﻿using EscolarAppPadres.Helpers;
 using EscolarAppPadres.Models;
 using EscolarAppPadres.Services;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -20,11 +22,14 @@ namespace EscolarAppPadres.ViewModels.Subjects
 
         #region Properties
         private ObservableCollection<StudentSubject> _studentSubjects;
+        public ObservableCollection<Hijo> Hijos { get; set; } = new ObservableCollection<Hijo>();
         private bool _isRefreshing;
         private bool _sinResultados;
 
         private string subjectName;
         private string subjectProfessor;
+
+        private Hijo _selectedHijo;
 
         public string SubjectName
         {
@@ -134,7 +139,13 @@ namespace EscolarAppPadres.ViewModels.Subjects
                 // 1. Obtener credenciales del almacen seguro
                 var token = await SecureStorage.GetAsync("auth_token");
                 var profileId = await SecureStorage.GetAsync("Tipo_Usuario_Id");
-                var alumnoId = await SecureStorage.GetAsync("Alumno_Id");
+                string alumnoId = SelectedHijo?.AlumnoId.ToString();
+                if (string.IsNullOrEmpty(alumnoId))
+                {
+                    await DialogsHelper2.ShowErrorMessage("Seleccione un hijo válido.");
+                    return;
+                }
+
 
                 // 2. Validaciones críticas
                 if (string.IsNullOrEmpty(token))
@@ -150,7 +161,8 @@ namespace EscolarAppPadres.ViewModels.Subjects
                 }
 
                 // 3. Obtener materias del servidor
-                var response = await _subjectsService.GetStudentSubjectsAsync(token);
+                var response = await _subjectsService.GetStudentSubjectsAsync(token, alumnoId);
+
 
                 if (response == null)
                 {
@@ -225,6 +237,59 @@ namespace EscolarAppPadres.ViewModels.Subjects
             // Dispara el evento para que el code-behind abra el popup
             OnSubjectPopupRequested?.Invoke(this, selectedSubject.Materia);
         }
+
+        public async Task LoadChildrenData()
+        {
+            try
+            {
+                var childrenJson = await SecureStorage.GetAsync("Hijos");
+
+                if (!string.IsNullOrEmpty(childrenJson))
+                {
+                    var hijos = JsonSerializer.Deserialize<List<Hijo>>(childrenJson);
+
+                    if (hijos != null)
+                    {
+                        Hijos.Clear();
+                        foreach (var hijo in hijos)
+                        {
+                            Hijos.Add(hijo);
+                            Console.WriteLine($"AlumnoID: {hijo.AlumnoId}, NombreCompleto: {hijo.NombreCompleto}, Matricula: {hijo.Matricula}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error cargando hijos: {ex.Message}");
+            }
+        }
+
+        public Hijo SelectedHijo
+        {
+            get => _selectedHijo;
+            set
+            {
+                if (_selectedHijo != value)
+                {
+                    _selectedHijo = value;
+                    OnPropertyChanged(nameof(SelectedHijo));
+                    _ = LoadSubjectsAsync(); // Cargar materias al seleccionar hijo
+                }
+            }
+        }
+
+        public async Task InitializeAsync()
+        {
+            await LoadChildrenData(); // ahora sí espera a que se cargue
+
+            if (Hijos.Any())
+            {
+                SelectedHijo = Hijos.First();
+                // Esto activará LoadSubjectsAsync()
+            }
+        }
+
 
 
         #endregion
