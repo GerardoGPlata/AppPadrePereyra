@@ -13,6 +13,7 @@ namespace EscolarAppPadres.Constants
         public const string PereyraLuxUrl = "https://lux.org.mx/Jesuitas_webServices/web/app.php";
         public const string PereyraIdcUrl = "https://www.idc.edu.mx/Jesuitas_webServices/web";
 
+
         public static class StudentLogin
         {
             public const string LoginStudent = "Login/loginStudent";
@@ -65,7 +66,11 @@ namespace EscolarAppPadres.Constants
         {
             // "Student/GetStudentHomework/{profesorpormateriaplanestudiosid}";
             public const string GetStudentHomework = "Student/GetStudentHomework/{profesorpormateriaplanestudiosid}";
+        }
 
+        public static class StudentReports
+        {
+            public const string GetStudentConductualReports = "Tutor/GetConductualReport/{studentId}";
         }
     }
 }

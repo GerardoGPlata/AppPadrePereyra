@@ -64,6 +64,13 @@
                 ContentTemplate="{DataTemplate school:QualificationsView}"
                 Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
                 Shell.TitleColor="White" />
+            
+            <ShellContent
+                Title="Reporte Conductual"
+                Icon="qualifications_icon.png"
+                ContentTemplate="{DataTemplate school:ConductualView}"
+                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+                Shell.TitleColor="White" />
         </Tab>
 
         <Tab Title="Cuenta" Icon="person_outline.svg">

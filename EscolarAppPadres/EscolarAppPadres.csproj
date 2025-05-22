@@ -125,6 +125,9 @@
 	  <MauiXaml Update="Views\School\AbsencesView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\School\ConductualView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\School\QualificationsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
