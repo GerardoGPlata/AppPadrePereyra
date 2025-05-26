@@ -21,7 +21,7 @@ namespace EscolarAppPadres
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
-                .ConfigureSyncfusionCore() // Esta línea es crucial
+                .ConfigureSyncfusionCore()
                 .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {

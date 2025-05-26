@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EscolarAppPadres.Views.Service.PendingPaymentsView"
+             Title="PAGOS"
+             BackgroundColor="#f5f8fa"
+             Padding="{OnPlatform iOS='0,20,0,0', Android='0'}">
+
+    <Grid>
+        <RefreshView Command="{Binding LoadPaymentsCommand}"
+                     IsRefreshing="{Binding IsRefreshing}">
+            <ScrollView>
+                <StackLayout Padding="15" Spacing="15" Margin="0,0,0,60">
+
+                    <Label Text="No hay pagos pendientes"
+                           FontSize="16"
+                           TextColor="Gray"
+                           HorizontalOptions="Center"
+                           IsVisible="{Binding SinResultados}" />
+
+                    <CollectionView ItemsSource="{Binding PendingPayments}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame BackgroundColor="White"
+                                       CornerRadius="16"
+                                       HasShadow="True"
+                                       Padding="20"
+                                       Margin="0,0,0,10">
+                                    <!-- Grid principal: CheckBox + Info -->
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="15">
+
+                                        <!-- Checkbox -->
+                                        <CheckBox IsChecked="{Binding IsSelected}"
+                                                  VerticalOptions="Center"
+                                                  HorizontalOptions="Center"
+                                                  Color="#3c9c4c"
+                                                  Scale="1.4"
+                                                  WidthRequest="28"
+                                                  HeightRequest="28" />
+
+
+
+
+                                        <!-- Info a la derecha del CheckBox -->
+                                        <StackLayout Grid.Column="1" Spacing="8">
+                                            <!-- Concepto + Monto -->
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <Label Text="{Binding Concepto}"
+                                                       FontSize="16"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#273840" />
+                                                <Label Text="{Binding ImporteCalculado, StringFormat='${0:N2}'}"
+                                                       FontSize="16"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#273840"
+                                                       HorizontalOptions="End" />
+
+                                            </Grid>
+
+                                            <!-- Alumno -->
+                                            <Label Text="{Binding Alumno}"
+                                                   FontSize="14"
+                                                   TextColor="#273840"
+                                                   FontAttributes="Bold" />
+
+                                            <!-- Fecha -->
+                                            <Label Text="{Binding FechaLimiteFormato, StringFormat='Fecha límite: {0}'}"
+                                                           FontSize="13"
+                                                           TextColor="Gray" />
+
+                                            <!-- Saldo / Descuento / Recargos -->
+                                            <Grid ColumnDefinitions="*,*,*" Margin="0,10,0,0">
+                                                <!-- Saldo -->
+                                                <StackLayout Grid.Column="0" Spacing="2" HorizontalOptions="Center" VerticalOptions="Center">
+                                                    <Label Text="Saldo"
+                                                           FontSize="12"
+                                                           TextColor="Gray"
+                                                           HorizontalTextAlignment="Center"
+                                                           HorizontalOptions="Center" />
+                                                    <Label Text="{Binding Saldo, StringFormat='${0:N2}'}"
+                                                           FontSize="13"
+                                                           FontAttributes="Bold"
+                                                           TextColor="#273840"
+                                                           HorizontalTextAlignment="Center"
+                                                           HorizontalOptions="Center" />
+                                                </StackLayout>
+
+                                                <!-- Descuento -->
+                                                <StackLayout Grid.Column="1" Spacing="2" HorizontalOptions="Center" VerticalOptions="Center">
+                                                    <Label Text="Descuento"
+                                                           FontSize="12"
+                                                           TextColor="Gray"
+                                                           HorizontalTextAlignment="Center"
+                                                           HorizontalOptions="Center" />
+                                                    <Label Text="{Binding DescuentoDoc, StringFormat='${0:N2}'}"
+                                                           FontSize="13"
+                                                           FontAttributes="Bold"
+                                                           TextColor="Green"
+                                                           HorizontalTextAlignment="Center"
+                                                           HorizontalOptions="Center" />
+                                                </StackLayout>
+
+                                                <!-- Recargos -->
+                                                <StackLayout Grid.Column="2" Spacing="2" HorizontalOptions="Center" VerticalOptions="Center">
+                                                    <Label Text="Recargos"
+                                                           FontSize="12"
+                                                           TextColor="Gray"
+                                                           HorizontalTextAlignment="Center"
+                                                           HorizontalOptions="Center" />
+                                                    <Label Text="{Binding Interes, StringFormat='${0:N2}'}"
+                                                           FontSize="13"
+                                                           FontAttributes="Bold"
+                                                           TextColor="#273840"
+                                                           HorizontalTextAlignment="Center"
+                                                           HorizontalOptions="Center" />
+                                                </StackLayout>
+                                            </Grid>
+
+                                        </StackLayout>
+                                    </Grid>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                </StackLayout>
+            </ScrollView>
+        </RefreshView>
+
+        <!-- Barra inferior con Total y botón PAGAR -->
+        <Grid BackgroundColor="White"
+              Padding="15,10"
+              ColumnDefinitions="*,Auto"
+              VerticalOptions="End"
+              Margin="0,0,0,10"
+              HeightRequest="60">
+            <Label Text="{Binding Total, StringFormat='Total: ${0:N2}'}"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="#273840"
+                   VerticalOptions="Center" />
+
+
+            <Button Text="PAGAR"
+                    Command="{Binding PagarCommand}"
+                    IsEnabled="{Binding CanPagar}"
+                    BackgroundColor="#3c9c4c"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="10"
+                    Padding="16,6"
+                    HeightRequest="40"
+                    VerticalOptions="Center"
+                    HorizontalOptions="End" />
+
+        </Grid>
+    </Grid>
+</ContentPage>

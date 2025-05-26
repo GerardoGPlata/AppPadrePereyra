@@ -8,8 +8,9 @@
     xmlns:school="clr-namespace:EscolarAppPadres.Views.School"
     xmlns:account="clr-namespace:EscolarAppPadres.Views.Account"
     xmlns:calendar="clr-namespace:EscolarAppPadres.Views.Calendar"
+    xmlns:service="clr-namespace:EscolarAppPadres.Views.Service"
     Shell.FlyoutBehavior="Disabled"
-    Title="EscolarAppAlumnos">
+    Title="EscolarAppPadres">
 
     <Shell.Resources>
         <Style TargetType="Shell">
@@ -80,6 +81,24 @@
                  Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
                 Shell.TitleColor="White" />
         </Tab>
+        <Tab Title="Servicios" Icon="money_bills.svg">
+            <ShellContent 
+                Title="Pagos Pendientes"
+                ContentTemplate="{DataTemplate service:PendingPaymentsView}"
+                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+                Shell.TitleColor="White" />
+            <ShellContent 
+                Title="Directorio"
+                ContentTemplate="{DataTemplate service:DirectoryView}"
+                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+                Shell.TitleColor="White" />
+            <ShellContent 
+                Title="Academias"
+                ContentTemplate="{DataTemplate service:PendingPaymentsView}"
+                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+                Shell.TitleColor="White" />
+        </Tab>
+
     </TabBar>
 
     <!-- Rutas -->

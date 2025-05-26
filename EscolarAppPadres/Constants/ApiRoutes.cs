@@ -72,5 +72,10 @@ namespace EscolarAppPadres.Constants
         {
             public const string GetStudentConductualReports = "Tutor/GetConductualReport/{studentId}";
         }
+
+        public static class Payments
+        {
+            public const string GetPendingPayments = "Payments/PendingPayments";
+        }
     }
 }
