@@ -1,6 +1,7 @@
 ﻿using EscolarAppPadres.Helpers;
 using EscolarAppPadres.Models;
 using EscolarAppPadres.Services;
+using Syncfusion.Maui.DataGrid;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,10 +13,14 @@ using System.Windows.Input;
 
 namespace EscolarAppPadres.ViewModels.StudentGrade
 {
-    public class SubjectGrades
+    public class SubjectGrades : INotifyPropertyChanged
     {
         public string MateriaNombre { get; set; }
         public Dictionary<string, double?> CalificacionesPorPeriodo { get; set; } = new();
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     public class StudentGradeViewModel : INotifyPropertyChanged
@@ -37,6 +42,7 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             {
                 _nombresPeriodos = value;
                 OnPropertyChanged(nameof(NombresPeriodos));
+                GenerateDataGridColumns();
             }
         }
 
@@ -50,7 +56,7 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                 {
                     _selectedHijo = value;
                     OnPropertyChanged(nameof(SelectedHijo));
-                    _ = LoadGradesAsync(); // Al cambiar hijo, cargar calificaciones
+                    _ = LoadGradesAsync();
                 }
             }
         }
@@ -76,6 +82,18 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                 OnPropertyChanged(nameof(SinResultados));
             }
         }
+
+        // Referencia al DataGrid para generar columnas dinámicamente
+        private SfDataGrid _dataGrid;
+        public SfDataGrid DataGrid
+        {
+            get => _dataGrid;
+            set
+            {
+                _dataGrid = value;
+                OnPropertyChanged(nameof(DataGrid));
+            }
+        }
         #endregion
 
         #region Commands
@@ -96,7 +114,7 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             await LoadChildrenData();
 
             if (Hijos.Any())
-                SelectedHijo = Hijos.First(); // Esto dispara LoadGradesAsync
+                SelectedHijo = Hijos.First();
         }
 
         private async Task LoadChildrenData()
@@ -131,14 +149,13 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             {
                 var token = await SecureStorage.GetAsync("auth_token");
                 var profileId = "3";
-                //var alumnoId = await SecureStorage.GetAsync("Alumno_Id");
                 var alumnoId = SelectedHijo?.AlumnoId.ToString();
+
                 if (string.IsNullOrEmpty(alumnoId))
                 {
                     await DialogsHelper2.ShowErrorMessage("Seleccione un hijo válido.");
                     return;
                 }
-
 
                 if (string.IsNullOrEmpty(token) || SelectedHijo == null)
                 {
@@ -215,6 +232,39 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                 OnPropertyChanged(nameof(MateriasConCalificaciones));
                 OnPropertyChanged(nameof(NombresPeriodos));
             }
+        }
+
+        private void GenerateDataGridColumns()
+        {
+            if (DataGrid == null || NombresPeriodos == null || !NombresPeriodos.Any())
+                return;
+
+            // Limpiar columnas existentes excepto la primera (Materia)
+            var materiasColumn = DataGrid.Columns.FirstOrDefault();
+            DataGrid.Columns.Clear();
+
+            if (materiasColumn != null)
+                DataGrid.Columns.Add(materiasColumn);
+
+            // Agregar columnas dinámicamente para cada período
+            foreach (var periodo in NombresPeriodos)
+            {
+                var column = new DataGridTextColumn
+                {
+                    HeaderText = periodo,
+                    MappingName = $"CalificacionesPorPeriodo[{periodo}]",
+                    Width = 80,
+                    HeaderTextAlignment = TextAlignment.Center,
+                    Format = "0.0"
+                };
+                DataGrid.Columns.Add(column);
+            }
+        }
+
+        public void SetDataGridReference(SfDataGrid dataGrid)
+        {
+            DataGrid = dataGrid;
+            GenerateDataGridColumns();
         }
         #endregion
 

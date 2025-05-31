@@ -6,52 +6,52 @@
              BackgroundColor="#f5f8fa"
              Padding="15">
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="12">
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadDirectoryCommand}">
+        <CollectionView ItemsSource="{Binding DirectoryEntries}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame BackgroundColor="White"
+                           CornerRadius="16"
+                           HasShadow="True"
+                           Padding="15"
+                           Margin="0,0,0,12">
 
-            <!-- Repite esta tarjeta para cada área -->
-            <Frame BackgroundColor="White"
-                   CornerRadius="16"
-                   HasShadow="True"
-                   Padding="15">
-                <Grid ColumnDefinitions="*,Auto,Auto"
-                      RowDefinitions="Auto,Auto"
-                      ColumnSpacing="10">
+                        <Grid ColumnDefinitions="*,Auto,Auto"
+                              RowDefinitions="Auto,Auto"
+                              ColumnSpacing="10">
 
-                    <!-- Nombre y correo -->
-                    <StackLayout Grid.Column="0" Grid.RowSpan="2" Spacing="3">
-                        <Label Text="BACHILLERATO"
-                               FontSize="14"
-                               FontAttributes="Bold"
-                               TextColor="#273840" />
-                        <Label Text="bachillerato@pereyra.edu.mx"
-                               FontSize="13"
-                               TextColor="Gray" />
-                    </StackLayout>
+                            <!-- Nombre y correo -->
+                            <StackLayout Grid.Column="0" Grid.RowSpan="2" Spacing="3">
+                                <Label Text="{Binding NombreDepartamento}"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="#273840" />
+                                <Label Text="{Binding CorreoElectronico}"
+                                       FontSize="13"
+                                       TextColor="Gray" />
+                            </StackLayout>
 
-                    <!-- Extensión -->
-                    <Label Text="EXT. 7040"
-                           FontSize="14"
-                           FontAttributes="Bold"
-                           TextColor="#273840"
-                           VerticalOptions="Start"
-                           Grid.Column="1" />
+                            <!-- Extensión -->
+                            <Label Text="{Binding Extension, StringFormat='EXT. {0}'}"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#273840"
+                                   VerticalOptions="Start"
+                                   Grid.Column="1" />
 
-                    <!-- Botón de llamada -->
-                    <ImageButton Source="phone_icon.png"
-                                 HeightRequest="24"
-                                 WidthRequest="24"
-                                 BackgroundColor="Transparent"
-                                 CommandParameter="7040"
-                                 Clicked="OnCallClicked"
-                                 Grid.Column="2"
-                                 VerticalOptions="Start" />
-                </Grid>
-            </Frame>
-
-            <!-- Repite para otras áreas, solo cambia textos y extensión -->
-
-            <!-- Puedes generar dinámicamente si prefieres usar un ViewModel -->
-        </VerticalStackLayout>
-    </ScrollView>
+                            <!-- Botón de llamada -->
+                            <ImageButton Source="phone_enable.svg"
+                                         HeightRequest="24"
+                                         WidthRequest="24"
+                                         BackgroundColor="Transparent"
+                                         CommandParameter="{Binding Extension}"
+                                         Clicked="OnCallClicked"
+                                         Grid.Column="2"
+                                         VerticalOptions="Start" />
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </RefreshView>
 </ContentPage>

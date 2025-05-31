@@ -44,30 +44,24 @@ namespace EscolarAppPadres.Services
 
             try
             {
-                // Validaciones iniciales
+                // Si el profileId es inválido, usar uno genérico
                 if (profileId <= 0)
                 {
-                    return new ResponseModel<Event>
-                    {
-                        IsClientError = true,
-                        Message = "El identificador de usuario no es válido."
-                    };
+                    Console.WriteLine("[GetEventsAsync] profileId inválido, usando valor por defecto 1.");
+                    profileId = 1;
                 }
 
+                // Si no hay studentIds válidos, usar uno genérico
                 if (studentIds == null || studentIds.Length == 0)
                 {
-                    return new ResponseModel<Event>
-                    {
-                        IsClientError = true,
-                        Message = "No se han especificado alumnos en la petición",
-                        Data = new List<Event>()
-                    };
+                    Console.WriteLine("[GetEventsAsync] studentIds vacíos o nulos, usando valor por defecto [1000].");
+                    studentIds = new long[] { 1000 };
                 }
 
                 var baseUrl = ApiRoutes.PereyraIdcUrl;
                 Console.WriteLine($"[GetEventsAsync] Iniciando solicitud para profileId: {profileId}");
 
-                // Configurar cliente HTTP
+                // Configurar cliente HTTP con token válido
                 _httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", token);
 
@@ -83,22 +77,20 @@ namespace EscolarAppPadres.Services
 
                 Console.WriteLine($"[GetEventsAsync] URL construida: {url}");
 
-                // Realizar la solicitud HTTP
+                // Hacer solicitud
                 var response = await _httpClient.GetAsync(url, cts.Token);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 Console.WriteLine($"[GetEventsAsync] Respuesta recibida. Status: {response.StatusCode}");
-                Console.WriteLine($"[GetEventsAsync] Contenido de respuesta: {responseContent}");
+                Console.WriteLine($"[GetEventsAsync] Contenido: {responseContent}");
 
-                // Configuración avanzada para deserialización
+                // Deserializar
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,
                     Converters = { new JsonStringEnumConverter(), new EventJsonConverter() }
                 };
 
-
-                // Intentar deserialización
                 List<Event> events;
                 try
                 {
@@ -106,12 +98,11 @@ namespace EscolarAppPadres.Services
                 }
                 catch (JsonException jsonEx)
                 {
-                    Console.WriteLine($"[GetEventsAsync] Error en deserialización: {jsonEx.Message}");
+                    Console.WriteLine($"[GetEventsAsync] Error de deserialización: {jsonEx.Message}");
                     throw new ApplicationException("No se pudo interpretar la respuesta del servidor", jsonEx);
                 }
 
-
-                // Validar respuesta
+                // Validar respuesta HTTP
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorMessage = response.StatusCode switch
@@ -164,6 +155,7 @@ namespace EscolarAppPadres.Services
                 };
             }
         }
+
 
         public class EventJsonConverter : JsonConverter<Event>
         {

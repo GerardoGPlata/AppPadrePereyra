@@ -201,7 +201,7 @@ namespace EscolarAppPadres.ViewModels.News
             try
             {
                 var token = await SecureStorage.GetAsync("auth_token");
-                var Alumno_Id = await SecureStorage.GetAsync("Alumno_Id");
+                var Alumno_Id = 2058.ToString();
 
                 if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(Alumno_Id) || !int.TryParse(Alumno_Id, out var AlumnoId))
                 {

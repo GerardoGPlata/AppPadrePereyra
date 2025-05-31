@@ -1,5 +1,6 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:local="clr-namespace:EscolarAppPadres.Helpers"
              xmlns:viewModels="clr-namespace:EscolarAppPadres.ViewModels.StudentGrade"
              x:Class="EscolarAppPadres.Views.School.QualificationsView"
@@ -14,87 +15,51 @@
     </ContentPage.Resources>
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-        <!-- Refrescar contenido -->
-        <RefreshView Command="{Binding LoadGradesCommand}"
-                     IsRefreshing="{Binding IsRefreshing}">
-            <ScrollView>
-                <StackLayout Padding="15" Spacing="15" Margin="0,0,0,60">
+        <!-- Mensaje si no hay resultados -->
+        <Label Grid.Row="0"
+               Text="No se encontraron calificaciones"
+               FontSize="16"
+               TextColor="Gray"
+               HorizontalOptions="Center"
+               Margin="15"
+               IsVisible="{Binding SinResultados}" />
 
-                    <!-- Mensaje si no hay resultados -->
-                    <Label Text="No se encontraron calificaciones"
-                           FontSize="16"
-                           TextColor="Gray"
-                           HorizontalOptions="Center"
-                           IsVisible="{Binding SinResultados}" />
+        <!-- DataGrid con RefreshView -->
+        <RefreshView Grid.Row="1"
+                     Command="{Binding LoadGradesCommand}"
+                     IsRefreshing="{Binding IsRefreshing}"
+                     Margin="15,10">
 
-                    <!-- Lista de materias y calificaciones -->
-                    <CollectionView ItemsSource="{Binding MateriasConCalificaciones}">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border StrokeThickness="2"
-                                        BackgroundColor="White"
-                                        Margin="0,10"
-                                        Padding="20">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="16" />
-                                    </Border.StrokeShape>
+            <syncfusion:SfDataGrid x:Name="dataGrid"
+                                   ItemsSource="{Binding MateriasConCalificaciones}"
+                                   AutoGenerateColumnsMode="None"
+                                   HeaderRowHeight="50"
+                                   RowHeight="45"
+                                   GridLinesVisibility="Both"
+                                   HeaderGridLinesVisibility="Both"
+                                   SelectionMode="Single"
+                                   VerticalOptions="FillAndExpand"
+                                   HorizontalOptions="FillAndExpand">
 
-                                    <VerticalStackLayout Spacing="15">
-                                        <!-- Nombre materia -->
-                                        <Label Text="{Binding MateriaNombre}"
-                                               FontSize="20"
-                                               FontAttributes="Bold"
-                                               TextColor="#273840" />
-
-                                        <!-- Periodos y calificaciones -->
-                                        <FlexLayout Direction="Row"
-                                                    Wrap="NoWrap"
-                                                    JustifyContent="Start"
-                                                    BindableLayout.ItemsSource="{Binding CalificacionesPorPeriodo}"
-                                                    Margin="0,5,0,0">
-                                            <BindableLayout.ItemTemplate>
-                                                <DataTemplate>
-                                                    <StackLayout Spacing="6"
-                                                                 WidthRequest="85"
-                                                                 HorizontalOptions="Start">
-                                                        <Label Text="{Binding Key}"
-                                                               FontSize="14"
-                                                               FontAttributes="Bold"
-                                                               TextColor="#018348"
-                                                               HorizontalOptions="Center" />
-
-                                                        <Frame Padding="8"
-                                                               BackgroundColor="{Binding Value, Converter={StaticResource CalificacionColorConverter}}"
-                                                               CornerRadius="12"
-                                                               HasShadow="False"
-                                                               HorizontalOptions="Center"
-                                                               WidthRequest="45"
-                                                               HeightRequest="45"
-                                                               VerticalOptions="Center">
-                                                            <Label Text="{Binding Value, StringFormat='{0:F1}'}"
-                                                                   FontSize="16"
-                                                                   FontAttributes="Bold"
-                                                                   TextColor="White"
-                                                                   HorizontalOptions="Center"
-                                                                   VerticalOptions="Center" />
-                                                        </Frame>
-                                                    </StackLayout>
-                                                </DataTemplate>
-                                            </BindableLayout.ItemTemplate>
-                                        </FlexLayout>
-                                    </VerticalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-
-                </StackLayout>
-            </ScrollView>
+                <!-- Columna fija para materia -->
+                <syncfusion:SfDataGrid.Columns>
+                    <syncfusion:DataGridTextColumn HeaderText="Materia"
+                                                   MappingName="MateriaNombre"
+                                                   Width="150"
+                                                   HeaderTextAlignment="Center" />
+                </syncfusion:SfDataGrid.Columns>
+            </syncfusion:SfDataGrid>
         </RefreshView>
 
         <!-- Picker flotante para seleccionar hijo -->
-        <Frame BackgroundColor="White"
+        <Frame Grid.Row="2"
+               BackgroundColor="White"
                CornerRadius="20"
                HasShadow="True"
                Padding="6,2"
@@ -102,8 +67,7 @@
                HeightRequest="44"
                WidthRequest="280"
                HorizontalOptions="Center"
-               VerticalOptions="End"
-               TranslationY="0">
+               VerticalOptions="End">
             <Picker Title="Seleccionar hijo"
                     ItemsSource="{Binding Hijos}"
                     ItemDisplayBinding="{Binding NombreCompleto}"

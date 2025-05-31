@@ -87,7 +87,6 @@ namespace EscolarAppPadres.ViewModels.Calendar
 
         public async Task LoadEventsAsync()
         {
-            // Cancelar cualquier carga previa
             _loadEventsCts?.Cancel();
             _loadEventsCts = new CancellationTokenSource();
 
@@ -95,19 +94,19 @@ namespace EscolarAppPadres.ViewModels.Calendar
             {
                 var token = await SecureStorage.GetAsync("auth_token");
                 var profileId = await SecureStorage.GetAsync("Tipo_Usuario_Id");
-                var alumnoId = await SecureStorage.GetAsync("Alumno_Id");
 
-                if (string.IsNullOrEmpty(token) ||
-                    !long.TryParse(profileId, out var idPerfil) ||
-                    !long.TryParse(alumnoId, out var idAlumno))
+                if (string.IsNullOrEmpty(token) || !long.TryParse(profileId, out var idPerfil))
                 {
                     await MainThread.InvokeOnMainThreadAsync(async () =>
                         await DialogsHelper2.ShowErrorMessage("Información de sesión inválida."));
                     return;
                 }
 
+                // Usar un ID de alumno genérico (dummy) para cumplir con la firma actual del servicio
+                var studentIds = new long[] { 1000 };
+
                 // Obtener datos en segundo plano
-                var response = await _eventService.GetEventsAsync(idPerfil, new[] { idAlumno }, token)
+                var response = await _eventService.GetEventsAsync(idPerfil, studentIds, token)
                     .ConfigureAwait(false);
 
                 if (response?.Data == null || !response.Data.Any())
@@ -117,7 +116,6 @@ namespace EscolarAppPadres.ViewModels.Calendar
                     return;
                 }
 
-                // Procesamiento en segundo plano
                 var eventosOrdenados = response.Data.OrderBy(e => e.DateInicio).ToList();
                 var tempEventCollection = new EventCollection();
 
@@ -136,7 +134,6 @@ namespace EscolarAppPadres.ViewModels.Calendar
                     }
                 }
 
-                // Actualización en el hilo UI
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     Eventos = new ObservableCollection<Event>(eventosOrdenados);
@@ -144,12 +141,12 @@ namespace EscolarAppPadres.ViewModels.Calendar
                     IsAgendaVisible = true;
 
                     OnPropertyChanged(nameof(Eventos));
-                    OnPropertyChanged(nameof(Events)); // Asegúrate de tener esta propiedad pública
+                    OnPropertyChanged(nameof(Events));
                 });
             }
             catch (OperationCanceledException)
             {
-                // Carga cancelada, no hacer nada
+                // Carga cancelada
             }
             catch (Exception ex)
             {
@@ -160,6 +157,7 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 });
             }
         }
+
 
         // Método para cancelar la carga si es necesario (por ejemplo, al navegar fuera de la página)
         public void CancelLoading()

@@ -77,5 +77,9 @@ namespace EscolarAppPadres.Constants
         {
             public const string GetPendingPayments = "Payments/PendingPayments";
         }
+        public static class Services
+        {
+            public const string GetSchoolDirectory = "Services/GetSchoolDirectory";
+        }
     }
 }

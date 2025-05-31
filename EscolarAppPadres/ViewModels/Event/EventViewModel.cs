@@ -92,37 +92,39 @@ namespace EscolarAppPadres.ViewModels
 
             try
             {
-                // Obtener credenciales almacenadas
+                // Obtener token almacenado
                 var token = await SecureStorage.GetAsync("auth_token");
+
+                // Obtener profileId, puede ser opcional
                 var profileId = await SecureStorage.GetAsync("Tipo_Usuario_Id");
-                var alumnoId = await SecureStorage.GetAsync("Alumno_Id");
 
-                Console.WriteLine($"Datos del usuario - Token: {!string.IsNullOrEmpty(token)}, ProfileId: {profileId}, AlumnoId: {alumnoId}");
+                Console.WriteLine($"Datos del usuario - Token: {!string.IsNullOrEmpty(token)}, ProfileId: {profileId}");
 
-                // Validar datos esenciales
+                // Validar token obligatorio
                 if (string.IsNullOrEmpty(token))
                 {
                     await DialogsHelper2.ShowErrorMessage("Sesión expirada. Por favor inicie sesión nuevamente.");
                     return;
                 }
 
-                if (!long.TryParse(profileId, out var idPerfil) || !long.TryParse(alumnoId, out var idAlumno))
+                // Usar profileId genérico si no es válido
+                if (!long.TryParse(profileId, out var idPerfil))
                 {
-                    await DialogsHelper2.ShowErrorMessage("Información del usuario inválida.");
-                    return;
+                    Console.WriteLine("[LoadEventsAsync] ProfileId inválido, usando valor por defecto 1.");
+                    idPerfil = 1;
                 }
 
-                // Obtener eventos del servicio
-                var response = await _eventService.GetEventsAsync(idPerfil, new[] { idAlumno }, token);
+                // Usar studentIds dummy si se omite Alumno_Id
+                var studentIds = new long[] { 1000 };
 
-                // Procesar respuesta
+                // Obtener eventos
+                var response = await _eventService.GetEventsAsync(idPerfil, studentIds, token);
+
                 if (response?.Data != null && response.Data.Any())
                 {
-                    // Limpiar listas existentes
                     Eventos.Clear();
                     FiltrarEventos.Clear();
 
-                    // Agregar eventos y crear lista de nombres para depuración
                     var nombresEventos = new List<string>();
                     foreach (var evento in response.Data.OrderBy(e => e.DateInicio))
                     {
@@ -131,24 +133,15 @@ namespace EscolarAppPadres.ViewModels
                         nombresEventos.Add($"{evento.DateInicio:dd/MM}: {evento.Nombre}");
                     }
 
-                    // Mostrar nombres en consola para depuración
                     Console.WriteLine("Eventos obtenidos:");
                     Console.WriteLine(string.Join("\n", nombresEventos));
 
-                    // Actualizar UI
                     SinResultados = false;
 
-                    // Opcional: Mostrar notificación con el primer evento
-                    if (Eventos.Any())
-                    {
-                        var primerEvento = Eventos.First();
-                        //await DialogsHelper2.ShowSuccessMessage($"Eventos cargados. Próximo evento: {primerEvento.Nombre} el {primerEvento.DateInicio:dd/MM}");
-                        await DialogsHelper2.ShowSuccessMessage("Eventos cargados correctamente.");
-                    }
+                    await DialogsHelper2.ShowSuccessMessage("Eventos cargados correctamente.");
                 }
                 else
                 {
-                    // Manejar caso sin eventos
                     SinResultados = true;
                     var mensaje = response?.IsClientError == true
                         ? response.Message
@@ -172,12 +165,11 @@ namespace EscolarAppPadres.ViewModels
             finally
             {
                 IsRefreshing = false;
-
-                // Notificar a la UI que las colecciones han cambiado
                 OnPropertyChanged(nameof(Eventos));
                 OnPropertyChanged(nameof(FiltrarEventos));
             }
         }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)

@@ -1,12 +1,104 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:syncfusionPopup="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
              x:Class="EscolarAppPadres.Views.Service.AcademyView"
-             Title="AcademyView">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="Academias"
+             BackgroundColor="#f5f8fa"
+             Padding="{OnPlatform iOS='0,20,0,0', Android='0'}">
+
+    <Grid>
+
+        <!-- Contenido Principal -->
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="20">
+                <Label Text="Lista de academias"
+                       FontAttributes="Bold"
+                       FontSize="18"
+                       TextColor="#273840" />
+
+                <!-- Aquí podrías poner un CollectionView si se usan datos -->
+                <Label Text="No hay academias disponibles aún."
+                       TextColor="Gray"
+                       FontSize="14"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Botón Agregar flotante -->
+        <Button Text="Agregar"
+                BackgroundColor="#273840"
+                TextColor="White"
+                CornerRadius="30"
+                WidthRequest="130"
+                HeightRequest="50"
+                HorizontalOptions="Center"
+                VerticalOptions="End"
+                Margin="0,0,0,30"
+                Clicked="OnAgregarClicked" />
+
+        <!-- Popup de Syncfusion -->
+        <syncfusionPopup:SfPopup x:Name="sfPopup"
+                                 StaysOpen="True"
+                                 OverlayMode="Blur"
+                                 ShowCloseButton="True"
+                                 IsOpen="False"
+                                 AutoSizeMode="Height"
+                                 AnimationMode="Fade"
+                                 WidthRequest="320"
+                                 HeaderHeight="60"
+                                 HeaderTitle="Nueva Inscripción">
+            <syncfusionPopup:SfPopup.PopupStyle>
+                <syncfusionPopup:PopupStyle HeaderBackground="#273840"
+                                            HeaderFontSize="16"
+                                            HeaderTextColor="White"
+                                            PopupBackground="White"
+                                            BlurIntensity="Light"/>
+            </syncfusionPopup:SfPopup.PopupStyle>
+
+            <syncfusionPopup:SfPopup.ContentTemplate>
+                <DataTemplate>
+                    <VerticalStackLayout Padding="15" Spacing="10">
+
+                        <Picker Title="Alumno"
+                                ItemsSource="{Binding Hijos}"
+                                ItemDisplayBinding="{Binding NombreCompleto}"
+                                SelectedItem="{Binding SelectedHijo}" />
+
+                        <Picker Title="Academia"
+                                ItemsSource="{Binding Academias}" 
+                                SelectedItem="{Binding SelectedAcademia}" />
+
+                        <Picker Title="Horario"
+                                ItemsSource="{Binding Horarios}" 
+                                SelectedItem="{Binding SelectedHorario}" />
+
+                        <Entry Placeholder="Profesor"
+                               Text="{Binding Profesor}"
+                               FontSize="14" />
+
+                        <Entry Placeholder="Importe"
+                               Keyboard="Numeric"
+                               Text="{Binding Importe}"
+                               FontSize="14" />
+
+                        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                            <Button Text="Cancelar"
+                                    BackgroundColor="Gray"
+                                    TextColor="White"
+                                    Clicked="OnCancelarClicked"
+                                    WidthRequest="120"/>
+                            <Button Text="Pagar"
+                                    BackgroundColor="#1E88E5"
+                                    TextColor="White"
+                                    Clicked="OnPagarClicked"
+                                    WidthRequest="120"/>
+                        </HorizontalStackLayout>
+
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </syncfusionPopup:SfPopup.ContentTemplate>
+        </syncfusionPopup:SfPopup>
+
+    </Grid>
 </ContentPage>

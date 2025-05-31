@@ -81,7 +81,7 @@
                  Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
                 Shell.TitleColor="White" />
         </Tab>
-        <Tab Title="Servicios" Icon="money_bills.svg">
+        <Tab Title="Servicios" Icon="payments.svg">
             <ShellContent 
                 Title="Pagos Pendientes"
                 ContentTemplate="{DataTemplate service:PendingPaymentsView}"
@@ -94,7 +94,7 @@
                 Shell.TitleColor="White" />
             <ShellContent 
                 Title="Academias"
-                ContentTemplate="{DataTemplate service:PendingPaymentsView}"
+                ContentTemplate="{DataTemplate service:AcademyView}"
                 Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
                 Shell.TitleColor="White" />
         </Tab>
