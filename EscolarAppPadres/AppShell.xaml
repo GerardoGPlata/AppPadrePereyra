@@ -36,14 +36,12 @@
                 Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
                 Shell.TitleColor="White" />
         </Tab>
-
         <Tab Title="Calendario" Icon="calendar_outline.svg">
             <ShellContent 
                 ContentTemplate="{DataTemplate calendar:CalendarView}"
                 Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
                 Shell.TitleColor="White" />
         </Tab>
-
         <Tab Title="Escolar" Icon="school_outline.svg">
             <ShellContent
                 Title="Materias"
@@ -73,7 +71,23 @@
                 Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
                 Shell.TitleColor="White" />
         </Tab>
-
+        <Tab Title="Servicios" Icon="payments.svg">
+            <ShellContent 
+        Title="Pagos Pendientes"
+        ContentTemplate="{DataTemplate service:PendingPaymentsView}"
+        Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+        Shell.TitleColor="White" />
+            <ShellContent 
+        Title="Directorio"
+        ContentTemplate="{DataTemplate service:DirectoryView}"
+        Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+        Shell.TitleColor="White" />
+            <ShellContent 
+        Title="Academias"
+        ContentTemplate="{DataTemplate service:AcademyView}"
+        Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+        Shell.TitleColor="White" />
+        </Tab>
         <Tab Title="Cuenta" Icon="person_outline.svg">
             <ShellContent
                  Route="AccountView"
@@ -81,24 +95,6 @@
                  Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
                 Shell.TitleColor="White" />
         </Tab>
-        <Tab Title="Servicios" Icon="payments.svg">
-            <ShellContent 
-                Title="Pagos Pendientes"
-                ContentTemplate="{DataTemplate service:PendingPaymentsView}"
-                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
-                Shell.TitleColor="White" />
-            <ShellContent 
-                Title="Directorio"
-                ContentTemplate="{DataTemplate service:DirectoryView}"
-                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
-                Shell.TitleColor="White" />
-            <ShellContent 
-                Title="Academias"
-                ContentTemplate="{DataTemplate service:AcademyView}"
-                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
-                Shell.TitleColor="White" />
-        </Tab>
-
     </TabBar>
 
     <!-- Rutas -->

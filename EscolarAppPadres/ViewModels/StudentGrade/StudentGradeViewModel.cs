@@ -15,8 +15,18 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
 {
     public class SubjectGrades : INotifyPropertyChanged
     {
-        public string MateriaNombre { get; set; }
-        public Dictionary<string, double?> CalificacionesPorPeriodo { get; set; } = new();
+        public string NombreCorto { get; set; }
+
+        private Dictionary<string, double?> _calificacionesPorPeriodo = new();
+        public Dictionary<string, double?> CalificacionesPorPeriodo
+        {
+            get => _calificacionesPorPeriodo;
+            set
+            {
+                _calificacionesPorPeriodo = value;
+                OnPropertyChanged(nameof(CalificacionesPorPeriodo));
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
@@ -31,7 +41,18 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
 
         #region Properties
         public ObservableCollection<EvaluationPeriod> EvaluationPeriods { get; set; } = new();
-        public ObservableCollection<SubjectGrades> MateriasConCalificaciones { get; set; } = new();
+
+        private ObservableCollection<SubjectGrades> _materiasConCalificaciones = new();
+        public ObservableCollection<SubjectGrades> MateriasConCalificaciones
+        {
+            get => _materiasConCalificaciones;
+            set
+            {
+                _materiasConCalificaciones = value;
+                OnPropertyChanged(nameof(MateriasConCalificaciones));
+            }
+        }
+
         public ObservableCollection<Hijo> Hijos { get; set; } = new();
 
         private List<string> _nombresPeriodos = new();
@@ -42,7 +63,6 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             {
                 _nombresPeriodos = value;
                 OnPropertyChanged(nameof(NombresPeriodos));
-                GenerateDataGridColumns();
             }
         }
 
@@ -56,6 +76,16 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                 {
                     _selectedHijo = value;
                     OnPropertyChanged(nameof(SelectedHijo));
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        MateriasConCalificaciones = new ObservableCollection<SubjectGrades>();
+                        EvaluationPeriods.Clear();
+                        if (DataGrid != null)
+                        {
+                            DataGrid.Columns.Clear();
+                            DataGrid.ItemsSource = null;
+                        }
+                    });
                     _ = LoadGradesAsync();
                 }
             }
@@ -83,7 +113,6 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             }
         }
 
-        // Referencia al DataGrid para generar columnas dinámicamente
         private SfDataGrid _dataGrid;
         public SfDataGrid DataGrid
         {
@@ -98,6 +127,8 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
 
         #region Commands
         public ICommand LoadGradesCommand { get; }
+        public ICommand RefreshCommand { get; }
+        public ICommand DescargarBoletaCommand { get; }
         #endregion
 
         #region Constructor
@@ -105,10 +136,29 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
         {
             _gradeService = new GradeService();
             LoadGradesCommand = new Command(async () => await LoadGradesAsync());
+            RefreshCommand = new Command(async () => await RefreshDataAsync());
+            DescargarBoletaCommand = new Command(DescargarBoleta);
         }
+
         #endregion
 
         #region Methods
+        private void DescargarBoleta()
+        {
+            if (SelectedHijo?.AlumnoId > 0)
+            {
+                var alumnoId = SelectedHijo.AlumnoId;
+                var url = $"https://webpereyra.com.mx/Jesuitas_webServices/web/api/Controlescolar/Boletaimpresion/alumno/{alumnoId}?publicacion=1";
+                Launcher.OpenAsync(new Uri(url));
+            }
+            else
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await DialogsHelper2.ShowErrorMessage("Seleccione un hijo válido para descargar la boleta.");
+                });
+            }
+        }
         public async Task InitializeAsync()
         {
             await LoadChildrenData();
@@ -138,6 +188,21 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             {
                 Console.WriteLine($"Error cargando hijos: {ex.Message}");
             }
+        }
+
+        private async Task RefreshDataAsync()
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                MateriasConCalificaciones = new ObservableCollection<SubjectGrades>();
+                EvaluationPeriods.Clear();
+                if (DataGrid != null)
+                {
+                    DataGrid.Columns.Clear();
+                    DataGrid.ItemsSource = null;
+                }
+            });
+            await LoadGradesAsync();
         }
 
         public async Task LoadGradesAsync()
@@ -177,41 +242,59 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                     return;
                 }
 
-                EvaluationPeriods.Clear();
-                MateriasConCalificaciones.Clear();
-
-                foreach (var period in response.Data)
-                    EvaluationPeriods.Add(period);
-
-                var materias = response.Data
-                    .SelectMany(p => p.Calificaciones)
-                    .GroupBy(c => c.MateriaNombre)
-                    .Select(g => g.Key)
-                    .ToList();
-
-                NombresPeriodos = response.Data.Select(p => p.DescripcionCorta).ToList();
-
-                foreach (var materia in materias)
+                await Task.Run(() =>
                 {
-                    var calificaciones = new Dictionary<string, double?>();
+                    foreach (var period in response.Data)
+                        EvaluationPeriods.Add(period);
 
-                    foreach (var periodo in EvaluationPeriods)
+                    var periodos = response.Data.Select(p => p.DescripcionCorta).ToList();
+
+                    var materias = response.Data
+                        .SelectMany(p => p.Calificaciones)
+                        .GroupBy(c => c.NombreCorto)
+                        .Select(g => g.Key)
+                        .ToList();
+
+                    var nuevasMaterias = new ObservableCollection<SubjectGrades>();
+
+                    foreach (var materia in materias)
                     {
-                        var calificacion = periodo.Calificaciones
-                            .FirstOrDefault(c => c.MateriaNombre == materia)?.Calificacion;
+                        var calificaciones = new Dictionary<string, double?>();
 
-                        calificaciones[periodo.DescripcionCorta] = calificacion.HasValue ? (double?)calificacion.Value : null;
+                        foreach (var periodo in EvaluationPeriods)
+                        {
+                            var calificacion = periodo.Calificaciones
+                                .FirstOrDefault(c => c.NombreCorto == materia)?.Calificacion;
+
+                            calificaciones[periodo.DescripcionCorta] = calificacion.HasValue ? (double?)calificacion.Value : null;
+                        }
+
+                        nuevasMaterias.Add(new SubjectGrades
+                        {
+                            NombreCorto = materia,
+                            CalificacionesPorPeriodo = calificaciones
+                        });
                     }
 
-                    MateriasConCalificaciones.Add(new SubjectGrades
-                    {
-                        MateriaNombre = materia,
-                        CalificacionesPorPeriodo = calificaciones
-                    });
-                }
+                    NombresPeriodos = periodos;
 
-                if (MateriasConCalificaciones.Count == 0)
-                    SinResultados = true;
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        if (nuevasMaterias.Count == 0)
+                        {
+                            SinResultados = true;
+                        }
+                        else
+                        {
+                            MateriasConCalificaciones = nuevasMaterias;
+                            GenerateDataGridColumns();
+                            if (DataGrid != null)
+                            {
+                                DataGrid.ItemsSource = MateriasConCalificaciones;
+                            }
+                        }
+                    });
+                });
             }
             catch (HttpRequestException)
             {
@@ -229,8 +312,6 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             finally
             {
                 IsRefreshing = false;
-                OnPropertyChanged(nameof(MateriasConCalificaciones));
-                OnPropertyChanged(nameof(NombresPeriodos));
             }
         }
 
@@ -239,32 +320,47 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             if (DataGrid == null || NombresPeriodos == null || !NombresPeriodos.Any())
                 return;
 
-            // Limpiar columnas existentes excepto la primera (Materia)
-            var materiasColumn = DataGrid.Columns.FirstOrDefault();
-            DataGrid.Columns.Clear();
+            try
+            {
+                if (!MainThread.IsMainThread)
+                {
+                    MainThread.BeginInvokeOnMainThread(() => GenerateDataGridColumns());
+                    return;
+                }
 
-            if (materiasColumn != null)
+                DataGrid.Columns.Clear();
+
+                var materiasColumn = new DataGridTextColumn
+                {
+                    HeaderText = " ",
+                    MappingName = "NombreCorto",
+                    Width = 80,
+                    HeaderTextAlignment = TextAlignment.Center
+                };
                 DataGrid.Columns.Add(materiasColumn);
 
-            // Agregar columnas dinámicamente para cada período
-            foreach (var periodo in NombresPeriodos)
-            {
-                var column = new DataGridTextColumn
+                foreach (var periodo in NombresPeriodos)
                 {
-                    HeaderText = periodo,
-                    MappingName = $"CalificacionesPorPeriodo[{periodo}]",
-                    Width = 80,
-                    HeaderTextAlignment = TextAlignment.Center,
-                    Format = "0.0"
-                };
-                DataGrid.Columns.Add(column);
+                    var column = new DataGridTextColumn
+                    {
+                        HeaderText = periodo,
+                        MappingName = $"CalificacionesPorPeriodo[{periodo}]",
+                        Width = 80,
+                        HeaderTextAlignment = TextAlignment.Center,
+                        Format = "0.0"
+                    };
+                    DataGrid.Columns.Add(column);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al generar columnas: {ex.Message}");
             }
         }
 
         public void SetDataGridReference(SfDataGrid dataGrid)
         {
             DataGrid = dataGrid;
-            GenerateDataGridColumns();
         }
         #endregion
 

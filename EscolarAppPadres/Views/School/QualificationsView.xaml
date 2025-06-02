@@ -30,9 +30,9 @@
                Margin="15"
                IsVisible="{Binding SinResultados}" />
 
-        <!-- DataGrid con RefreshView -->
+
         <RefreshView Grid.Row="1"
-                     Command="{Binding LoadGradesCommand}"
+                     Command="{Binding RefreshCommand}"
                      IsRefreshing="{Binding IsRefreshing}"
                      Margin="15,10">
 
@@ -43,38 +43,51 @@
                                    RowHeight="45"
                                    GridLinesVisibility="Both"
                                    HeaderGridLinesVisibility="Both"
-                                   SelectionMode="Single"
-                                   VerticalOptions="FillAndExpand"
-                                   HorizontalOptions="FillAndExpand">
+                                   SelectionUnit="Cell"
+                                   SelectionMode="Single">
+                <syncfusion:SfDataGrid.DefaultStyle>
+                    <syncfusion:DataGridStyle SelectedRowTextColor="Black" SelectionBackground="#E3F2FD"/>
+                </syncfusion:SfDataGrid.DefaultStyle>
 
-                <!-- Columna fija para materia -->
                 <syncfusion:SfDataGrid.Columns>
-                    <syncfusion:DataGridTextColumn HeaderText="Materia"
-                                                   MappingName="MateriaNombre"
-                                                   Width="150"
-                                                   HeaderTextAlignment="Center" />
                 </syncfusion:SfDataGrid.Columns>
             </syncfusion:SfDataGrid>
         </RefreshView>
 
-        <!-- Picker flotante para seleccionar hijo -->
-        <Frame Grid.Row="2"
-               BackgroundColor="White"
-               CornerRadius="20"
-               HasShadow="True"
-               Padding="6,2"
-               Margin="0,0,0,25"
-               HeightRequest="44"
-               WidthRequest="280"
-               HorizontalOptions="Center"
-               VerticalOptions="End">
-            <Picker Title="Seleccionar hijo"
-                    ItemsSource="{Binding Hijos}"
-                    ItemDisplayBinding="{Binding NombreCompleto}"
-                    SelectedItem="{Binding SelectedHijo}"
-                    FontSize="13"
-                    TextColor="#273840"
-                    HorizontalOptions="FillAndExpand" />
-        </Frame>
+
+        <StackLayout Grid.Row="2"
+             Margin="0,0,0,25"
+             HorizontalOptions="Center"
+             VerticalOptions="End"
+             Spacing="10">
+
+
+            <Button Text="Descargar boleta"
+            Command="{Binding DescargarBoletaCommand}"
+            BackgroundColor="#69b457"
+            TextColor="White"
+            CornerRadius="20"
+            Padding="12,6"
+            FontSize="13"
+            WidthRequest="200"
+            HeightRequest="44"
+            HorizontalOptions="Center" />
+
+            <Frame BackgroundColor="White"
+           CornerRadius="20"
+           HasShadow="True"
+           Padding="6,2"
+           HeightRequest="44"
+           WidthRequest="280"
+           HorizontalOptions="Center">
+                <Picker Title="Seleccionar hijo"
+                ItemsSource="{Binding Hijos}"
+                ItemDisplayBinding="{Binding NombreCompleto}"
+                SelectedItem="{Binding SelectedHijo}"
+                FontSize="13"
+                TextColor="#273840" />
+            </Frame>
+        </StackLayout>
+
     </Grid>
 </ContentPage>

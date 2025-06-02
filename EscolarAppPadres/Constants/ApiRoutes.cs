@@ -8,7 +8,7 @@ namespace EscolarAppPadres.Constants
 {
     public static class ApiRoutes
     {
-        public const string BaseUrl = "https://192.168.1.95:7210/api/Pereyra/";
+        public const string BaseUrl = "https://192.168.100.2:7210/api/Pereyra/";
         public const string BaseUrlPrueba = "http://18.222.34.197:8017/";
         public const string PereyraLuxUrl = "https://lux.org.mx/Jesuitas_webServices/web/app.php";
         public const string PereyraIdcUrl = "https://www.idc.edu.mx/Jesuitas_webServices/web";

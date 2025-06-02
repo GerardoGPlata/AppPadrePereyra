@@ -19,6 +19,8 @@ namespace EscolarAppPadres.Views.School
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+
+            // Inicializar datos después de que la página sea visible
             await _studentGradeViewModel.InitializeAsync();
         }
     }
