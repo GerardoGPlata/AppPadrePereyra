@@ -9,25 +9,32 @@ public partial class CalendarView : ContentPage
     private readonly EventViewModel _eventViewModel;
 
     public CalendarView()
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
         _calendarViewModel = new CalendarViewModel();
         _eventViewModel = new EventViewModel();
 
         BindingContext = _calendarViewModel;
 
         Calendar.Culture = _calendarViewModel.Culture;
-        
     }
 
-    //protected override async void OnAppearing()
-    //{
-    //    base.OnAppearing();
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
 
-    //    if (BindingContext is CalendarViewModel viewModel)
-    //    {
-    //        await viewModel.InitializeAsync();
-    //    }
-    //}
+        // Forzar la recarga de eventos cuando la página aparece
+        await _calendarViewModel.LoadEventsAsync();
 
+        // Aplicar los filtros para actualizar correctamente la vista
+        _calendarViewModel.ApplyFiltersCalendarCommand.Execute(null);
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+
+        // Cancelar cualquier carga en progreso cuando la página desaparece
+        _calendarViewModel.CancelLoading();
+    }
 }

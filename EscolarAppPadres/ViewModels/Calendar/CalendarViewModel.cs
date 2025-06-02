@@ -89,25 +89,26 @@ namespace EscolarAppPadres.ViewModels.Calendar
         {
             _loadEventsCts?.Cancel();
             _loadEventsCts = new CancellationTokenSource();
+            var token = _loadEventsCts.Token;
 
             try
             {
-                var token = await SecureStorage.GetAsync("auth_token");
+                var authToken = await SecureStorage.GetAsync("auth_token");
                 var profileId = await SecureStorage.GetAsync("Tipo_Usuario_Id");
 
-                if (string.IsNullOrEmpty(token) || !long.TryParse(profileId, out var idPerfil))
+                if (string.IsNullOrEmpty(authToken) || !long.TryParse(profileId, out var idPerfil))
                 {
-                    await MainThread.InvokeOnMainThreadAsync(async () =>
-                        await DialogsHelper2.ShowErrorMessage("Información de sesión inválida."));
+                    await DialogsHelper2.ShowErrorMessage("Información de sesión inválida.");
                     return;
                 }
 
                 // Usar un ID de alumno genérico (dummy) para cumplir con la firma actual del servicio
                 var studentIds = new long[] { 1000 };
 
-                // Obtener datos en segundo plano
-                var response = await _eventService.GetEventsAsync(idPerfil, studentIds, token)
-                    .ConfigureAwait(false);
+                // Obtener datos
+                var response = await _eventService.GetEventsAsync(idPerfil, studentIds, authToken);
+
+                if (token.IsCancellationRequested) return;
 
                 if (response?.Data == null || !response.Data.Any())
                 {
@@ -121,6 +122,8 @@ namespace EscolarAppPadres.ViewModels.Calendar
 
                 foreach (var evento in eventosOrdenados)
                 {
+                    if (token.IsCancellationRequested) return;
+
                     var eventModel = ConvertToEventModel(evento);
                     var eventDate = evento.DateInicio.Date;
 
@@ -138,10 +141,14 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 {
                     Eventos = new ObservableCollection<Event>(eventosOrdenados);
                     _Events = tempEventCollection;
+                    Events = _Events; // Forzar la actualización del binding
                     IsAgendaVisible = true;
 
                     OnPropertyChanged(nameof(Eventos));
                     OnPropertyChanged(nameof(Events));
+
+                    // Asegurarse de actualizar la vista apropiadamente
+                    ApplyFiltersCalendar();
                 });
             }
             catch (OperationCanceledException)
@@ -150,11 +157,14 @@ namespace EscolarAppPadres.ViewModels.Calendar
             }
             catch (Exception ex)
             {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
+                if (!token.IsCancellationRequested)
                 {
-                    Console.WriteLine($"Error al cargar eventos: {ex.Message}");
-                    await DialogsHelper2.ShowErrorMessage($"Error al cargar eventos: {ex.Message}");
-                });
+                    await MainThread.InvokeOnMainThreadAsync(async () =>
+                    {
+                        Console.WriteLine($"Error al cargar eventos: {ex.Message}");
+                        await DialogsHelper2.ShowErrorMessage($"Error al cargar eventos: {ex.Message}");
+                    });
+                }
             }
         }
 
