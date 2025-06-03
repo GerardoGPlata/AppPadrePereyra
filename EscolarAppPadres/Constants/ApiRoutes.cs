@@ -60,6 +60,7 @@ namespace EscolarAppPadres.Constants
         public static class StudentGrades
         {
             public const string GetStudentGrades = "Tutor/GetStudentGrades/{studentId}";
+            public const string GetStudentCriteriaGrades = "Tutor/GetStudentCriteriaGrades/{studentId}/{materiaId:int}/{periodoEvaluacionId:int}";
         }
 
         public static class StudentHomework

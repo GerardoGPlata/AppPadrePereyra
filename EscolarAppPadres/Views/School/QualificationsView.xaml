@@ -3,6 +3,7 @@
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:local="clr-namespace:EscolarAppPadres.Helpers"
              xmlns:viewModels="clr-namespace:EscolarAppPadres.ViewModels.StudentGrade"
+             xmlns:syncfusionPopup="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
              x:Class="EscolarAppPadres.Views.School.QualificationsView"
              Title="ESCOLAR"
              Padding="{OnPlatform iOS='0,20,0,0', Android='0'}"
@@ -21,7 +22,6 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Mensaje si no hay resultados -->
         <Label Grid.Row="0"
                Text="No se encontraron calificaciones"
                FontSize="16"
@@ -44,7 +44,8 @@
                                    GridLinesVisibility="Both"
                                    HeaderGridLinesVisibility="Both"
                                    SelectionUnit="Cell"
-                                   SelectionMode="Single">
+                                   SelectionMode="Single"
+                                   CellTapped="dataGrid_CellTapped">
                 <syncfusion:SfDataGrid.DefaultStyle>
                     <syncfusion:DataGridStyle SelectedRowTextColor="Black" SelectionBackground="#E3F2FD"/>
                 </syncfusion:SfDataGrid.DefaultStyle>
@@ -89,5 +90,93 @@
             </Frame>
         </StackLayout>
 
+        <syncfusionPopup:SfPopup x:Name="criteriaPopup"
+                                 StaysOpen="True"
+                                 OverlayMode="Blur"
+                                 ShowCloseButton="True"
+                                 IsOpen="False"
+                                 AutoSizeMode="Height"
+                                 AnimationMode="Fade"
+
+                                 HeaderTitle="{Binding PopupHeader}">
+            <syncfusionPopup:SfPopup.PopupStyle>
+                <syncfusionPopup:PopupStyle HeaderBackground="#273840"
+                                            HeaderFontSize="30"
+                                            HeaderTextColor="White"
+                                            PopupBackground="White"
+                                            BlurIntensity="Dark"/>
+            </syncfusionPopup:SfPopup.PopupStyle>
+            <syncfusionPopup:SfPopup.ContentTemplate>
+                <DataTemplate>
+                    <Grid Padding="20,16,20,16" RowSpacing="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Periodo -->
+                        <Label Text="{Binding PopupPeriod}"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="#69b457"
+                               Margin="0,0,0,6"
+                               Grid.Row="0"
+                               HorizontalOptions="Center"/>
+
+                        <!-- Tabla de criterios -->
+                        <Grid Grid.Row="1"
+                              ColumnSpacing="6"
+                              RowSpacing="4"
+                              Padding="0,0,0,4">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="1.2*"/>
+                                <ColumnDefinition Width="1.2*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Encabezados -->
+                            <Label Text="Aspecto" FontAttributes="Bold" FontSize="12" TextColor="#273840" Grid.Row="0" Grid.Column="0"/>
+                            <Label Text="Puntaje" FontAttributes="Bold" FontSize="12" TextColor="#273840" HorizontalTextAlignment="End" Grid.Row="0" Grid.Column="1"/>
+                            <Label Text="Calificacion" FontAttributes="Bold" FontSize="12" TextColor="#273840" HorizontalTextAlignment="End" Grid.Row="0" Grid.Column="2"/>
+
+                            <!-- Criterios -->
+                            <CollectionView ItemsSource="{Binding PopupCriteria}" Grid.Row="1" Grid.ColumnSpan="3" Margin="0,2,0,0">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnSpacing="6">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="1.2*"/>
+                                                <ColumnDefinition Width="1.2*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Text="{Binding Aspecto}" FontSize="12" TextColor="#49454E" Grid.Column="0"/>
+                                            <Label Text="{Binding PuntajeObtenido}" FontSize="12" TextColor="#49454E" HorizontalTextAlignment="End" Grid.Column="1"/>
+                                            <Label Text="{Binding CalificacionCriterio}" FontSize="12" TextColor="#49454E" HorizontalTextAlignment="End" Grid.Column="2"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Grid>
+
+                        <!-- Total -->
+                        <Grid Grid.Row="2" ColumnSpacing="6" Padding="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="1.2*"/>
+                                <ColumnDefinition Width="1.2*"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Text="Total" FontAttributes="Bold" FontSize="13" TextColor="#273840" Grid.Column="0"/>
+                            <Label Text="" Grid.Column="1"/>
+                            <Label Text="{Binding PopupTotal}" FontAttributes="Bold" FontSize="13" TextColor="#273840" HorizontalTextAlignment="End" Grid.Column="2"/>
+                        </Grid>
+                    </Grid>
+                </DataTemplate>
+            </syncfusionPopup:SfPopup.ContentTemplate>
+        </syncfusionPopup:SfPopup>
     </Grid>
 </ContentPage>

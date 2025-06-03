@@ -36,7 +36,10 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
     public class StudentGradeViewModel : INotifyPropertyChanged
     {
         #region Services
+
         private readonly GradeService _gradeService;
+        private readonly StudentCriteriaGradesService _criteriaGradesService;
+
         #endregion
 
         #region Properties
@@ -123,6 +126,34 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                 OnPropertyChanged(nameof(DataGrid));
             }
         }
+
+        private string _popupHeader;
+        public string PopupHeader
+        {
+            get => _popupHeader;
+            set { _popupHeader = value; OnPropertyChanged(nameof(PopupHeader)); }
+        }
+
+        private string _popupPeriod;
+        public string PopupPeriod
+        {
+            get => _popupPeriod;
+            set { _popupPeriod = value; OnPropertyChanged(nameof(PopupPeriod)); }
+        }
+
+        private ObservableCollection<StudentCriteriaGrade> _popupCriteria = new();
+        public ObservableCollection<StudentCriteriaGrade> PopupCriteria
+        {
+            get => _popupCriteria;
+            set { _popupCriteria = value; OnPropertyChanged(nameof(PopupCriteria)); }
+        }
+
+        private string _popupTotal;
+        public string PopupTotal
+        {
+            get => _popupTotal;
+            set { _popupTotal = value; OnPropertyChanged(nameof(PopupTotal)); }
+        }
         #endregion
 
         #region Commands
@@ -135,6 +166,7 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
         public StudentGradeViewModel()
         {
             _gradeService = new GradeService();
+            _criteriaGradesService = new StudentCriteriaGradesService();
             LoadGradesCommand = new Command(async () => await LoadGradesAsync());
             RefreshCommand = new Command(async () => await RefreshDataAsync());
             DescargarBoletaCommand = new Command(DescargarBoleta);
@@ -361,6 +393,22 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
         public void SetDataGridReference(SfDataGrid dataGrid)
         {
             DataGrid = dataGrid;
+        }
+
+        public async Task<List<StudentCriteriaGrade>> GetCriteriaGradesForSubjectAsync(int materiaId, int periodoEvaluacionId)
+        {
+            var token = await SecureStorage.GetAsync("auth_token");
+            var alumnoId = SelectedHijo?.AlumnoId.ToString();
+
+            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(alumnoId))
+                return new List<StudentCriteriaGrade>();
+
+            var response = await _criteriaGradesService.GetStudentCriteriaGradesAsync(token, alumnoId, materiaId, periodoEvaluacionId);
+
+            if (response != null && response.Data != null && response.Data.Any())
+                return response.Data;
+
+            return new List<StudentCriteriaGrade>();
         }
         #endregion
 
