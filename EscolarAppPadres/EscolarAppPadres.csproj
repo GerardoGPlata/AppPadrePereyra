@@ -143,6 +143,9 @@
 	  <MauiXaml Update="Views\Service\DirectoryView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\Service\PaymentWebViewPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\Service\PendingPaymentsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

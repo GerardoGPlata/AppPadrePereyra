@@ -25,6 +25,24 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             {
                 _calificacionesPorPeriodo = value;
                 OnPropertyChanged(nameof(CalificacionesPorPeriodo));
+                OnPropertyChanged(nameof(Promedio)); // Notificar cambio en promedio cuando cambian las calificaciones
+            }
+        }
+
+        // Propiedad calculada para el promedio
+        public double? Promedio
+        {
+            get
+            {
+                var calificacionesValidas = CalificacionesPorPeriodo.Values
+                    .Where(c => c.HasValue)
+                    .Select(c => c.Value)
+                    .ToList();
+
+                if (!calificacionesValidas.Any())
+                    return null;
+
+                return Math.Round(calificacionesValidas.Average(), 1);
             }
         }
 
@@ -383,6 +401,17 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                     };
                     DataGrid.Columns.Add(column);
                 }
+
+                // Añadir columna de promedio
+                var promedioColumn = new DataGridTextColumn
+                {
+                    HeaderText = "Promedio",
+                    MappingName = "Promedio",
+                    Width = 80,
+                    HeaderTextAlignment = TextAlignment.Center,
+                    Format = "0.0"
+                };
+                DataGrid.Columns.Add(promedioColumn);
             }
             catch (Exception ex)
             {

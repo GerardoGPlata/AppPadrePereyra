@@ -1,5 +1,6 @@
 ﻿using EscolarAppPadres.Constants;
 using EscolarAppPadres.Models;
+using EscolarAppPadres.Models.Openpay;
 using EscolarAppPadres.Models.Response;
 using System;
 using System.Collections.Generic;
@@ -121,6 +122,109 @@ namespace EscolarAppPadres.Services
             }
         }
 
+        public async Task<ResponseModel<OpenpayChargeResponseDto>?> CreateOpenpayChargeAsync(OpenpayChargeRequestDto request, string token)
+        {
+            try
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var url = $"{ApiRoutes.BaseUrl}{ApiRoutes.Payments.CreateCharge}";
+                var json = JsonSerializer.Serialize(request);
+                Console.WriteLine("JSON ENVIADO DESDE APP:");
+                Console.WriteLine(json);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync(url, content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new ResponseModel<OpenpayChargeResponseDto>
+                    {
+                        IsClientError = true,
+                        Message = $"Error del servidor: {response.StatusCode}"
+                    };
+                }
+
+                var tempResponse = JsonSerializer.Deserialize<ResponseModel<OpenpayChargeResponseDto>>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                return tempResponse;
+            }
+            catch (Exception ex)
+            {
+                return new ResponseModel<OpenpayChargeResponseDto>
+                {
+                    IsClientError = true,
+                    Message = $"Error: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<ResponseModel<OpenpayChargeResponseDto>?> CreateOpenpaySimpleChargeAsync(OpenpaySimpleChargeRequestDto request, string token)
+        {
+            try
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var url = $"{ApiRoutes.BaseUrl}{ApiRoutes.Payments.CreateCharge}";
+                var json = JsonSerializer.Serialize(request);
+                Console.WriteLine("JSON ENVIADO DESDE APP:");
+                Console.WriteLine(json);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync(url, content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new ResponseModel<OpenpayChargeResponseDto>
+                    {
+                        IsClientError = true,
+                        Message = $"Error del servidor: {response.StatusCode}"
+                    };
+                }
+
+                var tempResponse = JsonSerializer.Deserialize<ResponseModel<OpenpayChargeResponseDto>>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                return tempResponse;
+            }
+            catch (Exception ex)
+            {
+                return new ResponseModel<OpenpayChargeResponseDto>
+                {
+                    IsClientError = true,
+                    Message = $"Error: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<ResponseModel<OpenpayChargeResponseDto>?> GetOpenpayChargeStatusAsync(string transactionId, string token)
+        {
+            try
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                var url = $"{ApiRoutes.BaseUrl}{ApiRoutes.Payments.GetStatusCharge}/{transactionId}";
+
+                var response = await _httpClient.GetAsync(url);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new ResponseModel<OpenpayChargeResponseDto>
+                    {
+                        IsClientError = true,
+                        Message = $"Error del servidor: {response.StatusCode}"
+                    };
+                }
+
+                var tempResponse = JsonSerializer.Deserialize<ResponseModel<OpenpayChargeResponseDto>>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                return tempResponse;
+            }
+            catch (Exception ex)
+            {
+                return new ResponseModel<OpenpayChargeResponseDto>
+                {
+                    IsClientError = true,
+                    Message = $"Error: {ex.Message}"
+                };
+            }
+        }
         private class TempApiResponse
         {
             public bool Result { get; set; }

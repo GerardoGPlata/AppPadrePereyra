@@ -1,5 +1,6 @@
 ﻿using EscolarAppPadres.Helpers;
 using EscolarAppPadres.Models;
+using EscolarAppPadres.Models.Openpay;
 using EscolarAppPadres.Services;
 using System;
 using System.Collections.ObjectModel;
@@ -19,6 +20,9 @@ namespace EscolarAppPadres.ViewModels.Payments
         private bool _isRefreshing;
         private bool _sinResultados;
         private decimal _total;
+        private bool _isPopupOpen;
+        private ObservableCollection<PendingPayment> _selectedPayments;
+        private string _popupHeader;
 
         public ObservableCollection<PendingPayment> PendingPayments
         {
@@ -80,16 +84,128 @@ namespace EscolarAppPadres.ViewModels.Payments
             }
         }
 
+        public bool IsPopupOpen
+        {
+            get => _isPopupOpen;
+            set
+            {
+                if (_isPopupOpen != value)
+                {
+                    _isPopupOpen = value;
+                    OnPropertyChanged(nameof(IsPopupOpen));
+                }
+            }
+        }
+
+        public ObservableCollection<PendingPayment> SelectedPayments
+        {
+            get => _selectedPayments;
+            set
+            {
+                _selectedPayments = value;
+                OnPropertyChanged(nameof(SelectedPayments));
+            }
+        }
+
+        public string PopupHeader
+        {
+            get => _popupHeader;
+            set
+            {
+                _popupHeader = value;
+                OnPropertyChanged(nameof(PopupHeader));
+            }
+        }
 
         public ICommand LoadPaymentsCommand { get; }
         public ICommand PagarCommand { get; }
+        public ICommand ConfirmPaymentCommand { get; }
+        public ICommand ClosePopupCommand { get; }
+
+
 
         public PendingPaymentsViewModel()
         {
             _paymentsService = new PaymentsService();
             PendingPayments = new ObservableCollection<PendingPayment>();
+            SelectedPayments = new ObservableCollection<PendingPayment>();
             LoadPaymentsCommand = new Command(async () => await LoadPendingPaymentsAsync());
-            PagarCommand = new Command(Pagar);
+            PagarCommand = new Command(ShowPaymentPopup);
+            ConfirmPaymentCommand = new Command(async () => await ProcessPaymentAsync());
+            ClosePopupCommand = new Command(() => IsPopupOpen = false);
+            PopupHeader = "DETALLE DE PAGO";
+        }
+
+        private void ShowPaymentPopup()
+        {
+            SelectedPayments.Clear();
+
+            foreach (var payment in PendingPayments.Where(p => p.IsSelected))
+            {
+                SelectedPayments.Add(payment);
+            }
+
+            IsPopupOpen = true;
+        }
+
+        private async Task ProcessPaymentAsync()
+        {
+            if (SelectedPayments == null || !SelectedPayments.Any())
+            {
+                await DialogsHelper2.ShowErrorMessage("Selecciona al menos un pago.");
+                return;
+            }
+
+            var token = await SecureStorage.GetAsync("auth_token");
+            if (string.IsNullOrEmpty(token))
+            {
+                await DialogsHelper2.ShowErrorMessage("Sesión expirada. Por favor inicie sesión nuevamente.");
+                return;
+            }
+
+            // Datos fijos o puedes obtenerlos de un formulario
+            var name = "Juan";
+            var lastName = "Vazquez Juarez";
+            var email = "juan.vazquez@empresa.com.mx";
+            var phoneNumber = "4423456723";
+            var total = SelectedPayments.Sum(p => p.ImporteCalculado);
+            var description = $"Pago escolar de {SelectedPayments.Count} documento(s)";
+            var orderId = $"oid-{DateTime.Now:yyyyMMddHHmmss}";
+            var redirectUrl = "http://www.openpay.mx/index.html";
+
+            var simpleRequest = new OpenpaySimpleChargeRequestDto
+            {
+                Name = name,
+                LastName = lastName,
+                Email = email,
+                PhoneNumber = phoneNumber,
+                Amount = total,
+                Description = description,
+                OrderId = orderId,
+                RedirectUrl = redirectUrl
+            };
+
+            IsPopupOpen = false;
+
+            var response = await _paymentsService.CreateOpenpaySimpleChargeAsync(simpleRequest, token);
+
+            if (response?.Result == true && response.Data != null && response.Data.Any())
+            {
+                var charge = response.Data.First();
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(charge));
+                await DialogsHelper2.ShowSuccessMessage("Pago iniciado correctamente.");
+
+                if (charge.PaymentMethod?.Url != null)
+                {
+                    await Shell.Current.Navigation.PushAsync(
+                        new EscolarAppPadres.Views.Service.PaymentWebViewPage(charge.PaymentMethod.Url)
+                    );
+                }
+            }
+            else
+            {
+                await DialogsHelper2.ShowErrorMessage(response?.Message ?? "No se pudo iniciar el pago.");
+            }
         }
 
         public async Task LoadPendingPaymentsAsync()
@@ -169,12 +285,6 @@ namespace EscolarAppPadres.ViewModels.Payments
                 .Sum(p => p.ImporteCalculado);
 
             CanPagar = Total > 0;
-        }
-
-
-        private void Pagar()
-        {
-            // Implementar lógica de pago aquí
         }
 
         public async Task InitializeAsync()

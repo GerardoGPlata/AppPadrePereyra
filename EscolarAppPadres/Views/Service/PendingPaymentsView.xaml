@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
              x:Class="EscolarAppPadres.Views.Service.PendingPaymentsView"
              Title="PAGOS"
              BackgroundColor="#f5f8fa"
@@ -38,9 +39,6 @@
                                                   WidthRequest="28"
                                                   HeightRequest="28" />
 
-
-
-
                                         <!-- Info a la derecha del CheckBox -->
                                         <StackLayout Grid.Column="1" Spacing="8">
                                             <!-- Concepto + Monto -->
@@ -65,8 +63,8 @@
 
                                             <!-- Fecha -->
                                             <Label Text="{Binding FechaLimiteFormato, StringFormat='Fecha límite: {0}'}"
-                                                           FontSize="13"
-                                                           TextColor="Gray" />
+                                                   FontSize="13"
+                                                   TextColor="Gray" />
 
                                             <!-- Saldo / Descuento / Recargos -->
                                             <Grid ColumnDefinitions="*,*,*" Margin="0,10,0,0">
@@ -115,14 +113,12 @@
                                                            HorizontalOptions="Center" />
                                                 </StackLayout>
                                             </Grid>
-
                                         </StackLayout>
                                     </Grid>
                                 </Frame>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
-
                 </StackLayout>
             </ScrollView>
         </RefreshView>
@@ -152,7 +148,123 @@
                     HeightRequest="40"
                     VerticalOptions="Center"
                     HorizontalOptions="End" />
-
         </Grid>
+
+        <!-- Popup de detalles de pago -->
+        <syncfusion:SfPopup x:Name="paymentDetailsPopup"
+                            StaysOpen="True"
+                            OverlayMode="Blur"
+                            ShowCloseButton="True"
+                            IsOpen="{Binding IsPopupOpen}"
+                            AutoSizeMode="Height"
+                            AnimationMode="Fade"
+                            HeaderTitle="{Binding PopupHeader}">
+            <syncfusion:SfPopup.PopupStyle>
+                <syncfusion:PopupStyle HeaderBackground="#273840"
+                                      HeaderFontSize="16"
+                                      HeaderTextColor="White"
+                                      PopupBackground="White"
+                                      BlurIntensity="ExtraDark"/>
+            </syncfusion:SfPopup.PopupStyle>
+            <syncfusion:SfPopup.ContentTemplate>
+                <DataTemplate>
+                    <Grid Padding="20,16,20,16" RowSpacing="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Título -->
+                        <Label Text="Detalle de pagos seleccionados"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#69b457"
+                               Margin="0,0,0,6"
+                               Grid.Row="0"
+                               HorizontalOptions="Center"/>
+
+                        <!-- Tabla de pagos -->
+                        <Grid Grid.Row="1"
+                              ColumnSpacing="6"
+                              RowSpacing="4"
+                              Padding="0,0,0,4">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Encabezados -->
+                            <Label Text="Concepto" FontAttributes="Bold" FontSize="14" TextColor="#273840" Grid.Row="0" Grid.Column="0"/>
+                            <Label Text="Importe" FontAttributes="Bold" FontSize="14" TextColor="#273840" HorizontalTextAlignment="End" Grid.Row="0" Grid.Column="1"/>
+
+                            <!-- Conceptos -->
+                            <CollectionView ItemsSource="{Binding SelectedPayments}" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,2,0,0">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnSpacing="6" Padding="0,4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackLayout Grid.Column="0" Spacing="4">
+                                                <Label Text="{Binding Concepto}" FontSize="13" TextColor="#49454E"/>
+                                                <Label Text="{Binding Alumno}" FontSize="12" TextColor="Gray"/>
+                                            </StackLayout>
+                                            <Label Text="{Binding ImporteCalculado, StringFormat='${0:N2}'}" 
+                                                   FontSize="13" 
+                                                   TextColor="#49454E" 
+                                                   HorizontalTextAlignment="End" 
+                                                   Grid.Column="1"
+                                                   VerticalOptions="Center"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Grid>
+
+                        <!-- Línea divisoria -->
+                        <BoxView Grid.Row="2" 
+                                 HeightRequest="1" 
+                                 BackgroundColor="#E5E5E5" 
+                                 Margin="0,10"/>
+
+                        <!-- Total -->
+                        <Grid Grid.Row="3" ColumnSpacing="6" Padding="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Text="Total a pagar" FontAttributes="Bold" FontSize="15" TextColor="#273840" Grid.Column="0"/>
+                            <Label Text="{Binding Total, StringFormat='${0:N2}'}" 
+                                   FontAttributes="Bold" 
+                                   FontSize="15" 
+                                   TextColor="#273840" 
+                                   HorizontalTextAlignment="End" 
+                                   Grid.Column="1"/>
+                        </Grid>
+
+                        <!-- Botones - Ahora con margen superior aumentado -->
+                        <Button Grid.Row="4" 
+                                Text="CONFIRMAR PAGO" 
+                                Command="{Binding ConfirmPaymentCommand}"
+                                BackgroundColor="#3c9c4c" 
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                CornerRadius="10"
+                                Margin="0,40,0,10"
+                                HeightRequest="45"
+                                HorizontalOptions="Center"
+                                WidthRequest="200"/>
+                    </Grid>
+                </DataTemplate>
+            </syncfusion:SfPopup.ContentTemplate>
+        </syncfusion:SfPopup>
     </Grid>
 </ContentPage>
