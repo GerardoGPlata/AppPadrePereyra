@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Maui.Storage;
 using System.Windows.Input;
 
 namespace EscolarAppPadres.ViewModels.Payments
@@ -197,6 +198,9 @@ namespace EscolarAppPadres.ViewModels.Payments
 
                 if (charge.PaymentMethod?.Url != null)
                 {
+                    // Guarda el ID de la transacción globalmente
+                    Preferences.Set("LastTransactionId", charge.Id);
+
                     await Shell.Current.Navigation.PushAsync(
                         new EscolarAppPadres.Views.Service.PaymentWebViewPage(charge.PaymentMethod.Url)
                     );
