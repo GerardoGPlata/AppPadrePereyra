@@ -28,7 +28,88 @@ namespace EscolarAppPadres.Services
             };
         }
 
-        public async Task<ResponseModel<PendingPayment>?> GetStudentPaymentsAsync(string token)
+        public async Task<ResponseModel<CreateChargeMovilResponseDto>?> CreateChargeMovilAsync(CreateChargeMovilRequestDto request, string token)
+        {
+            try
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync(ApiRoutes.Payments.CreateChargeMovil, content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                Console.WriteLine($"[DEBUG] CreateChargeMovil Response: {responseContent}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new ResponseModel<CreateChargeMovilResponseDto>
+                    {
+                        IsClientError = true,
+                        Message = $"Error del servidor: {response.StatusCode}",
+                        Data = new List<CreateChargeMovilResponseDto>() // Lista vacía
+                    };
+                }
+
+                // Deserializar la respuesta del API
+                var tempResponse = JsonSerializer.Deserialize<TempCreateChargeResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (tempResponse?.Result == true && tempResponse.Data?.Any() == true)
+                {
+                    var data = tempResponse.Data.First();
+
+                    return new ResponseModel<CreateChargeMovilResponseDto>
+                    {
+                        Result = true,
+                        Valoration = true,
+                        Message = tempResponse.Message,
+                        Data = new List<CreateChargeMovilResponseDto> // ← Crear lista con un elemento
+                {
+                    new CreateChargeMovilResponseDto
+                    {
+                        TransactionId = data.TransactionId,
+                        PaymentUrl = data.PaymentUrl,
+                        Referencia = data.Referencia
+                    }
+                }
+                    };
+                }
+
+                return new ResponseModel<CreateChargeMovilResponseDto>
+                {
+                    IsClientError = true,
+                    Message = tempResponse?.Message ?? "Error desconocido",
+                    Data = new List<CreateChargeMovilResponseDto>() // Lista vacía
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] CreateChargeMovil: {ex.Message}");
+                return new ResponseModel<CreateChargeMovilResponseDto>
+                {
+                    IsClientError = true,
+                    Message = $"Error: {ex.Message}",
+                    Data = new List<CreateChargeMovilResponseDto>() // Lista vacía
+                };
+            }
+        }
+        // Clase temporal para deserializar la respuesta del API
+        private class TempCreateChargeResponse
+        {
+            public bool Result { get; set; }
+            public string Message { get; set; }
+            public bool Valoration { get; set; }
+            public List<CreateChargeMovilResponseData> Data { get; set; }
+        }
+
+        private class CreateChargeMovilResponseData
+        {
+            public string TransactionId { get; set; }
+            public string PaymentUrl { get; set; }
+            public string Referencia { get; set; }
+        }
+        public async Task<ResponseModel<PendingPaymentsResponse>?> GetStudentPaymentsAsync(string token)
         {
             const int timeoutSeconds = 30;
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
@@ -46,7 +127,7 @@ namespace EscolarAppPadres.Services
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return new ResponseModel<PendingPayment>
+                    return new ResponseModel<PendingPaymentsResponse>
                     {
                         IsClientError = true,
                         Message = $"Error del servidor: {response.StatusCode}"
@@ -55,7 +136,7 @@ namespace EscolarAppPadres.Services
 
                 if (string.IsNullOrWhiteSpace(responseContent))
                 {
-                    return new ResponseModel<PendingPayment>
+                    return new ResponseModel<PendingPaymentsResponse>
                     {
                         IsClientError = true,
                         Message = "El servidor devolvió una respuesta vacía"
@@ -68,27 +149,29 @@ namespace EscolarAppPadres.Services
 
                 if (tempResponse == null)
                 {
-                    return new ResponseModel<PendingPayment>
+                    return new ResponseModel<PendingPaymentsResponse>
                     {
                         IsClientError = true,
                         Message = "No se pudo interpretar la respuesta del servidor"
                     };
                 }
 
-                return new ResponseModel<PendingPayment>
+                var pendingPaymentsResponse = tempResponse.Data?.FirstOrDefault() ?? new PendingPaymentsResponse();
+
+                return new ResponseModel<PendingPaymentsResponse>
                 {
                     Result = tempResponse.Result,
                     Valoration = tempResponse.Valoration,
                     Message = tempResponse.Message,
                     Log = tempResponse.Log?.ToString(),
-                    Data = tempResponse.Data ?? new List<PendingPayment>()
+                    Data = new List<PendingPaymentsResponse> { pendingPaymentsResponse }
                 };
 
             }
             catch (JsonException jsonEx)
             {
                 Console.WriteLine($"Error al deserializar: {jsonEx.Message}");
-                return new ResponseModel<PendingPayment>
+                return new ResponseModel<PendingPaymentsResponse>
                 {
                     IsClientError = true,
                     Message = "Formato de respuesta inválido del servidor"
@@ -97,7 +180,7 @@ namespace EscolarAppPadres.Services
             catch (HttpRequestException ex)
             {
                 Console.WriteLine($"Error de red: {ex.Message}");
-                return new ResponseModel<PendingPayment>
+                return new ResponseModel<PendingPaymentsResponse>
                 {
                     IsClientError = true,
                     Message = "No se pudo conectar al servidor. Verifique su conexión a Internet e intente de nuevo."
@@ -105,91 +188,20 @@ namespace EscolarAppPadres.Services
             }
             catch (TaskCanceledException)
             {
-                return new ResponseModel<PendingPayment>
+                Console.WriteLine("Tiempo de espera agotado");
+                return new ResponseModel<PendingPaymentsResponse>
                 {
                     IsClientError = true,
-                    Message = "La solicitud ha expirado. Intente nuevamente."
+                    Message = $"La solicitud tardó más de {timeoutSeconds} segundos. Verifique su conexión e intente de nuevo."
                 };
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error inesperado: {ex.Message}");
-                return new ResponseModel<PendingPayment>
+                return new ResponseModel<PendingPaymentsResponse>
                 {
                     IsClientError = true,
-                    Message = "Ocurrió un error inesperado. Intente nuevamente."
-                };
-            }
-        }
-
-        public async Task<ResponseModel<OpenpayChargeResponseDto>?> CreateOpenpayChargeAsync(OpenpayChargeRequestDto request, string token)
-        {
-            try
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var url = $"{ApiRoutes.BaseUrl}{ApiRoutes.Payments.CreateCharge}";
-                var json = JsonSerializer.Serialize(request);
-                Console.WriteLine("JSON ENVIADO DESDE APP:");
-                Console.WriteLine(json);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(url, content);
-                var responseContent = await response.Content.ReadAsStringAsync();
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return new ResponseModel<OpenpayChargeResponseDto>
-                    {
-                        IsClientError = true,
-                        Message = $"Error del servidor: {response.StatusCode}"
-                    };
-                }
-
-                var tempResponse = JsonSerializer.Deserialize<ResponseModel<OpenpayChargeResponseDto>>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                return tempResponse;
-            }
-            catch (Exception ex)
-            {
-                return new ResponseModel<OpenpayChargeResponseDto>
-                {
-                    IsClientError = true,
-                    Message = $"Error: {ex.Message}"
-                };
-            }
-        }
-
-        public async Task<ResponseModel<OpenpayChargeResponseDto>?> CreateOpenpaySimpleChargeAsync(OpenpaySimpleChargeRequestDto request, string token)
-        {
-            try
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var url = $"{ApiRoutes.BaseUrl}{ApiRoutes.Payments.CreateCharge}";
-                var json = JsonSerializer.Serialize(request);
-                Console.WriteLine("JSON ENVIADO DESDE APP:");
-                Console.WriteLine(json);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(url, content);
-                var responseContent = await response.Content.ReadAsStringAsync();
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return new ResponseModel<OpenpayChargeResponseDto>
-                    {
-                        IsClientError = true,
-                        Message = $"Error del servidor: {response.StatusCode}"
-                    };
-                }
-
-                var tempResponse = JsonSerializer.Deserialize<ResponseModel<OpenpayChargeResponseDto>>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                return tempResponse;
-            }
-            catch (Exception ex)
-            {
-                return new ResponseModel<OpenpayChargeResponseDto>
-                {
-                    IsClientError = true,
-                    Message = $"Error: {ex.Message}"
+                    Message = "Ocurrió un error inesperado. Intente de nuevo."
                 };
             }
         }
@@ -231,7 +243,7 @@ namespace EscolarAppPadres.Services
             public bool Valoration { get; set; }
             public string Message { get; set; }
             public object Log { get; set; }
-            public List<PendingPayment> Data { get; set; }
+            public List<PendingPaymentsResponse> Data { get; set; }
         }
 
     }

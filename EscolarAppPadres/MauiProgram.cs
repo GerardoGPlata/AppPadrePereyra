@@ -4,6 +4,7 @@ using Mopups.Hosting;
 using System.Globalization;
 using Syncfusion.Maui.Core.Hosting;
 using CommunityToolkit.Maui.Views;
+using EscolarAppPadres.Helpers;
 
 namespace EscolarAppPadres
 {
@@ -30,6 +31,7 @@ namespace EscolarAppPadres
                 })
                 .ConfigureMopups()
                 .UseMauiCommunityToolkit();
+            builder.Services.AddSingleton<TipoDocumentoToColorConverter>();
 
 #if DEBUG
             builder.Logging.AddDebug();

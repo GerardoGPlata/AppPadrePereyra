@@ -10,35 +10,63 @@ namespace EscolarAppPadres.Views.Service
         {
             InitializeComponent();
             PaymentWebView.Source = url;
+            
+            Console.WriteLine($"[DEBUG] Navegando a URL de pago: {url}");
         }
+
+        private void OnWebViewNavigated(object sender, WebNavigatedEventArgs e)
+        {
+            // Ocultar el indicador de carga cuando termine de cargar
+            LoadingIndicator.IsVisible = false;
+            LoadingIndicator.IsRunning = false;
+            
+            Console.WriteLine($"[DEBUG] WebView naveg√≥ a: {e.Url}");
+        }
+
         protected override async void OnDisappearing()
         {
             base.OnDisappearing();
 
-            // Recupera el ID de la transacciÛn
+            // Recupera el ID de la transacci√≥n
             var transactionId = Preferences.Get("LastTransactionId", null);
 
             if (!string.IsNullOrEmpty(transactionId))
             {
-                var token = await SecureStorage.GetAsync("auth_token");
-                var paymentsService = new PaymentsService();
-                var response = await paymentsService.GetOpenpayChargeStatusAsync(transactionId, token);
-
-                if (response?.Result == true && response.Data != null && response.Data.Any())
+                try
                 {
-                    var status = response.Data.First().Status;
-                    if (status == "completed")
+                    var token = await SecureStorage.GetAsync("auth_token");
+                    var paymentsService = new PaymentsService();
+                    var response = await paymentsService.GetOpenpayChargeStatusAsync(transactionId, token);
+
+                    if (response?.Result == true && response.Data != null && response.Data.Any())
                     {
-                        // LÛgica para pago completado
+                        var status = response.Data.First().Status;
+                        Console.WriteLine($"[DEBUG] Estado del pago: {status}");
+                        
+                        if (status == "completed")
+                        {
+                            // Mostrar mensaje de √©xito
+                            await DisplayAlert("Pago Exitoso", "Su pago ha sido procesado correctamente.", "OK");
+                        }
+                        else if (status == "cancelled")
+                        {
+                            // Mostrar mensaje de cancelaci√≥n
+                            await DisplayAlert("Pago Cancelado", "El pago fue cancelado.", "OK");
+                        }
+                        else
+                        {
+                            // Mostrar estado actual
+                            await DisplayAlert("Estado del Pago", $"Estado actual: {status}", "OK");
+                        }
                     }
                     else
                     {
-                        // LÛgica para pago pendiente u otro estado
+                        Console.WriteLine("[DEBUG] No se pudo obtener el estado del pago");
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    // Manejo de error o estatus no encontrado
+                    Console.WriteLine($"[ERROR] Error verificando estado del pago: {ex.Message}");
                 }
             }
         }

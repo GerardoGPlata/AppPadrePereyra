@@ -19,6 +19,8 @@
 
             <!-- Habilita el botón si hay selección -->
             <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
+
+            <converters:TipoDocumentoToColorConverter x:Key="TipoDocumentoToColorConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

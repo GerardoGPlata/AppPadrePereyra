@@ -1,7 +1,9 @@
 ﻿using EscolarAppPadres.Helpers;
 using EscolarAppPadres.Models;
 using EscolarAppPadres.Models.Openpay;
+using EscolarAppPadres.Models.Payments;
 using EscolarAppPadres.Services;
+using EscolarAppPadres.Views.Service;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -17,15 +19,16 @@ namespace EscolarAppPadres.ViewModels.Payments
     {
         private readonly PaymentsService _paymentsService;
 
-        private ObservableCollection<PendingPayment> _pendingPayments;
+        private ObservableCollection<PaymentItem> _pendingPayments;
         private bool _isRefreshing;
         private bool _sinResultados;
         private decimal _total;
         private bool _isPopupOpen;
-        private ObservableCollection<PendingPayment> _selectedPayments;
+        private ObservableCollection<PaymentItem> _selectedPayments;
         private string _popupHeader;
+        private PendingPaymentsResponse _paymentsData;
 
-        public ObservableCollection<PendingPayment> PendingPayments
+        public ObservableCollection<PaymentItem> PendingPayments
         {
             get => _pendingPayments;
             set
@@ -98,7 +101,7 @@ namespace EscolarAppPadres.ViewModels.Payments
             }
         }
 
-        public ObservableCollection<PendingPayment> SelectedPayments
+        public ObservableCollection<PaymentItem> SelectedPayments
         {
             get => _selectedPayments;
             set
@@ -123,13 +126,11 @@ namespace EscolarAppPadres.ViewModels.Payments
         public ICommand ConfirmPaymentCommand { get; }
         public ICommand ClosePopupCommand { get; }
 
-
-
         public PendingPaymentsViewModel()
         {
             _paymentsService = new PaymentsService();
-            PendingPayments = new ObservableCollection<PendingPayment>();
-            SelectedPayments = new ObservableCollection<PendingPayment>();
+            PendingPayments = new ObservableCollection<PaymentItem>();
+            SelectedPayments = new ObservableCollection<PaymentItem>();
             LoadPaymentsCommand = new Command(async () => await LoadPendingPaymentsAsync());
             PagarCommand = new Command(ShowPaymentPopup);
             ConfirmPaymentCommand = new Command(async () => await ProcessPaymentAsync());
@@ -146,6 +147,7 @@ namespace EscolarAppPadres.ViewModels.Payments
                 SelectedPayments.Add(payment);
             }
 
+            PopupHeader = $"DETALLE DE PAGO ({SelectedPayments.Count} elementos)";
             IsPopupOpen = true;
         }
 
@@ -157,138 +159,259 @@ namespace EscolarAppPadres.ViewModels.Payments
                 return;
             }
 
-            var token = await SecureStorage.GetAsync("auth_token");
-            if (string.IsNullOrEmpty(token))
-            {
-                await DialogsHelper2.ShowErrorMessage("Sesión expirada. Por favor inicie sesión nuevamente.");
-                return;
-            }
-
-            // Datos fijos o puedes obtenerlos de un formulario
-            var name = "Juan";
-            var lastName = "Vazquez Juarez";
-            var email = "juan.vazquez@empresa.com.mx";
-            var phoneNumber = "4423456723";
-            var total = SelectedPayments.Sum(p => p.ImporteCalculado);
-            var description = $"Pago escolar de {SelectedPayments.Count} documento(s)";
-            var orderId = $"oid-{DateTime.Now:yyyyMMddHHmmss}";
-            var redirectUrl = "http://www.openpay.mx/index.html";
-
-            var simpleRequest = new OpenpaySimpleChargeRequestDto
-            {
-                Name = name,
-                LastName = lastName,
-                Email = email,
-                PhoneNumber = phoneNumber,
-                Amount = total,
-                Description = description,
-                OrderId = orderId,
-                RedirectUrl = redirectUrl
-            };
-
-            IsPopupOpen = false;
-
-            var response = await _paymentsService.CreateOpenpaySimpleChargeAsync(simpleRequest, token);
-
-            if (response?.Result == true && response.Data != null && response.Data.Any())
-            {
-                var charge = response.Data.First();
-                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(charge));
-                await DialogsHelper2.ShowSuccessMessage("Pago iniciado correctamente.");
-
-                if (charge.PaymentMethod?.Url != null)
-                {
-                    // Guarda el ID de la transacción globalmente
-                    Preferences.Set("LastTransactionId", charge.Id);
-
-                    await Shell.Current.Navigation.PushAsync(
-                        new EscolarAppPadres.Views.Service.PaymentWebViewPage(charge.PaymentMethod.Url)
-                    );
-                }
-            }
-            else
-            {
-                await DialogsHelper2.ShowErrorMessage(response?.Message ?? "No se pudo iniciar el pago.");
-            }
-        }
-
-        public async Task LoadPendingPaymentsAsync()
-        {
-            IsRefreshing = true;
-            SinResultados = false;
-
             try
             {
                 var token = await SecureStorage.GetAsync("auth_token");
-                var padreId = await SecureStorage.GetAsync("Usuario_Id");
-
                 if (string.IsNullOrEmpty(token))
                 {
-                    await DialogsHelper2.ShowErrorMessage("Sesión expirada. Por favor inicie sesión nuevamente.");
+                    await DialogsHelper2.ShowErrorMessage("Token de autenticación no encontrado. Inicia sesión nuevamente.");
                     return;
                 }
 
-                if (!long.TryParse(padreId, out _))
+                // Agrupar pagos por tipo para determinar el tipoPago
+                var tiposPago = DeterminarTiposPago(SelectedPayments.ToList());
+                var tipoPago = tiposPago.Count == 1 ? tiposPago.First() : "MX"; // MX para mixto
+
+                // Obtener IDs de documentos
+                var documentosIds = new List<string>();
+                foreach (var payment in SelectedPayments)
                 {
-                    await DialogsHelper2.ShowErrorMessage("ID de usuario inválido.");
+                    if (payment.ColegiaturaOriginal != null)
+                    {
+                        documentosIds.Add(payment.ColegiaturaOriginal.DocumentoPorPagarId);
+                    }
+                    else if (payment.InscripcionOriginal != null)
+                    {
+                        documentosIds.Add(payment.InscripcionOriginal.DocumentoPorPagarId.ToString());
+                    }
+                    else if (payment.OtroDocumentoOriginal != null)
+                    {
+                        documentosIds.Add(payment.OtroDocumentoOriginal.DocumentoPorPagarId.ToString());
+                    }
+                }
+
+                var documentoPorPagarId = string.Join("/", documentosIds);
+                var totalImporte = SelectedPayments.Sum(p => p.ImporteCalculado);
+                var conceptoGeneral = GenerarConceptoGeneral(SelectedPayments.ToList());
+
+                var request = new CreateChargeMovilRequestDto
+                {
+                    DocumentoPorPagarId = documentoPorPagarId,
+                    TipoPago = tipoPago,
+                    Importe = totalImporte,
+                    Concepto = conceptoGeneral
+                };
+
+                Console.WriteLine($"[DEBUG] Creando cargo con datos: {request.DocumentoPorPagarId}, {request.TipoPago}, {request.Importe}");
+
+                var response = await _paymentsService.CreateChargeMovilAsync(request, token);
+
+                // ← CORRECCIÓN: Acceder al primer elemento de la lista
+                if (response?.Result == true && response.Data != null && response.Data.Any())
+                {
+                    var chargeData = response.Data.First(); // ← Obtener el primer elemento de la lista
+
+                    if (!string.IsNullOrEmpty(chargeData.PaymentUrl)) // ← Usar chargeData en lugar de response.Data
+                    {
+                        // Guardar ID de transacción para verificación posterior
+                        if (!string.IsNullOrEmpty(chargeData.TransactionId)) // ← Usar chargeData
+                        {
+                            Preferences.Set("LastTransactionId", chargeData.TransactionId);
+                        }
+
+                        IsPopupOpen = false;
+
+                        // Navegar a la página de pago
+                        var paymentPage = new PaymentWebViewPage(chargeData.PaymentUrl); // ← Usar chargeData
+                        await Application.Current.MainPage.Navigation.PushAsync(paymentPage);
+                    }
+                    else
+                    {
+                        await DialogsHelper2.ShowErrorMessage("No se pudo obtener la URL de pago.");
+                    }
+                }
+                else
+                {
+                    var errorMsg = response?.Message ?? "Error desconocido al crear el cargo.";
+                    await DialogsHelper2.ShowErrorMessage($"Error: {errorMsg}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Error en ProcessPaymentAsync: {ex.Message}");
+                await DialogsHelper2.ShowErrorMessage($"Error inesperado: {ex.Message}");
+            }
+        }
+        public async Task LoadPendingPaymentsAsync()
+        {
+            if (IsRefreshing) return;
+
+            try
+            {
+                IsRefreshing = true;
+                PendingPayments.Clear();
+
+                var token = await SecureStorage.GetAsync("auth_token");
+                if (string.IsNullOrEmpty(token))
+                {
+                    await DialogsHelper2.ShowErrorMessage("Token de autenticación no encontrado.");
                     return;
                 }
 
                 var response = await _paymentsService.GetStudentPaymentsAsync(token);
 
-                if (response?.Data != null && response.Data.Any())
+                if (response?.Result == true && response.Data != null)
                 {
-                    PendingPayments.Clear();
+                    _paymentsData = response.Data.FirstOrDefault() ?? new PendingPaymentsResponse();
 
-                    foreach (var payment in response.Data)
+                    // Convertir todos los DTOs a PaymentItem unificado
+                    var paymentItems = new List<PaymentItem>();
+
+                    // Agregar Colegiaturas
+                    foreach (var colegiatura in _paymentsData.Colegiaturas)
                     {
-                        payment.PropertyChanged += Payment_PropertyChanged;
-                        PendingPayments.Add(payment);
+                        var paymentItem = new PaymentItem
+                        {
+                            DocumentoPorPagarId = colegiatura.DocumentoPorPagarId,
+                            Documento = colegiatura.Documento,
+                            Concepto = colegiatura.Concepto,
+                            Alumno = colegiatura.Alumno,
+                            Matricula = colegiatura.Matricula,
+                            Grado = colegiatura.Grado,
+                            Grupo = colegiatura.Grupo ?? "",
+                            ImporteCalculado = colegiatura.ImporteCalculado,
+                            FechaLimiteFormato = colegiatura.FechaLimiteFormato,
+                            TipoDocumentoTexto = colegiatura.TipoDocumentoTexto,
+                            TipoDocumento = 2, // Colegiatura
+                            ColegiaturaOriginal = colegiatura
+                        };
+                        paymentItem.PropertyChanged += Payment_PropertyChanged;
+                        paymentItems.Add(paymentItem);
                     }
 
-                    SinResultados = PendingPayments.Count == 0;
+                    // Agregar Inscripciones
+                    foreach (var inscripcion in _paymentsData.Inscripciones)
+                    {
+                        var paymentItem = new PaymentItem
+                        {
+                            DocumentoPorPagarId = inscripcion.DocumentoPorPagarId.ToString(),
+                            Documento = inscripcion.Documento,
+                            Concepto = inscripcion.Concepto,
+                            Alumno = inscripcion.Alumno,
+                            Matricula = inscripcion.Matricula,
+                            Grado = inscripcion.Grado,
+                            Grupo = inscripcion.Grupo ?? "",
+                            ImporteCalculado = inscripcion.ImporteCalculado,
+                            FechaLimiteFormato = inscripcion.FechaLimiteFormato,
+                            TipoDocumentoTexto = inscripcion.TipoDocumentoTexto,
+                            TipoDocumento = 1, // Inscripción
+                            InscripcionOriginal = inscripcion
+                        };
+                        paymentItem.PropertyChanged += Payment_PropertyChanged;
+                        paymentItems.Add(paymentItem);
+                    }
+
+                    // Agregar Otros Documentos
+                    foreach (var otroDoc in _paymentsData.OtrosDocumentos)
+                    {
+                        var paymentItem = new PaymentItem
+                        {
+                            DocumentoPorPagarId = otroDoc.DocumentoPorPagarId.ToString(),
+                            Documento = otroDoc.Documento,
+                            Concepto = otroDoc.Concepto,
+                            Alumno = otroDoc.Alumno,
+                            Matricula = otroDoc.Matricula,
+                            Grado = otroDoc.Grado,
+                            Grupo = otroDoc.Grupo ?? "",
+                            ImporteCalculado = otroDoc.ImporteCalculado,
+                            FechaLimiteFormato = otroDoc.FechaLimiteFormato,
+                            TipoDocumentoTexto = otroDoc.TipoDocumentoTexto,
+                            TipoDocumento = 3, // Otros
+                            OtroDocumentoOriginal = otroDoc
+                        };
+                        paymentItem.PropertyChanged += Payment_PropertyChanged;
+                        paymentItems.Add(paymentItem);
+                    }
+
+                    // Ordenar por fecha límite
+                    paymentItems = paymentItems.OrderBy(p =>
+                        DateTime.TryParse(p.FechaLimiteFormato?.Replace("/", "-"), out var fecha) ? fecha : DateTime.MaxValue
+                    ).ToList();
+
+                    foreach (var item in paymentItems)
+                    {
+                        PendingPayments.Add(item);
+                    }
+
+                    SinResultados = !PendingPayments.Any();
+
+                    Console.WriteLine($"[INFO] Pagos cargados - Total: {PendingPayments.Count}, Colegiaturas: {_paymentsData.Colegiaturas.Count}, Inscripciones: {_paymentsData.Inscripciones.Count}, Otros: {_paymentsData.OtrosDocumentos.Count}");
                 }
                 else
                 {
                     SinResultados = true;
+                    var errorMsg = response?.Message ?? "Error desconocido al cargar los pagos.";
+                    Console.WriteLine($"[ERROR] {errorMsg}");
                 }
-
-                CalcularTotal(); // actualiza el total por si ya vienen seleccionados
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine($"Error de red: {ex.Message}");
-                await DialogsHelper2.ShowErrorMessage("No se pudo conectar al servidor. Verifique su conexión a Internet.");
-            }
-            catch (TaskCanceledException)
-            {
-                await DialogsHelper2.ShowErrorMessage("La solicitud ha expirado.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error inesperado: {ex.Message}");
-                await DialogsHelper2.ShowErrorMessage("Ocurrió un error inesperado: " + ex.Message);
+                SinResultados = true;
+                Console.WriteLine($"[ERROR] Error cargando pagos: {ex.Message}");
+                await DialogsHelper2.ShowErrorMessage($"Error cargando pagos: {ex.Message}");
             }
             finally
             {
                 IsRefreshing = false;
-                OnPropertyChanged(nameof(PendingPayments));
             }
         }
 
         private void Payment_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(PendingPayment.IsSelected))
+            if (e.PropertyName == nameof(PaymentItem.IsSelected))
+            {
                 CalcularTotal();
+            }
         }
 
         private void CalcularTotal()
         {
-            Total = PendingPayments
-                .Where(p => p.IsSelected)
-                .Sum(p => p.ImporteCalculado);
-
+            Total = PendingPayments?.Where(p => p.IsSelected).Sum(p => p.ImporteCalculado) ?? 0;
             CanPagar = Total > 0;
+        }
+
+        private List<string> DeterminarTiposPago(List<PaymentItem> payments)
+        {
+            var tipos = new HashSet<string>();
+
+            foreach (var payment in payments)
+            {
+                switch (payment.TipoDocumento)
+                {
+                    case 1: // Inscripción
+                    case 2: // Colegiatura
+                        tipos.Add("1");
+                        break;
+                    case 3: // Otros
+                        tipos.Add("3");
+                        break;
+                }
+            }
+
+            return tipos.ToList();
+        }
+
+        private string GenerarConceptoGeneral(List<PaymentItem> payments)
+        {
+            var conceptos = payments.Select(p => p.Concepto).Distinct().Take(3);
+            var conceptoGeneral = string.Join(", ", conceptos);
+
+            if (payments.Count > 3)
+            {
+                conceptoGeneral += $" y {payments.Count - 3} más";
+            }
+
+            return conceptoGeneral;
         }
 
         public async Task InitializeAsync()
