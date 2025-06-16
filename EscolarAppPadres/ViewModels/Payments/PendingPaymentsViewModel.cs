@@ -12,12 +12,14 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Maui.Storage;
 using System.Windows.Input;
+using System.Threading; // ← Agregar esta referencia
 
 namespace EscolarAppPadres.ViewModels.Payments
 {
     public class PendingPaymentsViewModel : INotifyPropertyChanged
     {
         private readonly PaymentsService _paymentsService;
+        private readonly SemaphoreSlim _loadingSemaphore = new SemaphoreSlim(1, 1); // ← Agregar semáforo
 
         private ObservableCollection<PaymentItem> _pendingPayments;
         private bool _isRefreshing;
@@ -147,7 +149,7 @@ namespace EscolarAppPadres.ViewModels.Payments
                 SelectedPayments.Add(payment);
             }
 
-            PopupHeader = $"DETALLE DE PAGO";
+            PopupHeader = $"DETALLE DE PAGO ({SelectedPayments.Count} elementos)";
             IsPopupOpen = true;
         }
 
@@ -206,15 +208,14 @@ namespace EscolarAppPadres.ViewModels.Payments
 
                 var response = await _paymentsService.CreateChargeMovilAsync(request, token);
 
-                // ← CORRECCIÓN: Acceder al primer elemento de la lista
                 if (response?.Result == true && response.Data != null && response.Data.Any())
                 {
-                    var chargeData = response.Data.First(); // ← Obtener el primer elemento de la lista
+                    var chargeData = response.Data.First();
 
-                    if (!string.IsNullOrEmpty(chargeData.PaymentUrl)) // ← Usar chargeData en lugar de response.Data
+                    if (!string.IsNullOrEmpty(chargeData.PaymentUrl))
                     {
                         // Guardar ID de transacción para verificación posterior
-                        if (!string.IsNullOrEmpty(chargeData.TransactionId)) // ← Usar chargeData
+                        if (!string.IsNullOrEmpty(chargeData.TransactionId))
                         {
                             Preferences.Set("LastTransactionId", chargeData.TransactionId);
                         }
@@ -222,7 +223,7 @@ namespace EscolarAppPadres.ViewModels.Payments
                         IsPopupOpen = false;
 
                         // Navegar a la página de pago
-                        var paymentPage = new PaymentWebViewPage(chargeData.PaymentUrl); // ← Usar chargeData
+                        var paymentPage = new PaymentWebViewPage(chargeData.PaymentUrl);
                         await Application.Current.MainPage.Navigation.PushAsync(paymentPage);
                     }
                     else
@@ -242,13 +243,23 @@ namespace EscolarAppPadres.ViewModels.Payments
                 await DialogsHelper2.ShowErrorMessage($"Error inesperado: {ex.Message}");
             }
         }
+
         public async Task LoadPendingPaymentsAsync()
         {
-            if (IsRefreshing) return;
+            // Usar semáforo para evitar ejecuciones simultáneas
+            if (!await _loadingSemaphore.WaitAsync(100)) // Esperar máximo 100ms
+            {
+                Console.WriteLine("[DEBUG] LoadPendingPaymentsAsync ya se está ejecutando, saltando...");
+                return;
+            }
 
             try
             {
+                Console.WriteLine("[DEBUG] Iniciando LoadPendingPaymentsAsync");
                 IsRefreshing = true;
+                SinResultados = false;
+
+                // Limpiar la colección para evitar duplicados
                 PendingPayments.Clear();
 
                 var token = await SecureStorage.GetAsync("auth_token");
@@ -258,6 +269,7 @@ namespace EscolarAppPadres.ViewModels.Payments
                     return;
                 }
 
+                Console.WriteLine("[DEBUG] Haciendo petición al servidor...");
                 var response = await _paymentsService.GetStudentPaymentsAsync(token);
 
                 if (response?.Result == true && response.Data != null)
@@ -312,57 +324,70 @@ namespace EscolarAppPadres.ViewModels.Payments
                     }
 
                     // Agregar Otros Documentos
-                    foreach (var otroDoc in _paymentsData.OtrosDocumentos)
+                    foreach (var otroDocumento in _paymentsData.OtrosDocumentos)
                     {
                         var paymentItem = new PaymentItem
                         {
-                            DocumentoPorPagarId = otroDoc.DocumentoPorPagarId.ToString(),
-                            Documento = otroDoc.Documento,
-                            Concepto = otroDoc.Concepto,
-                            Alumno = otroDoc.Alumno,
-                            Matricula = otroDoc.Matricula,
-                            Grado = otroDoc.Grado,
-                            Grupo = otroDoc.Grupo ?? "",
-                            ImporteCalculado = otroDoc.ImporteCalculado,
-                            FechaLimiteFormato = otroDoc.FechaLimiteFormato,
-                            TipoDocumentoTexto = otroDoc.TipoDocumentoTexto,
-                            TipoDocumento = 3, // Otros
-                            OtroDocumentoOriginal = otroDoc
+                            DocumentoPorPagarId = otroDocumento.DocumentoPorPagarId.ToString(),
+                            Documento = otroDocumento.Documento,
+                            Concepto = otroDocumento.Concepto,
+                            Alumno = otroDocumento.Alumno,
+                            Matricula = otroDocumento.Matricula,
+                            Grado = otroDocumento.Grado,
+                            Grupo = otroDocumento.Grupo ?? "",
+                            ImporteCalculado = otroDocumento.ImporteCalculado,
+                            FechaLimiteFormato = otroDocumento.FechaLimiteFormato,
+                            TipoDocumentoTexto = otroDocumento.TipoDocumentoTexto,
+                            TipoDocumento = 3, // Otro Documento
+                            OtroDocumentoOriginal = otroDocumento
                         };
                         paymentItem.PropertyChanged += Payment_PropertyChanged;
                         paymentItems.Add(paymentItem);
                     }
 
-                    // Ordenar por fecha límite
-                    paymentItems = paymentItems.OrderBy(p =>
-                        DateTime.TryParse(p.FechaLimiteFormato?.Replace("/", "-"), out var fecha) ? fecha : DateTime.MaxValue
-                    ).ToList();
+                    Console.WriteLine($"[DEBUG] Agregando {paymentItems.Count} elementos a la colección");
 
+                    // Agregar todos los items a la colección de una vez
                     foreach (var item in paymentItems)
                     {
                         PendingPayments.Add(item);
                     }
 
+                    // Actualizar estado
                     SinResultados = !PendingPayments.Any();
+                    CalcularTotal();
 
-                    Console.WriteLine($"[INFO] Pagos cargados - Total: {PendingPayments.Count}, Colegiaturas: {_paymentsData.Colegiaturas.Count}, Inscripciones: {_paymentsData.Inscripciones.Count}, Otros: {_paymentsData.OtrosDocumentos.Count}");
+                    Console.WriteLine($"[DEBUG] Total de elementos en PendingPayments: {PendingPayments.Count}");
                 }
                 else
                 {
                     SinResultados = true;
-                    var errorMsg = response?.Message ?? "Error desconocido al cargar los pagos.";
-                    Console.WriteLine($"[ERROR] {errorMsg}");
                 }
+            }
+            catch (HttpRequestException httpEx)
+            {
+                Console.WriteLine($"[ERROR] Error de red en LoadPendingPaymentsAsync: {httpEx.Message}");
+                await DialogsHelper2.ShowErrorMessage("No se pudo conectar al servidor. Verifique su conexión a Internet e intente de nuevo.");
+                SinResultados = true;
+            }
+            catch (TaskCanceledException)
+            {
+                Console.WriteLine("[ERROR] Timeout en LoadPendingPaymentsAsync");
+                await DialogsHelper2.ShowErrorMessage("La solicitud ha expirado. Intente nuevamente.");
+                SinResultados = true;
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[ERROR] Error inesperado en LoadPendingPaymentsAsync: {ex.Message}");
+                await DialogsHelper2.ShowErrorMessage($"Error al cargar pagos: {ex.Message}");
                 SinResultados = true;
-                Console.WriteLine($"[ERROR] Error cargando pagos: {ex.Message}");
-                await DialogsHelper2.ShowErrorMessage($"Error cargando pagos: {ex.Message}");
             }
             finally
             {
                 IsRefreshing = false;
+                OnPropertyChanged(nameof(PendingPayments));
+                _loadingSemaphore.Release(); // ← Liberar el semáforo
+                Console.WriteLine("[DEBUG] LoadPendingPaymentsAsync completado");
             }
         }
 

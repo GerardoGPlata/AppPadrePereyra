@@ -16,6 +16,7 @@ public partial class PendingPaymentsView : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        // Siempre cargar al aparecer para mantener datos actualizados
         await _viewModel.LoadPendingPaymentsAsync();
     }
 }
