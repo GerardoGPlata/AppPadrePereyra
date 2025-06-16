@@ -2,10 +2,17 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
+             xmlns:converters="clr-namespace:EscolarAppPadres.Helpers"
              x:Class="EscolarAppPadres.Views.Service.PendingPaymentsView"
              Title="PAGOS"
              BackgroundColor="#f5f8fa"
              Padding="{OnPlatform iOS='0,20,0,0', Android='0'}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:TipoDocumentoToColorConverter x:Key="TipoDocumentoToColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <Grid>
         <RefreshView Command="{Binding LoadPaymentsCommand}"
@@ -27,6 +34,7 @@
                                            CornerRadius="12"
                                            HasShadow="True"
                                            Padding="0">
+                                        <!-- Cambiar solo esta parte del Grid principal -->
                                         <Grid Padding="15" RowSpacing="8">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
@@ -36,73 +44,127 @@
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
+                                                <!-- Checkbox -->
                                                 <ColumnDefinition Width="Auto"/>
+                                                <!-- Badge -->
+                                                <ColumnDefinition Width="*"/>
+                                                <!-- Concepto -->
+                                                <ColumnDefinition Width="Auto"/>
+                                                <!-- Importe -->
                                             </Grid.ColumnDefinitions>
 
                                             <!-- Checkbox de selección -->
                                             <CheckBox Grid.Row="0" Grid.Column="0" 
-                                                     Grid.RowSpan="4"
-                                                     IsChecked="{Binding IsSelected}"
-                                                     VerticalOptions="Center"
-                                                     Color="#3c9c4c"/>
+                                                         Grid.RowSpan="3"
+                                                         IsChecked="{Binding IsSelected}"
+                                                         VerticalOptions="Center"
+                                                         Color="#3c9c4c"
+                                                         Margin="0,0,10,0"/>
 
-                                            <!-- Tipo de documento y concepto -->
-                                            <StackLayout Grid.Row="0" Grid.Column="1" 
-                                                        Orientation="Horizontal" 
-                                                        Spacing="8">
-                                                <Frame BackgroundColor="{Binding TipoDocumento, Converter={StaticResource TipoDocumentoToColorConverter}}"
-                                                       Padding="8,4"
-                                                       CornerRadius="6"
-                                                       HasShadow="False">
-                                                    <Label Text="{Binding TipoDocumentoTexto}"
-                                                           TextColor="White"
-                                                           FontSize="12"
-                                                           FontAttributes="Bold"/>
-                                                </Frame>
-                                                <Label Text="{Binding Concepto}"
-                                                       FontSize="14"
-                                                       FontAttributes="Bold"
-                                                       TextColor="#273840"
-                                                       VerticalOptions="Center"/>
-                                            </StackLayout>
+                                            <!-- Badge de tipo de documento (primera fila, alineado a la izquierda) -->
+                                            <Frame Grid.Row="0" Grid.Column="1"
+                                                   BackgroundColor="{Binding TipoDocumento, Converter={StaticResource TipoDocumentoToColorConverter}}"
+                                                   Padding="8,4"
+                                                   CornerRadius="6"
+                                                   HasShadow="False"
+                                                   VerticalOptions="Center"
+                                                   Margin="0,0,10,0">
+                                                <Label Text="{Binding TipoDocumentoTexto}"
+                                                       TextColor="White"
+                                                       FontSize="12"
+                                                       FontAttributes="Bold"/>
+                                            </Frame>
 
-                                            <!-- Información del estudiante -->
-                                            <Label Grid.Row="1" Grid.Column="1"
-                                                   Text="{Binding Alumno}"
-                                                   FontSize="13"
-                                                   TextColor="#666666"/>
-
-                                            <!-- Grado y matrícula -->
-                                            <Label Grid.Row="2" Grid.Column="1"
-                                                   FontSize="12"
-                                                   TextColor="#888888">
-                                                <Label.FormattedText>
-                                                    <FormattedString>
-                                                        <Span Text="{Binding Grado}"/>
-                                                        <Span Text=" • "/>
-                                                        <Span Text="{Binding Matricula}"/>
-                                                        <Span Text=" • "/>
-                                                        <Span Text="{Binding FechaLimiteFormato}"/>
-                                                    </FormattedString>
-                                                </Label.FormattedText>
-                                            </Label>
-
-                                            <!-- Documento -->
-                                            <Label Grid.Row="3" Grid.Column="1"
-                                                   Text="{Binding Documento}"
-                                                   FontSize="11"
-                                                   TextColor="#aaaaaa"/>
-
-                                            <!-- Importe -->
+                                            <!-- Concepto (primera fila, con todo el espacio disponible) -->
                                             <Label Grid.Row="0" Grid.Column="2"
-                                                   Grid.RowSpan="4"
+                                                   Text="{Binding Concepto}"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#273840"
+                                                   VerticalOptions="Center"
+                                                   LineBreakMode="TailTruncation"
+                                                   MaxLines="1"
+                                                   HorizontalOptions="FillAndExpand"
+                                                   Margin="0,0,10,0"/>
+
+                                            <!-- Importe total (primera fila, alineado a la derecha) -->
+                                            <Label Grid.Row="0" Grid.Column="3"
                                                    Text="{Binding ImporteFormateado}"
                                                    FontSize="16"
                                                    FontAttributes="Bold"
                                                    TextColor="#3c9c4c"
                                                    VerticalOptions="Center"
                                                    HorizontalOptions="End"/>
+
+                                            <!-- Información del estudiante (segunda fila) -->
+                                            <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                                                   Text="{Binding Alumno}"
+                                                   FontSize="13"
+                                                   TextColor="#666666"
+                                                   Margin="0,0,10,0"/>
+
+                                            <!-- Fecha límite con texto (tercera fila) -->
+                                            <Label Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3"
+                                                   FontSize="12"
+                                                   TextColor="#ff6b6b"
+                                                   Margin="0,0,10,0">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="Fecha límite de pago: " FontAttributes="Bold"/>
+                                                        <Span Text="{Binding FechaLimiteFormato}"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+
+                                            <!-- Desglose en 3 columnas (cuarta fila) -->
+                                            <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3"
+                                                  ColumnSpacing="5"
+                                                  Margin="0,5,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Base -->
+                                                <StackLayout Grid.Column="0" Spacing="1">
+                                                    <Label Text="Base"
+                                                           FontSize="9"
+                                                           TextColor="#666666"
+                                                           HorizontalOptions="Center"
+                                                           FontAttributes="Bold"/>
+                                                    <Label Text="{Binding ImporteBase, StringFormat='{0:C2}'}"
+                                                                           FontSize="10"
+                                                                           TextColor="#666666"
+                                                                           HorizontalOptions="Center"/>
+                                                </StackLayout>
+
+                                                <!-- Descuento -->
+                                                <StackLayout Grid.Column="1" Spacing="1">
+                                                    <Label Text="Descuento"
+                                                           FontSize="9"
+                                                           TextColor="#3c9c4c"
+                                                           HorizontalOptions="Center"
+                                                           FontAttributes="Bold"/>
+                                                    <Label Text="{Binding DescuentoDoc, StringFormat='-{0:C2}'}"
+                                                                           FontSize="10"
+                                                                           TextColor="#3c9c4c"
+                                                                           HorizontalOptions="Center"/>
+                                                </StackLayout>
+
+                                                <!-- Interés -->
+                                                <StackLayout Grid.Column="2" Spacing="1">
+                                                    <Label Text="Interés"
+                   FontSize="9"
+                   TextColor="#ff6b6b"
+                   HorizontalOptions="Center"
+                   FontAttributes="Bold"/>
+                                                    <Label Text="{Binding InteresDoc, StringFormat='+{0:C2}'}"
+                   FontSize="10"
+                   TextColor="#ff6b6b"
+                   HorizontalOptions="Center"/>
+                                                </StackLayout>
+                                            </Grid>
                                         </Grid>
                                     </Frame>
                                 </Grid>
@@ -181,28 +243,80 @@
                                        MaximumHeightRequest="300">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Padding="0,4" ColumnSpacing="10">
+                                    <Grid Padding="0,8" ColumnSpacing="10" RowSpacing="6">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        
-                                        <StackLayout Grid.Column="0">
+
+                                        <!-- Información principal -->
+                                        <StackLayout Grid.Row="0" Grid.Column="0">
                                             <Label Text="{Binding Concepto}"
-                                                   FontSize="12"
+                                                   FontSize="13"
                                                    FontAttributes="Bold"
                                                    TextColor="#273840"/>
                                             <Label Text="{Binding Alumno}"
-                                                   FontSize="11"
+                                                   FontSize="12"
                                                    TextColor="#666666"/>
                                         </StackLayout>
-                                        
-                                        <Label Grid.Column="1"
+
+                                        <!-- Total del pago -->
+                                        <Label Grid.Row="0" Grid.Column="1"
                                                Text="{Binding ImporteFormateado}"
-                                               FontSize="12"
+                                               FontSize="13"
                                                FontAttributes="Bold"
                                                TextColor="#3c9c4c"
                                                VerticalOptions="Center"/>
+
+                                        <!-- Desglose en 3 columnas para el popup -->
+                                        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                              ColumnSpacing="10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackLayout Grid.Column="0" Spacing="1">
+                                                <Label Text="Base"
+                                                       FontSize="9"
+                                                       TextColor="#666666"
+                                                       HorizontalOptions="Center"
+                                                       FontAttributes="Bold"/>
+                                                <Label Text="{Binding ImporteBase, StringFormat='{0:C2}'}"
+                                                       FontSize="10"
+                                                       TextColor="#666666"
+                                                       HorizontalOptions="Center"/>
+                                            </StackLayout>
+
+                                            <StackLayout Grid.Column="1" Spacing="1">
+                                                <Label Text="Descuento"
+                                                       FontSize="9"
+                                                       TextColor="#3c9c4c"
+                                                       HorizontalOptions="Center"
+                                                       FontAttributes="Bold"/>
+                                                <Label Text="{Binding DescuentoDoc, StringFormat='-{0:C2}'}"
+                                                       FontSize="10"
+                                                       TextColor="#3c9c4c"
+                                                       HorizontalOptions="Center"/>
+                                            </StackLayout>
+
+                                            <StackLayout Grid.Column="2" Spacing="1">
+                                                <Label Text="Interés"
+                                                       FontSize="9"
+                                                       TextColor="#ff6b6b"
+                                                       HorizontalOptions="Center"
+                                                       FontAttributes="Bold"/>
+                                                <Label Text="{Binding InteresDoc, StringFormat='+{0:C2}'}"
+                                                       FontSize="10"
+                                                       TextColor="#ff6b6b"
+                                                       HorizontalOptions="Center"/>
+                                            </StackLayout>
+                                        </Grid>
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
@@ -220,14 +334,14 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            
+
                             <Label Grid.Column="0"
                                    Text="TOTAL A PAGAR:"
                                    FontSize="14"
                                    FontAttributes="Bold"
                                    TextColor="#273840"
                                    VerticalOptions="Center"/>
-                            
+
                             <Label Grid.Column="1"
                                    Text="{Binding Total, StringFormat='{0:C2}'}"
                                    FontSize="16"

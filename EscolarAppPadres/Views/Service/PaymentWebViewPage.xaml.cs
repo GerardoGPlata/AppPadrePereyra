@@ -1,6 +1,7 @@
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using EscolarAppPadres.Services;
+using EscolarAppPadres.Helpers;
 
 namespace EscolarAppPadres.Views.Service
 {
@@ -46,17 +47,21 @@ namespace EscolarAppPadres.Views.Service
                         if (status == "completed")
                         {
                             // Mostrar mensaje de éxito
-                            await DisplayAlert("Pago Exitoso", "Su pago ha sido procesado correctamente.", "OK");
+                            //await DisplayAlert("Pago Exitoso", "Su pago ha sido procesado correctamente.", "OK");
+                            await DialogsHelper2
+                                .ShowSuccessMessage("El pago se ha realizado con éxito. Gracias por su transacción.");
                         }
                         else if (status == "cancelled")
                         {
                             // Mostrar mensaje de cancelación
-                            await DisplayAlert("Pago Cancelado", "El pago fue cancelado.", "OK");
+                            //await DisplayAlert("Pago Cancelado", "El pago fue cancelado.", "OK");
+                            await DialogsHelper2
+                                .ShowWarningMessage("El pago ha sido cancelado. Por favor, intente nuevamente si es necesario.");
                         }
                         else
                         {
-                            // Mostrar estado actual
-                            await DisplayAlert("Estado del Pago", $"Estado actual: {status}", "OK");
+                            await DialogsHelper2
+                                .ShowWarningMessage("El pago ha sido cancelado.");
                         }
                     }
                     else

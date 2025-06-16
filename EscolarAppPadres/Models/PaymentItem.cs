@@ -42,5 +42,38 @@ namespace EscolarAppPadres.Models.Payments
         public ColegiaturaDto ColegiaturaOriginal { get; set; }
         public InscripcionDto InscripcionOriginal { get; set; }
         public OtrosDocumentosDto OtroDocumentoOriginal { get; set; }
+
+        public decimal ImporteBase
+        {
+            get
+            {
+                if (ColegiaturaOriginal != null) return ColegiaturaOriginal.Importe;
+                if (InscripcionOriginal != null) return InscripcionOriginal.Importe;
+                if (OtroDocumentoOriginal != null) return OtroDocumentoOriginal.Importe;
+                return 0;
+            }
+        }
+
+        public decimal DescuentoDoc
+        {
+            get
+            {
+                if (ColegiaturaOriginal != null) return ColegiaturaOriginal.DescuentoDoc;
+                if (InscripcionOriginal != null) return InscripcionOriginal.DescuentoDoc;
+                if (OtroDocumentoOriginal != null) return OtroDocumentoOriginal.DescuentoDoc;
+                return 0;
+            }
+        }
+
+        public decimal InteresDoc
+        {
+            get
+            {
+                if (ColegiaturaOriginal != null) return ColegiaturaOriginal.Interes;
+                if (InscripcionOriginal != null) return InscripcionOriginal.Interes;
+                if (OtroDocumentoOriginal != null) return OtroDocumentoOriginal.Interes;
+                return 0;
+            }
+        }
     }
 }

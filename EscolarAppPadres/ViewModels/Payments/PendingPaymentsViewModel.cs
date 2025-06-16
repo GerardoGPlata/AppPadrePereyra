@@ -147,7 +147,7 @@ namespace EscolarAppPadres.ViewModels.Payments
                 SelectedPayments.Add(payment);
             }
 
-            PopupHeader = $"DETALLE DE PAGO ({SelectedPayments.Count} elementos)";
+            PopupHeader = $"DETALLE DE PAGO";
             IsPopupOpen = true;
         }
 
