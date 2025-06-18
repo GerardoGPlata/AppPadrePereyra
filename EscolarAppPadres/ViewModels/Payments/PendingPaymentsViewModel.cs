@@ -170,31 +170,74 @@ namespace EscolarAppPadres.ViewModels.Payments
                     return;
                 }
 
+                Console.WriteLine($"[DEBUG] === INICIANDO PROCESO DE PAGO ===");
+                Console.WriteLine($"[DEBUG] Número de pagos seleccionados: {SelectedPayments.Count}");
+
+                // Debug detallado de cada pago seleccionado
+                for (int i = 0; i < SelectedPayments.Count; i++)
+                {
+                    var payment = SelectedPayments[i];
+                    Console.WriteLine($"[DEBUG] Pago #{i + 1}:");
+                    Console.WriteLine($"  - Concepto: {payment.Concepto}");
+                    Console.WriteLine($"  - Alumno: {payment.Alumno}");
+                    Console.WriteLine($"  - Tipo Documento: {payment.TipoDocumento} ({payment.TipoDocumentoTexto})");
+                    Console.WriteLine($"  - Importe: {payment.ImporteCalculado:C2}");
+                }
+
                 // Agrupar pagos por tipo para determinar el tipoPago
                 var tiposPago = DeterminarTiposPago(SelectedPayments.ToList());
                 var tipoPago = tiposPago.Count == 1 ? tiposPago.First() : "MX"; // MX para mixto
 
-                // Obtener IDs de documentos
+                Console.WriteLine($"[DEBUG] Tipos de pago detectados: [{string.Join(", ", tiposPago)}]");
+                Console.WriteLine($"[DEBUG] Tipo de pago final: {tipoPago}");
+
+                // Obtener IDs de documentos con debug detallado
                 var documentosIds = new List<string>();
+                Console.WriteLine($"[DEBUG] === OBTENIENDO IDs DE DOCUMENTOS ===");
+
                 foreach (var payment in SelectedPayments)
                 {
+                    string documentoId = null;
+
                     if (payment.ColegiaturaOriginal != null)
                     {
-                        documentosIds.Add(payment.ColegiaturaOriginal.DocumentoPorPagarId);
+                        documentoId = payment.ColegiaturaOriginal.DocumentoPorPagarId;
+                        documentosIds.Add(documentoId);
+                        Console.WriteLine($"[DEBUG] Colegiatura - ID: {documentoId}, Concepto: {payment.Concepto}");
                     }
                     else if (payment.InscripcionOriginal != null)
                     {
-                        documentosIds.Add(payment.InscripcionOriginal.DocumentoPorPagarId.ToString());
+                        documentoId = payment.InscripcionOriginal.DocumentoPorPagarId.ToString();
+                        documentosIds.Add(documentoId);
+                        Console.WriteLine($"[DEBUG] Inscripción - ID: {documentoId}, Concepto: {payment.Concepto}");
                     }
                     else if (payment.OtroDocumentoOriginal != null)
                     {
-                        documentosIds.Add(payment.OtroDocumentoOriginal.DocumentoPorPagarId.ToString());
+                        documentoId = payment.OtroDocumentoOriginal.DocumentoPorPagarId.ToString();
+                        documentosIds.Add(documentoId);
+                        Console.WriteLine($"[DEBUG] Otro Documento - ID: {documentoId}, Concepto: {payment.Concepto}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[WARNING] Pago sin documento original válido: {payment.Concepto}");
                     }
                 }
 
                 var documentoPorPagarId = string.Join("/", documentosIds);
+                Console.WriteLine($"[DEBUG] IDs de documentos concatenados: {documentoPorPagarId}");
+
                 var totalImporte = SelectedPayments.Sum(p => p.ImporteCalculado);
+                Console.WriteLine($"[DEBUG] Importe total calculado: {totalImporte:C2}");
+
+                // Generar concepto con debug mejorado
                 var conceptoGeneral = GenerarConceptoGeneral(SelectedPayments.ToList());
+                Console.WriteLine($"[DEBUG] === CONCEPTOS SELECCIONADOS ===");
+                var todosLosConceptos = SelectedPayments.Select(p => p.Concepto).ToList();
+                for (int i = 0; i < todosLosConceptos.Count; i++)
+                {
+                    Console.WriteLine($"[DEBUG] Concepto #{i + 1}: {todosLosConceptos[i]}");
+                }
+                Console.WriteLine($"[DEBUG] Concepto general generado: {conceptoGeneral}");
 
                 var request = new CreateChargeMovilRequestDto
                 {
@@ -204,13 +247,19 @@ namespace EscolarAppPadres.ViewModels.Payments
                     Concepto = conceptoGeneral
                 };
 
-                Console.WriteLine($"[DEBUG] Creando cargo con datos: {request.DocumentoPorPagarId}, {request.TipoPago}, {request.Importe}");
+                Console.WriteLine($"[DEBUG] === DATOS FINALES DEL REQUEST ===");
+                Console.WriteLine($"[DEBUG] DocumentoPorPagarId: {request.DocumentoPorPagarId}");
+                Console.WriteLine($"[DEBUG] TipoPago: {request.TipoPago}");
+                Console.WriteLine($"[DEBUG] Importe: {request.Importe:C2}");
+                Console.WriteLine($"[DEBUG] Concepto: {request.Concepto}");
+                Console.WriteLine($"[DEBUG] === ENVIANDO REQUEST A OPENPAY ===");
 
                 var response = await _paymentsService.CreateChargeMovilAsync(request, token);
 
                 if (response?.Result == true && response.Data != null && response.Data.Any())
                 {
                     var chargeData = response.Data.First();
+                    Console.WriteLine($"[DEBUG] Cargo creado exitosamente - TransactionId: {chargeData.TransactionId}");
 
                     if (!string.IsNullOrEmpty(chargeData.PaymentUrl))
                     {
@@ -218,9 +267,11 @@ namespace EscolarAppPadres.ViewModels.Payments
                         if (!string.IsNullOrEmpty(chargeData.TransactionId))
                         {
                             Preferences.Set("LastTransactionId", chargeData.TransactionId);
+                            Console.WriteLine($"[DEBUG] TransactionId guardado: {chargeData.TransactionId}");
                         }
 
                         IsPopupOpen = false;
+                        Console.WriteLine($"[DEBUG] Navegando a URL de pago: {chargeData.PaymentUrl}");
 
                         // Navegar a la página de pago
                         var paymentPage = new PaymentWebViewPage(chargeData.PaymentUrl);
@@ -228,22 +279,54 @@ namespace EscolarAppPadres.ViewModels.Payments
                     }
                     else
                     {
+                        Console.WriteLine($"[ERROR] URL de pago vacía en respuesta");
                         await DialogsHelper2.ShowErrorMessage("No se pudo obtener la URL de pago.");
                     }
                 }
                 else
                 {
                     var errorMsg = response?.Message ?? "Error desconocido al crear el cargo.";
+                    Console.WriteLine($"[ERROR] Error en respuesta de CreateChargeMovil: {errorMsg}");
                     await DialogsHelper2.ShowErrorMessage($"Error: {errorMsg}");
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[ERROR] Error en ProcessPaymentAsync: {ex.Message}");
+                Console.WriteLine($"[ERROR] StackTrace: {ex.StackTrace}");
                 await DialogsHelper2.ShowErrorMessage($"Error inesperado: {ex.Message}");
             }
         }
 
+        private string GenerarConceptoGeneral(List<PaymentItem> payments)
+        {
+            // Obtener todos los conceptos únicos
+            var conceptosUnicos = payments.Select(p => p.Concepto).Distinct().ToList();
+
+            Console.WriteLine($"[DEBUG] === GENERANDO CONCEPTO GENERAL ===");
+            Console.WriteLine($"[DEBUG] Conceptos únicos encontrados: {conceptosUnicos.Count}");
+
+            foreach (var concepto in conceptosUnicos)
+            {
+                Console.WriteLine($"[DEBUG] - {concepto}");
+            }
+
+            // Si son 3 o menos conceptos, mostrarlos todos
+            if (conceptosUnicos.Count <= 3)
+            {
+                var conceptoFinal = string.Join(", ", conceptosUnicos);
+                Console.WriteLine($"[DEBUG] Concepto final (≤3): {conceptoFinal}");
+                return conceptoFinal;
+            }
+            else
+            {
+                // Si son más de 3, mostrar los primeros 3 y agregar "y X más"
+                var primerosTres = conceptosUnicos.Take(3);
+                var conceptoFinal = string.Join(", ", primerosTres) + $" y {conceptosUnicos.Count - 3} más";
+                Console.WriteLine($"[DEBUG] Concepto final (>3): {conceptoFinal}");
+                return conceptoFinal;
+            }
+        }
         public async Task LoadPendingPaymentsAsync()
         {
             // Usar semáforo para evitar ejecuciones simultáneas
@@ -424,19 +507,6 @@ namespace EscolarAppPadres.ViewModels.Payments
             }
 
             return tipos.ToList();
-        }
-
-        private string GenerarConceptoGeneral(List<PaymentItem> payments)
-        {
-            var conceptos = payments.Select(p => p.Concepto).Distinct().Take(3);
-            var conceptoGeneral = string.Join(", ", conceptos);
-
-            if (payments.Count > 3)
-            {
-                conceptoGeneral += $" y {payments.Count - 3} más";
-            }
-
-            return conceptoGeneral;
         }
 
         public async Task InitializeAsync()
