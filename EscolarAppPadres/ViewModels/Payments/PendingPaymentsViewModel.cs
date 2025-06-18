@@ -40,6 +40,29 @@ namespace EscolarAppPadres.ViewModels.Payments
             }
         }
 
+        public decimal SubTotal
+        {
+            get
+            {
+                return SelectedPayments?.Sum(p => p.ImporteBase) ?? 0;
+            }
+        }
+
+        public decimal TotalDescuento
+        {
+            get
+            {
+                return SelectedPayments?.Sum(p => p.DescuentoDoc) ?? 0;
+            }
+        }
+
+        public decimal TotalRecargos
+        {
+            get
+            {
+                return SelectedPayments?.Sum(p => p.InteresDoc) ?? 0;
+            }
+        }
         public decimal Total
         {
             get => _total;
@@ -149,7 +172,7 @@ namespace EscolarAppPadres.ViewModels.Payments
                 SelectedPayments.Add(payment);
             }
 
-            PopupHeader = $"DETALLE DE PAGO ({SelectedPayments.Count} elementos)";
+            PopupHeader = $"DETALLE DE PAGO";
             IsPopupOpen = true;
         }
 
