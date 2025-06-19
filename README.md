@@ -293,36 +293,6 @@ _httpClient.DefaultRequestHeaders.Authorization =
 
 ---
 
-## 🤝 **Contribución al Proyecto**
-
-¡Las contribuciones son bienvenidas! Sigue estas pautas:
-
-### **🔄 Proceso de Contribución**
-1. 🍴 **Fork** el repositorio
-2. 🌿 Crea una **rama feature** (`git checkout -b feature/nueva-funcionalidad`)
-3. 💾 **Commit** tus cambios (`git commit -m 'feat: añadir nueva funcionalidad'`)
-4. 📤 **Push** a la rama (`git push origin feature/nueva-funcionalidad`)
-5. 🔄 Abre un **Pull Request** detallado
-
-### **📋 Estándares de Código**
-- 🎯 Seguir el patrón **MVVM** establecido
-- 📝 Documentar métodos públicos con XML comments
-- ✅ Incluir **validaciones** de entrada
-- 🎨 Mantener **consistencia** en nomenclatura
-- 🔧 Usar **async/await** para operaciones HTTP
-
-### **🧪 Testing**
-```csharp
-// Ejemplo de estructura para tests
-[Test]
-public async Task GetNewsAsync_ShouldReturnNews_WhenTokenIsValid()
-{
-    // Arrange, Act, Assert
-}
-```
-
----
-
 ## 📊 **Métricas del Proyecto**
 
 <div align="center">
