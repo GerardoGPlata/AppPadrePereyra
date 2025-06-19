@@ -1,7 +1,6 @@
 ﻿using EscolarAppPadres.Helpers;
 using EscolarAppPadres.Models;
 using EscolarAppPadres.Services;
-using Syncfusion.Maui.DataGrid;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,11 +24,10 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             {
                 _calificacionesPorPeriodo = value;
                 OnPropertyChanged(nameof(CalificacionesPorPeriodo));
-                OnPropertyChanged(nameof(Promedio)); // Notificar cambio en promedio cuando cambian las calificaciones
+                OnPropertyChanged(nameof(Promedio));
             }
         }
 
-        // Propiedad calculada para el promedio
         public double? Promedio
         {
             get
@@ -54,10 +52,8 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
     public class StudentGradeViewModel : INotifyPropertyChanged
     {
         #region Services
-
         private readonly GradeService _gradeService;
         private readonly StudentCriteriaGradesService _criteriaGradesService;
-
         #endregion
 
         #region Properties
@@ -101,11 +97,6 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                     {
                         MateriasConCalificaciones = new ObservableCollection<SubjectGrades>();
                         EvaluationPeriods.Clear();
-                        if (DataGrid != null)
-                        {
-                            DataGrid.Columns.Clear();
-                            DataGrid.ItemsSource = null;
-                        }
                     });
                     _ = LoadGradesAsync();
                 }
@@ -131,17 +122,6 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             {
                 _sinResultados = value;
                 OnPropertyChanged(nameof(SinResultados));
-            }
-        }
-
-        private SfDataGrid _dataGrid;
-        public SfDataGrid DataGrid
-        {
-            get => _dataGrid;
-            set
-            {
-                _dataGrid = value;
-                OnPropertyChanged(nameof(DataGrid));
             }
         }
 
@@ -172,6 +152,9 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             get => _popupTotal;
             set { _popupTotal = value; OnPropertyChanged(nameof(PopupTotal)); }
         }
+
+        // Evento para notificar cuando se deben actualizar las columnas
+        public event EventHandler ColumnsChanged;
         #endregion
 
         #region Commands
@@ -189,7 +172,6 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             RefreshCommand = new Command(async () => await RefreshDataAsync());
             DescargarBoletaCommand = new Command(DescargarBoleta);
         }
-
         #endregion
 
         #region Methods
@@ -209,10 +191,10 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                 });
             }
         }
+
         public async Task InitializeAsync()
         {
             await LoadChildrenData();
-
             if (Hijos.Any())
                 SelectedHijo = Hijos.First();
         }
@@ -222,7 +204,6 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             try
             {
                 var json = await SecureStorage.GetAsync("Hijos");
-
                 if (!string.IsNullOrEmpty(json))
                 {
                     var hijos = JsonSerializer.Deserialize<List<Hijo>>(json);
@@ -246,11 +227,6 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             {
                 MateriasConCalificaciones = new ObservableCollection<SubjectGrades>();
                 EvaluationPeriods.Clear();
-                if (DataGrid != null)
-                {
-                    DataGrid.Columns.Clear();
-                    DataGrid.ItemsSource = null;
-                }
             });
             await LoadGradesAsync();
         }
@@ -298,7 +274,6 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                         EvaluationPeriods.Add(period);
 
                     var periodos = response.Data.Select(p => p.DescripcionCorta).ToList();
-
                     var materias = response.Data
                         .SelectMany(p => p.Calificaciones)
                         .GroupBy(c => c.NombreCorto)
@@ -337,11 +312,7 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                         else
                         {
                             MateriasConCalificaciones = nuevasMaterias;
-                            GenerateDataGridColumns();
-                            if (DataGrid != null)
-                            {
-                                DataGrid.ItemsSource = MateriasConCalificaciones;
-                            }
+                            ColumnsChanged?.Invoke(this, EventArgs.Empty);
                         }
                     });
                 });
@@ -363,65 +334,6 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             {
                 IsRefreshing = false;
             }
-        }
-
-        private void GenerateDataGridColumns()
-        {
-            if (DataGrid == null || NombresPeriodos == null || !NombresPeriodos.Any())
-                return;
-
-            try
-            {
-                if (!MainThread.IsMainThread)
-                {
-                    MainThread.BeginInvokeOnMainThread(() => GenerateDataGridColumns());
-                    return;
-                }
-
-                DataGrid.Columns.Clear();
-
-                var materiasColumn = new DataGridTextColumn
-                {
-                    HeaderText = " ",
-                    MappingName = "NombreCorto",
-                    Width = 80,
-                    HeaderTextAlignment = TextAlignment.Center
-                };
-                DataGrid.Columns.Add(materiasColumn);
-
-                foreach (var periodo in NombresPeriodos)
-                {
-                    var column = new DataGridTextColumn
-                    {
-                        HeaderText = periodo,
-                        MappingName = $"CalificacionesPorPeriodo[{periodo}]",
-                        Width = 80,
-                        HeaderTextAlignment = TextAlignment.Center,
-                        Format = "0.0"
-                    };
-                    DataGrid.Columns.Add(column);
-                }
-
-                // Añadir columna de promedio
-                var promedioColumn = new DataGridTextColumn
-                {
-                    HeaderText = "Promedio",
-                    MappingName = "Promedio",
-                    Width = 80,
-                    HeaderTextAlignment = TextAlignment.Center,
-                    Format = "0.0"
-                };
-                DataGrid.Columns.Add(promedioColumn);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al generar columnas: {ex.Message}");
-            }
-        }
-
-        public void SetDataGridReference(SfDataGrid dataGrid)
-        {
-            DataGrid = dataGrid;
         }
 
         public async Task<List<StudentCriteriaGrade>> GetCriteriaGradesForSubjectAsync(int materiaId, int periodoEvaluacionId)

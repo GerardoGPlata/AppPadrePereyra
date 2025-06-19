@@ -54,24 +54,18 @@ namespace EscolarAppPadres
             {
                 await Task.Delay(5000);
 
-                var authRefreshToken = new RefreshTokenViewModel(new StudentLoginService());
+                // ✅ CAMBIO: Validación simplificada - solo verificar si hay datos guardados
+                var UsuarioId = await SecureStorage.GetAsync("Usuario_Id");
+                var TipoUsuarioId = await SecureStorage.GetAsync("Tipo_Usuario_Id");
+                var authToken = await SecureStorage.GetAsync("auth_token");
 
-                var token = await authRefreshToken.EnsureTokenValidAsync();
-
-                if (token != null)
+                if (!string.IsNullOrEmpty(UsuarioId) &&
+                    !string.IsNullOrEmpty(TipoUsuarioId) &&
+                    !string.IsNullOrEmpty(authToken))
                 {
-                    var UsuarioId = await SecureStorage.GetAsync("Usuario_Id");
-                    var TipoUsuarioId = await SecureStorage.GetAsync("Tipo_Usuario_Id");
-
-                    if (!string.IsNullOrEmpty(UsuarioId) && !string.IsNullOrEmpty(TipoUsuarioId))
-                    {
-                        MainPage = new AppShell();
-                        StartTokenValidationTask();
-                    }
-                    else
-                    {
-                        MainPage = new NavigationPage(new StudentLoginView());
-                    }
+                    // ✅ Si hay datos, ir directo al dashboard sin validaciones
+                    MainPage = new AppShell();
+                    // ✅ ELIMINADO: StartTokenValidationTask() - Ya no necesitamos validación periódica
                 }
                 else
                 {
@@ -110,10 +104,10 @@ namespace EscolarAppPadres
             {
                 var permissionsToRequest = new List<(List<Permissions.BasePermission> Permissions, string FriendlyName)>
                 {
-                    (new List<Permissions.BasePermission> 
-                    { 
-                        new Permissions.CalendarRead(), 
-                        new Permissions.CalendarWrite() 
+                    (new List<Permissions.BasePermission>
+                    {
+                        new Permissions.CalendarRead(),
+                        new Permissions.CalendarWrite()
                     },  "Calendario"),
                 };
 
@@ -191,7 +185,7 @@ namespace EscolarAppPadres
             }
             catch (Exception ex)
             {
-               var errorMessage = $"Error al procesar la solicitud Message: {ex.Message}";
+                var errorMessage = $"Error al procesar la solicitud Message: {ex.Message}";
                 var errorStackTrace = $"Error al procesar la solicitud StackTrace: {ex.StackTrace}";
 
                 Console.WriteLine("=== ERROR DETECTADO ===");
@@ -202,33 +196,7 @@ namespace EscolarAppPadres
             }
         }
 
-        private async void StartTokenValidationTask()
-        {
-            _cancellationTokenSource = new CancellationTokenSource();
-            var tokenValidationTask = Task.Run(async () =>
-            {
-                while (!_cancellationTokenSource.Token.IsCancellationRequested)
-                {
-                    var authRefreshToken = new RefreshTokenViewModel(new StudentLoginService());
-                    var token = await authRefreshToken.EnsureTokenValidAsync();
-
-                    if (token == null)
-                    {
-                        _cancellationTokenSource.Cancel();
-
-                        MainThread.BeginInvokeOnMainThread(async () =>
-                        {
-                            await CloseOpenPopupsAsync();
-                            MainPage = new NavigationPage(new StudentLoginView());
-                        });
-                    }
-
-                    await Task.Delay(TimeSpan.FromMinutes(5), _cancellationTokenSource.Token);
-                }
-            }, _cancellationTokenSource.Token);
-
-            await Task.CompletedTask;
-        }
+        // ✅ ELIMINADO: StartTokenValidationTask() - Ya no necesitamos validación periódica
 
         private async void StartInternetCheckTimer()
         {
@@ -298,9 +266,8 @@ namespace EscolarAppPadres
 
         protected override void OnResume()
         {
-            StartTokenValidationTask();
+            // ✅ CAMBIO: Solo verificar conexión a internet, no tokens
             StartInternetCheckTimer();
         }
-
     }
 }
