@@ -314,23 +314,91 @@ _httpClient.DefaultRequestHeaders.Authorization =
 
 <div align="center">
 
-**Gerardo Gallegos Plata**
+### **🚀 Gerardo Gallegos Plata**
+*Software Engineer & Full-Stack Developer*
 
-📧 **Contacto:** [gplata@resosistemas.mx](mailto:gplata@resosistemas.mx)  
-🌐 **Website:** [www.resosistemas.mx](https://www.resosistemas.mx)  
-📱 **Soporte Técnico:** [gplata@resosistemas.mx](mailto:gplata@resosistemas.mx) 
+<img src="https://img.shields.io/badge/Desarrollador-Junior-blue?style=for-the-badge&logo=code&logoColor=white" alt="Junior Developer">
+<img src="https://img.shields.io/badge/Experiencia-2%20años-green?style=for-the-badge&logo=calendar&logoColor=white" alt="Experience">
+<img src="https://img.shields.io/badge/Especialidad-.NET%20%7C%20Full--Stack-purple?style=for-the-badge&logo=dotnet&logoColor=white" alt="Specialty">
 
 ---
 
-### **🎯 Tecnologías Utilizadas**
+### **📫 Información de Contacto**
 
-![.NET MAUI](https://img.shields.io/badge/.NET%20MAUI-512BD4?style=flat-square&logo=dotnet&logoColor=white)
+| **Canal** | **Información** |
+|:---------:|:---------------:|
+| 📧 **Email Principal** | [gplata@resosistemas.mx](mailto:gplata@resosistemas.mx) |
+| 🌐 **Sitio Web** | [www.resosistemas.mx](https://www.resosistemas.mx) |
+| 📱 **Soporte Técnico** | [gplata@resosistemas.mx](mailto:gplata@resosistemas.mx) |
+| 🐙 **GitHub** | [github.com/gerardogplata](https://github.com/gerardogplata) |
+
+---
+
+### **🎯 Expertise Tecnológico**
+
+#### **💻 Backend Development**
+![.NET](https://img.shields.io/badge/.NET_Core-512BD4?style=flat-square&logo=dotnet&logoColor=white)
 ![C#](https://img.shields.io/badge/C%23-239120?style=flat-square&logo=c-sharp&logoColor=white)
-![XAML](https://img.shields.io/badge/XAML-0C54C2?style=flat-square&logo=xaml&logoColor=white)
-![Syncfusion](https://img.shields.io/badge/Syncfusion-FF6600?style=flat-square&logo=syncfusion&logoColor=white)
+![ASP.NET](https://img.shields.io/badge/ASP.NET_Core-0078D4?style=flat-square&logo=dotnet&logoColor=white)
+![Entity Framework](https://img.shields.io/badge/Entity_Framework-512BD4?style=flat-square&logo=dotnet&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-777BB4?style=flat-square&logo=php&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+
+#### **🌐 Frontend Development**
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
+![Vanilla JS](https://img.shields.io/badge/Vanilla_JS-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+
+#### **🗄️ Bases de Datos**
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)
+![SQL Server](https://img.shields.io/badge/SQL_Server-CC2927?style=flat-square&logo=microsoft-sql-server&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat-square&logo=postgresql&logoColor=white)
+
+#### **📱 Desarrollo Móvil**
+![.NET MAUI](https://img.shields.io/badge/.NET_MAUI-512BD4?style=flat-square&logo=dotnet&logoColor=white)
+![Xamarin](https://img.shields.io/badge/Xamarin-3498DB?style=flat-square&logo=xamarin&logoColor=white)
+![Android Studio](https://img.shields.io/badge/Android_Studio-3DDC84?style=flat-square&logo=android-studio&logoColor=white)
+![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=java&logoColor=white)
+
+#### **🛠️ Herramientas & DevOps**
+![Visual Studio](https://img.shields.io/badge/Visual_Studio-5C2D91?style=flat-square&logo=visual-studio&logoColor=white)
+![Android Studio](https://img.shields.io/badge/Android_Studio-3DDC84?style=flat-square&logo=android-studio&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 
 ---
 
-*Desarrollado con ❤️ por RESO Sistemas*
+### **🏢 RESO Sistemas**
+*Soluciones Tecnológicas Empresariales*
+
+**🎯 Especialidades:**
+📱 **Desarrollo de Aplicaciones Móviles** (.NET MAUI, Android nativo)
+🌐 **APIs REST** robustas (.NET Core, PHP)
+🖥️ **Aplicaciones Web** (JavaScript, PHP, Python)
+🏫 **Sistemas Educativos** personalizados
+💼 **Soluciones Full-Stack** a medida
+🔧 **Consultoría Tecnológica** especializada
+
+**📊 Servicios Ofrecidos:**
+✅ **Desarrollo de software** a medida
+🏫 **Sistemas de gestión** educativa
+📱 **Aplicaciones móviles** multiplataforma
+🌐 **APIs y servicios web** escalables
+🖥️ **Portales y dashboards** administrativos
+🔧 **Mantenimiento y soporte** técnico
+
+---
+
+### **📞 ¿Necesitas Desarrollo de Software?**
+
+¿Tienes un proyecto en mente? ¡Hablemos!
+
+[![Email](https://img.shields.io/badge/📧_Enviar_Email-0078D4?style=for-the-badge&logo=microsoft-outlook&logoColor=white)](mailto:gplata@resosistemas.mx)
+[![Website](https://img.shields.io/badge/🌐_Visitar_Web-green?style=for-the-badge&logo=safari&logoColor=white)](https://www.resosistemas.mx)
+
+---
+
+*Desarrollado con ❤️ por Gerardo Gallegos - RESO Sistemas*  
 
 </div>
