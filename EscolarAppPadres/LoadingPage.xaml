@@ -5,11 +5,11 @@
              x:Class="EscolarAppPadres.LoadingPage">
 
     <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
-        <Image x:Name="LoadingLogo" Source="icono_logo.png" HeightRequest="200" WidthRequest="200"
+        <Image x:Name="LoadingLogo" Source="icono_logo" HeightRequest="200" WidthRequest="200"
            HorizontalOptions="Center" />
 
         <Image x:Name="LoadingIcon"
-           Source="reload_outline.svg"
+           Source="reload_outline"
            WidthRequest="45"
            HeightRequest="45"
            IsVisible="False"

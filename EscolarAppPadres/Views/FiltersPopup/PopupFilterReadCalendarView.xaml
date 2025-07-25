@@ -24,7 +24,7 @@
                 <Label Grid.Column="0" Text="LEER NOTICIA" FontSize="18" FontAttributes="Bold" TextColor="White" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
 
                 <ImageButton Grid.Column="1"
-                     Source="close_outline.svg"
+                     Source="close_outline"
                      WidthRequest="30"
                      HeightRequest="30"
                      BackgroundColor="White"

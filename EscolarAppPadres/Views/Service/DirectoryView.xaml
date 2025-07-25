@@ -40,7 +40,7 @@
                                    Grid.Column="1" />
 
                             <!-- Botón de llamada -->
-                            <ImageButton Source="phone_enable.svg"
+                            <ImageButton Source="phone_enable"
                                          HeightRequest="24"
                                          WidthRequest="24"
                                          BackgroundColor="Transparent"

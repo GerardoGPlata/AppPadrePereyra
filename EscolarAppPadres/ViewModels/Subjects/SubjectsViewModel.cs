@@ -142,7 +142,7 @@ namespace EscolarAppPadres.ViewModels.Subjects
                 string alumnoId = SelectedHijo?.AlumnoId.ToString();
                 if (string.IsNullOrEmpty(alumnoId))
                 {
-                    await DialogsHelper2.ShowErrorMessage("Seleccione un hijo válido.");
+                    // await DialogsHelper2.ShowErrorMessage("Seleccione un hijo válido.");
                     return;
                 }
 

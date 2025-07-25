@@ -12,7 +12,7 @@
         Spacing="25"
         VerticalOptions="Center">
 
-            <Image Source="icono_logo.png" HeightRequest="200" WidthRequest="200" />
+            <Image Source="icono_logo" HeightRequest="200" WidthRequest="200" />
 
             <VerticalStackLayout Spacing="5">
                 <Label Text="¡Bienvenido!" FontSize="28" TextColor="Black" HorizontalTextAlignment="Center"/>
@@ -21,7 +21,7 @@
 
             <!--<StackLayout Orientation="Horizontal">
                 <Frame ZIndex="1" HasShadow="True" BorderColor="White" HeightRequest="56" WidthRequest="56" CornerRadius="28">
-                    <Image Source="reader_outline.svg" HeightRequest="20" WidthRequest="20"/>
+                    <Image Source="reader_outline" HeightRequest="20" WidthRequest="20"/>
                 </Frame>
                 <Frame ZIndex="1" HeightRequest="45" Margin="-20,0,0,0" Padding="0" HasShadow="True" BorderColor="White" HorizontalOptions="FillAndExpand">
                     <handlers:BorderEntry x:Name="MatriculaEntry" 
@@ -37,7 +37,7 @@
 
             <StackLayout Orientation="Horizontal">
                 <Frame ZIndex="1" HasShadow="True" BorderColor="White" HeightRequest="56" WidthRequest="56" CornerRadius="28">
-                    <Image Source="person_outline.svg" HeightRequest="20" WidthRequest="20"/>
+                    <Image Source="person_outline" HeightRequest="20" WidthRequest="20"/>
                 </Frame>
                 <Frame ZIndex="1" HeightRequest="45" Margin="-20,0,0,0" Padding="0" HasShadow="True" BorderColor="White" HorizontalOptions="FillAndExpand">
                     <handlers:BorderEntry x:Name="EmailEntry" 
@@ -53,7 +53,7 @@
 
             <StackLayout Orientation="Horizontal">
                 <Frame ZIndex="1" HasShadow="True" BorderColor="White" HeightRequest="56" WidthRequest="56" CornerRadius="28">
-                    <Image Source="lock_closed_outline.svg" HeightRequest="20" WidthRequest="20"/>
+                    <Image Source="lock_closed_outline" HeightRequest="20" WidthRequest="20"/>
                 </Frame>
 
                 <Frame ZIndex="1" HeightRequest="45" Margin="-20,0,0,0" Padding="0" HasShadow="True" BorderColor="White" HorizontalOptions="FillAndExpand">
@@ -68,7 +68,7 @@
                                               Text="{Binding Password, Mode=TwoWay}"/>
 
                         <ImageButton x:Name="TogglePasswordVisibilityButton"
-                                     Source="eye_off_outline.svg"
+                                     Source="eye_off_outline"
                                      WidthRequest="24"
                                      HeightRequest="24"
                                      VerticalOptions="Center"

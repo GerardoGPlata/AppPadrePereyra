@@ -118,7 +118,7 @@
                 WidthRequest="65"
                 Command="{Binding OpenFilterPopupNewsCommand}">
             <Button.ImageSource>
-                <FileImageSource File="filter_outline.svg" />
+                <FileImageSource File="filter_outline" />
             </Button.ImageSource>
         </Button>
     </AbsoluteLayout>

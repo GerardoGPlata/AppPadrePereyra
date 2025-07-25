@@ -194,15 +194,32 @@ namespace EscolarAppPadres.ViewModels.Login
                         var tokenResponse = LoginApiResponse.Data[0];
                         var nombreCompleto = $"{tokenResponse.Nombre}";
 
-                        await SecureStorage.SetAsync("Usuario_Id", tokenResponse.UsuarioId.ToString());
-                        await SecureStorage.SetAsync("Tipo_Usuario_Id", tokenResponse.TipoUsuarioId.ToString());
-                        await SecureStorage.SetAsync("Padre_Id", tokenResponse.PadreId.ToString());
-                        await SecureStorage.SetAsync("NombreCompleto", nombreCompleto);
-                        await SecureStorage.SetAsync("Correo", tokenResponse.Correo!);
-                        await SecureStorage.SetAsync("auth_token", tokenResponse.Token!);
-                        await SecureStorage.SetAsync("toke_finaliza", tokenResponse.Finaliza.ToString());
-                        await SecureStorage.SetAsync("refresh_token", tokenResponse.RefreshToken!);
-                        await SecureStorage.SetAsync("refresh_token_finaliza", tokenResponse.RefreshTokenExpiration.ToString());
+                        try
+                        {
+                            await SecureStorage.SetAsync("Usuario_Id", tokenResponse.UsuarioId.ToString());
+                            await SecureStorage.SetAsync("Tipo_Usuario_Id", tokenResponse.TipoUsuarioId.ToString());
+                            await SecureStorage.SetAsync("Padre_Id", tokenResponse.PadreId.ToString());
+                            await SecureStorage.SetAsync("NombreCompleto", nombreCompleto);
+                            await SecureStorage.SetAsync("Correo", tokenResponse.Correo!);
+                            await SecureStorage.SetAsync("auth_token", tokenResponse.Token!);
+                            await SecureStorage.SetAsync("toke_finaliza", tokenResponse.Finaliza.ToString());
+                            await SecureStorage.SetAsync("refresh_token", tokenResponse.RefreshToken!);
+                            await SecureStorage.SetAsync("refresh_token_finaliza", tokenResponse.RefreshTokenExpiration.ToString());
+                        }
+                        catch (Exception secureStorageEx)
+                        {
+                            Console.WriteLine($"Error en SecureStorage: {secureStorageEx.Message}");
+                            // Fallback a Preferences si SecureStorage falla
+                            Preferences.Set("Usuario_Id", tokenResponse.UsuarioId.ToString());
+                            Preferences.Set("Tipo_Usuario_Id", tokenResponse.TipoUsuarioId.ToString());
+                            Preferences.Set("Padre_Id", tokenResponse.PadreId.ToString());
+                            Preferences.Set("NombreCompleto", nombreCompleto);
+                            Preferences.Set("Correo", tokenResponse.Correo!);
+                            Preferences.Set("auth_token", tokenResponse.Token!);
+                            Preferences.Set("toke_finaliza", tokenResponse.Finaliza.ToString());
+                            Preferences.Set("refresh_token", tokenResponse.RefreshToken!);
+                            Preferences.Set("refresh_token_finaliza", tokenResponse.RefreshTokenExpiration.ToString());
+                        }
 
                         // Declarar al inicio del bloque donde se usa tokenResponse
                         var hijosConColor = new List<HijoConColor>();
@@ -228,7 +245,15 @@ namespace EscolarAppPadres.ViewModels.Login
                             }
 
                             var hijosJson = JsonSerializer.Serialize(hijosConColor);
-                            await SecureStorage.SetAsync("Hijos", hijosJson);
+                            try
+                            {
+                                await SecureStorage.SetAsync("Hijos", hijosJson);
+                            }
+                            catch (Exception secureStorageEx)
+                            {
+                                Console.WriteLine($"Error en SecureStorage para Hijos: {secureStorageEx.Message}");
+                                Preferences.Set("Hijos", hijosJson);
+                            }
                         }
 
 

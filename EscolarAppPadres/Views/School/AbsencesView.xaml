@@ -21,13 +21,16 @@
 
                     <CollectionView ItemsSource="{Binding StudentAbsences}"
                                     SelectionMode="None">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="{OnPlatform iOS='15', Android='10'}" />
+                        </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Frame Padding="20"
                                        CornerRadius="16"
                                        HasShadow="True"
                                        BackgroundColor="White"
-                                       Margin="0,10">
+                                       Margin="{OnPlatform iOS='0,5,0,5', Android='0,10'}">
 
                                     <Grid ColumnDefinitions="*,Auto"
                                           RowDefinitions="Auto,Auto,Auto,Auto,Auto">

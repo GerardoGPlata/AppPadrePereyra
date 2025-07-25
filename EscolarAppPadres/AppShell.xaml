@@ -9,6 +9,7 @@
     xmlns:account="clr-namespace:EscolarAppPadres.Views.Account"
     xmlns:calendar="clr-namespace:EscolarAppPadres.Views.Calendar"
     xmlns:service="clr-namespace:EscolarAppPadres.Views.Service"
+    xmlns:helpers="clr-namespace:EscolarAppPadres.Helpers"
     Shell.FlyoutBehavior="Disabled"
     Title="EscolarAppPadres">
 
@@ -30,65 +31,112 @@
     </Shell.Resources>
 
     <TabBar>
-        <Tab Title="Noticias" Icon="newspaper_outline.svg">
+        <Tab Title="Noticias">
+            <Tab.Icon>
+                <FileImageSource File="newspaper_outline" />
+            </Tab.Icon>
             <ShellContent 
                 ContentTemplate="{DataTemplate news:NewsView}"
                 Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
                 Shell.TitleColor="White" />
         </Tab>
-        <Tab Title="Calendario" Icon="calendar_outline.svg">
+        
+        <Tab Title="Calendario">
+            <Tab.Icon>
+                <FileImageSource File="calendar_outline" />
+            </Tab.Icon>
             <ShellContent 
                 ContentTemplate="{DataTemplate calendar:CalendarView}"
                 Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
                 Shell.TitleColor="White" />
         </Tab>
-        <Tab Title="Escolar" Icon="school_outline.svg">
+        
+        <Tab Title="Escolar">
+            <Tab.Icon>
+                <FileImageSource File="school_outline" />
+            </Tab.Icon>
+            
             <ShellContent
                 Title="Materias"
-                Icon="subjects_icon.png"
                 ContentTemplate="{DataTemplate school:SubjectsView}"
                 Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
-                Shell.TitleColor="White" />
+                Shell.TitleColor="White">
+                <ShellContent.Icon>
+                    <FileImageSource File="reader_outline" />
+                </ShellContent.Icon>
+            </ShellContent>
 
             <ShellContent
                 Title="Inasistencias"
-                Icon="absences_icon.png"
                 ContentTemplate="{DataTemplate school:AbsencesView}"
                 Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
-                Shell.TitleColor="White" />
+                Shell.TitleColor="White">
+                <ShellContent.Icon>
+                    <FileImageSource File="person_outline" />
+                </ShellContent.Icon>
+            </ShellContent>
 
             <ShellContent
                 Title="Calificaciones"
-                Icon="qualifications_icon.png"
                 ContentTemplate="{DataTemplate school:QualificationsView}"
                 Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
-                Shell.TitleColor="White" />
+                Shell.TitleColor="White">
+                <ShellContent.Icon>
+                    <FileImageSource File="school_outline" />
+                </ShellContent.Icon>
+            </ShellContent>
             
             <ShellContent
                 Title="Reporte Conductual"
-                Icon="qualifications_icon.png"
                 ContentTemplate="{DataTemplate school:ConductualView}"
                 Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
-                Shell.TitleColor="White" />
+                Shell.TitleColor="White">
+                <ShellContent.Icon>
+                    <FileImageSource File="shield_half_outline" />
+                </ShellContent.Icon>
+            </ShellContent>
         </Tab>
-        <Tab Title="Servicios" Icon="payments.svg">
+        
+        <Tab Title="Servicios">
+            <Tab.Icon>
+                <FileImageSource File="card_outline" />
+            </Tab.Icon>
+            
             <ShellContent 
-        Title="Pagos Pendientes"
-        ContentTemplate="{DataTemplate service:PendingPaymentsView}"
-        Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
-        Shell.TitleColor="White" />
+                Title="Pagos Pendientes"
+                ContentTemplate="{DataTemplate service:PendingPaymentsView}"
+                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+                Shell.TitleColor="White">
+                <ShellContent.Icon>
+                    <FileImageSource File="payments" />
+                </ShellContent.Icon>
+            </ShellContent>
+            
             <ShellContent 
-        Title="Directorio"
-        ContentTemplate="{DataTemplate service:DirectoryView}"
-        Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
-        Shell.TitleColor="White" />
+                Title="Directorio"
+                ContentTemplate="{DataTemplate service:DirectoryView}"
+                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+                Shell.TitleColor="White">
+                <ShellContent.Icon>
+                    <FileImageSource File="call_outline" />
+                </ShellContent.Icon>
+            </ShellContent>
+            
             <ShellContent 
-        Title="Academias"
-        ContentTemplate="{DataTemplate service:AcademyView}"
-        Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
-        Shell.TitleColor="White" />
+                Title="Academias"
+                ContentTemplate="{DataTemplate service:AcademyView}"
+                Shell.BackgroundColor="{StaticResource TabBarSelectedColor}"
+                Shell.TitleColor="White">
+                <ShellContent.Icon>
+                    <FileImageSource File="person_circle_outline" />
+                </ShellContent.Icon>
+            </ShellContent>
         </Tab>
-        <Tab Title="Cuenta" Icon="person_outline.svg">
+        
+        <Tab Title="Cuenta">
+            <Tab.Icon>
+                <FileImageSource File="person_circle_outline" />
+            </Tab.Icon>
             <ShellContent
                  Route="AccountView"
                  ContentTemplate="{DataTemplate account:AccountView}"
