@@ -112,7 +112,7 @@ namespace EscolarAppPadres.ViewModels.StudentConductualReports
 
                 if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(alumnoId))
                 {
-                    await DialogsHelper2.ShowErrorMessage("Seleccione un hijo válido o inicie sesión.");
+                    //await DialogsHelper2.ShowErrorMessage("Seleccione un hijo válido o inicie sesión.");
                     return;
                 }
 

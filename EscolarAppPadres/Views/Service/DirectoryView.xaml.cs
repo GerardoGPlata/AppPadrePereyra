@@ -19,27 +19,57 @@ namespace EscolarAppPadres.Views.Service
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await _viewModel.LoadDirectoryAsync(); // o InitializeAsync si agregas m醩 l骻ica
+            await _viewModel.LoadDirectoryAsync(); // o InitializeAsync si agregas m锟絪 l锟絞ica
         }
 
         private async void OnCallClicked(object sender, EventArgs e)
         {
             if (sender is ImageButton button && button.CommandParameter is string extension && !string.IsNullOrWhiteSpace(extension))
             {
-                var phoneNumber = $"tel:8717526090,{extension}";
-
                 try
                 {
-                    await Launcher.Default.OpenAsync(phoneNumber);
+                    if (DeviceInfo.Platform == DevicePlatform.Android)
+                    {
+                        // En Android usamos Launcher con extensi贸n
+                        var phoneNumber = $"tel:8717526090,{extension}";
+                        await Launcher.Default.OpenAsync(phoneNumber);
+                    }
+                    else if (DeviceInfo.Platform == DevicePlatform.iOS)
+                    {
+                        // En iOS verificamos si es simulador
+                        if (DeviceInfo.DeviceType == DeviceType.Virtual)
+                        {
+                            await DisplayAlert("Simulador", "Las llamadas no est谩n disponibles en el simulador de iOS.", "OK");
+                            return;
+                        }
+
+                        // Usamos PhoneDialer que es m谩s espec铆fico para llamadas
+                        if (PhoneDialer.Default.IsSupported)
+                        {
+                            PhoneDialer.Default.Open("8717526090");
+                            await DisplayAlert("Extensi贸n", $"Cuando se abra la app de tel茅fono, marca la extensi贸n: {extension}", "OK");
+                        }
+                        else
+                        {
+                            await DisplayAlert("Error", "Las llamadas telef贸nicas no est谩n disponibles en este dispositivo.", "OK");
+                        }
+                    }
+                    else
+                    {
+                        // Para otras plataformas
+                        var phoneNumber = "tel:8717526090";
+                        await Launcher.Default.OpenAsync(phoneNumber);
+                        await DisplayAlert("Extensi贸n", $"Cuando se abra la app de tel茅fono, marca la extensi贸n: {extension}", "OK");
+                    }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    await DisplayAlert("Error", "No se pudo abrir la app de tel閒ono.", "OK");
+                    await DisplayAlert("Error", $"No se pudo abrir la app de tel茅fono: {ex.Message}", "OK");
                 }
             }
             else
             {
-                await DisplayAlert("Aviso", "Extensi髇 no v醠ida o vac韆.", "OK");
+                await DisplayAlert("Aviso", "Extensi贸n no v谩lida o vac铆a.", "OK");
             }
         }
     }

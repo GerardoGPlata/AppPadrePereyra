@@ -244,7 +244,7 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
 
                 if (string.IsNullOrEmpty(alumnoId))
                 {
-                    await DialogsHelper2.ShowErrorMessage("Seleccione un hijo válido.");
+                    //await DialogsHelper2.ShowErrorMessage("Seleccione un hijo válido.");
                     return;
                 }
 
