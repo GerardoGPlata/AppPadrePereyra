@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
+             xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              xmlns:converters="clr-namespace:EscolarAppPadres.Helpers"
              x:Class="EscolarAppPadres.Views.Service.PendingPaymentsView"
              Title="PAGOS"
@@ -52,12 +53,14 @@
                                             </Grid.ColumnDefinitions>
 
                                             <!-- Checkbox de selección -->
-                                            <CheckBox Grid.Row="0"
+                                            <buttons:SfCheckBox Grid.Row="0"
                                                       Grid.Column="0"
                                                       Grid.RowSpan="5"
                                                       IsChecked="{Binding IsSelected}"
+                                                      CornerRadius="5.0"
                                                       VerticalOptions="Center"
-                                                      Color="#3c9c4c"
+                                                      CheckedColor="#3c9c4c"
+                                                      UncheckedColor="Gray"
                                                       Margin="0,0,10,0"/>
 
                                             <!-- Concepto (primera fila) -->
