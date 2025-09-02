@@ -35,32 +35,59 @@
                 </Frame>
             </StackLayout>-->
 
-            <StackLayout Orientation="Horizontal">
-                <Frame ZIndex="1" HasShadow="True" BorderColor="White" HeightRequest="56" WidthRequest="56" CornerRadius="28">
-                    <Image Source="person_outline" HeightRequest="20" WidthRequest="20"/>
-                </Frame>
-                <Frame ZIndex="1" HeightRequest="45" Margin="-20,0,0,0" Padding="0" HasShadow="True" BorderColor="White" HorizontalOptions="FillAndExpand">
-                    <handlers:BorderEntry x:Name="EmailEntry" 
-                                          VerticalOptions="Center" 
-                                          Margin="20,0,0,0" 
-                                          Placeholder="Correo electónico" 
-                                          PlaceholderColor="Gray" 
-                                          TextColor="Black" 
+            <!-- Campo Email: Grid con ícono y contenedor del Entry para evitar superposición en iOS -->
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                <Border HeightRequest="56" WidthRequest="56" BackgroundColor="White" Stroke="Transparent">
+                    <Border.Shadow>
+                        <Shadow Brush="#000000" Opacity="0.18" Radius="10" Offset="0,4"/>
+                    </Border.Shadow>
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="28"/>
+                    </Border.StrokeShape>
+                    <Image Source="person_outline" HeightRequest="20" WidthRequest="20" VerticalOptions="Center" HorizontalOptions="Center"/>
+                </Border>
+                <Border Grid.Column="1" HeightRequest="56" BackgroundColor="White" Stroke="Transparent" HorizontalOptions="Fill">
+                    <Border.Shadow>
+                        <Shadow Brush="#000000" Opacity="0.18" Radius="10" Offset="0,4"/>
+                    </Border.Shadow>
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="24"/>
+                    </Border.StrokeShape>
+                    <handlers:BorderEntry x:Name="EmailEntry"
+                                          VerticalOptions="Center"
+                                          Margin="16,0,16,0"
+                                          Placeholder="Correo electónico"
+                                          PlaceholderColor="Gray"
+                                          TextColor="Black"
                                           Keyboard="Email"
                                           Text="{Binding Email, Mode=TwoWay}"/>
-                </Frame>
-            </StackLayout>
+                </Border>
+            </Grid>
 
-            <StackLayout Orientation="Horizontal">
-                <Frame ZIndex="1" HasShadow="True" BorderColor="White" HeightRequest="56" WidthRequest="56" CornerRadius="28">
-                    <Image Source="lock_closed_outline" HeightRequest="20" WidthRequest="20"/>
-                </Frame>
+            <!-- Campo Password: Grid con ícono y contenedor del Entry (con botón de ojo) -->
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                <Border HeightRequest="56" WidthRequest="56" BackgroundColor="White" Stroke="Transparent">
+                    <Border.Shadow>
+                        <Shadow Brush="#000000" Opacity="0.18" Radius="10" Offset="0,4"/>
+                    </Border.Shadow>
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="28"/>
+                    </Border.StrokeShape>
+                    <Image Source="lock_closed_outline" HeightRequest="20" WidthRequest="20" VerticalOptions="Center" HorizontalOptions="Center"/>
+                </Border>
 
-                <Frame ZIndex="1" HeightRequest="45" Margin="-20,0,0,0" Padding="0" HasShadow="True" BorderColor="White" HorizontalOptions="FillAndExpand">
-                    <Grid>
+                <Border Grid.Column="1" HeightRequest="56" BackgroundColor="White" Stroke="Transparent" HorizontalOptions="Fill">
+                    <Border.Shadow>
+                        <Shadow Brush="#000000" Opacity="0.18" Radius="10" Offset="0,4"/>
+                    </Border.Shadow>
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="24"/>
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
                         <handlers:BorderEntry x:Name="PasswordEntry"
+                                              Grid.Column="0"
                                               VerticalOptions="Center"
-                                              Margin="20,0,40,0"
+                                              Margin="16,0,8,0"
                                               Placeholder="Contraseña"
                                               PlaceholderColor="Gray"
                                               TextColor="Black"
@@ -68,16 +95,18 @@
                                               Text="{Binding Password, Mode=TwoWay}"/>
 
                         <ImageButton x:Name="TogglePasswordVisibilityButton"
+                                     Grid.Column="1"
                                      Source="eye_off_outline"
                                      WidthRequest="24"
                                      HeightRequest="24"
                                      VerticalOptions="Center"
                                      HorizontalOptions="End"
-                                     Margin="0,0,10,0"
+                                     Margin="0,0,12,0"
+                                     BackgroundColor="Transparent"
                                      Clicked="OnTogglePasswordVisibilityClicked"/>
                     </Grid>
-                </Frame>
-            </StackLayout>
+                </Border>
+            </Grid>
 
             <Button x:Name="LoginButton" 
                 Text="Iniciar Sesión"

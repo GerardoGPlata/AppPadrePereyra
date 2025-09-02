@@ -42,7 +42,7 @@
                     <DataTemplate>
                         <Grid Padding="0,0,0,10">
                             <Border Style="{StaticResource CardBorder}">
-                                <Grid RowSpacing="8">
+                                <Grid RowSpacing="8" ColumnSpacing="12">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
@@ -70,31 +70,32 @@
                                               Margin="0,0,10,0"/>
 
                                     <!-- Concepto (primera fila) -->
-                                    <Label Grid.Row="0"
+                     <Label Grid.Row="0"
                                            Grid.Column="1"
                                            Text="{Binding Concepto}"
-                                           FontSize="16"
+                         FontSize="15"
                                            FontAttributes="Bold"
                                            TextColor="#273840"
                                            VerticalOptions="Center"
-                                           LineBreakMode="WordWrap"/>
+                         LineBreakMode="WordWrap"
+                         Margin="6,0,0,0"/>
 
                                     <!-- Importe total (primera fila, alineado a la derecha) -->
-                                    <Label Grid.Row="0"
+                     <Label Grid.Row="0"
                                            Grid.Column="2"
                                            Text="{Binding ImporteFormateado}"
-                                           FontSize="18"
+                         FontSize="16"
                                            FontAttributes="Bold"
                                            TextColor="{Binding ColorImporte}"
                                            VerticalOptions="Center"
                                            HorizontalOptions="End"/>
 
                                     <!-- Información del estudiante (segunda fila) -->
-                                    <Label Grid.Row="1"
+                     <Label Grid.Row="1"
                                            Grid.Column="1"
                                            Grid.ColumnSpan="2"
                                            Text="{Binding Alumno}"
-                                           FontSize="14"
+                         FontSize="13"
                                            TextColor="#666666"
                                            HorizontalOptions="End"/>
 
