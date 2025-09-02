@@ -35,13 +35,16 @@
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border Style="{StaticResource CardBorder}"
-                                Margin="{OnPlatform iOS='0,5,0,5', Android='0,5'}">
-                            <Border.GestureRecognizers>
+                        <Frame BackgroundColor="Transparent"
+                               CornerRadius="16"
+                               HasShadow="True"
+                               Margin="{OnPlatform iOS='0,5,0,5', Android='0,5'}"
+                               Padding="20">
+                            <Frame.GestureRecognizers>
                                 <TapGestureRecognizer
                                     Command="{Binding Source={x:Reference collectionView}, Path=BindingContext.SubjectTappedCommand}"
                                     CommandParameter="{Binding .}" />
-                            </Border.GestureRecognizers>
+                            </Frame.GestureRecognizers>
 
                             <Grid ColumnDefinitions="*,Auto"
                                   RowDefinitions="Auto,Auto">
@@ -70,7 +73,7 @@
                                        Grid.Column="1"
                                        Margin="8,0,0,0" />
                             </Grid>
-                        </Border>
+                        </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
