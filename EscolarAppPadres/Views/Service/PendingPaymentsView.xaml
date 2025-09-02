@@ -25,16 +25,18 @@
                      Command="{Binding LoadPaymentsCommand}"
                      IsRefreshing="{Binding IsRefreshing}">
             <CollectionView ItemsSource="{Binding PendingPayments}"
-                            Margin="15,15,15,15"
+                            Margin="{OnPlatform iOS='15,20,15,15', Android='15,0,15,15'}"
                             ItemsLayout="VerticalList"
                             SelectionMode="None">
                 <CollectionView.EmptyView>
-                    <Label Text="No hay pagos pendientes"
-                           FontSize="16"
-                           TextColor="Gray"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center"
-                           Margin="0,20"/>
+                    <ContentView IsVisible="{Binding SinResultados}">
+                        <Label Text="No hay pagos pendientes"
+                               FontSize="16"
+                               TextColor="Gray"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               Margin="0,20"/>
+                    </ContentView>
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
@@ -58,7 +60,9 @@
                                     <buttons:SfCheckBox Grid.Row="0"
                                               Grid.Column="0"
                                               Grid.RowSpan="5"
-                                              IsChecked="{Binding IsSelected}"
+                                              IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                              WidthRequest="24"
+                                              HeightRequest="24"
                                               CornerRadius="5.0"
                                               VerticalOptions="Center"
                                               CheckedColor="#3c9c4c"
@@ -206,9 +210,18 @@
                             OverlayMode="Blur"
                             ShowCloseButton="True"
                             IsOpen="{Binding IsPopupOpen}"
+                IsVisible="{Binding IsPopupOpen}"
                             AutoSizeMode="Height"
                             AnimationMode="Fade"
                             HeaderTitle="{Binding PopupHeader}">
+            <syncfusion:SfPopup.Triggers>
+                <DataTrigger TargetType="syncfusion:SfPopup" Binding="{Binding IsPopupOpen}" Value="False">
+                    <Setter Property="InputTransparent" Value="True"/>
+                </DataTrigger>
+                <DataTrigger TargetType="syncfusion:SfPopup" Binding="{Binding IsPopupOpen}" Value="True">
+                    <Setter Property="InputTransparent" Value="False"/>
+                </DataTrigger>
+            </syncfusion:SfPopup.Triggers>
             <syncfusion:SfPopup.PopupStyle>
                 <syncfusion:PopupStyle HeaderBackground="#273840"
                                        HeaderFontSize="16"
