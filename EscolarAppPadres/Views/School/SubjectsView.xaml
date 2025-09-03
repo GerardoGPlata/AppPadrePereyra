@@ -7,78 +7,81 @@
              Padding="{OnPlatform iOS='0,20,0,0', Android='0'}">
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
         <!-- Capa principal con el contenido -->
         <RefreshView x:Name="refreshView"
+                     Grid.Row="0"
                      Command="{Binding LoadSubjectsCommand}"
                      IsRefreshing="{Binding IsRefreshing}">
-            <ScrollView>
-                <StackLayout Padding="{OnPlatform iOS='15,20,15,60', Android='15,15,15,60'}" 
-                             Spacing="{OnPlatform iOS='20', Android='15'}" 
-                             Margin="0,0,0,0">
-                    <!-- Deja espacio para el picker flotante -->
+            <CollectionView x:Name="collectionView"
+                            ItemsSource="{Binding StudentSubjects}"
+                            SelectionMode="None"
+                            Margin="{OnPlatform iOS='15,20,15,15', Android='15'}">
+                <CollectionView.EmptyView>
                     <Label Text="No se encontraron materias"
                            FontSize="16"
                            TextColor="Gray"
                            HorizontalOptions="Center"
-                           IsVisible="{Binding SinResultados}" />
+                           VerticalOptions="Center"
+                           Margin="0,20" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" 
+                                       ItemSpacing="{OnPlatform iOS='15', Android='10'}" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BackgroundColor="Transparent"
+                               CornerRadius="16"
+                               HasShadow="True"
+                               Margin="{OnPlatform iOS='0,5,0,5', Android='0,5'}"
+                               Padding="20">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={x:Reference collectionView}, Path=BindingContext.SubjectTappedCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Frame.GestureRecognizers>
 
-                    <CollectionView x:Name="collectionView"
-                                    ItemsSource="{Binding StudentSubjects}"
-                                    SelectionMode="None">
-                        <CollectionView.ItemsLayout>
-                            <LinearItemsLayout Orientation="Vertical" 
-                                               ItemSpacing="{OnPlatform iOS='15', Android='10'}" />
-                        </CollectionView.ItemsLayout>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Frame BackgroundColor="White"
-                                       CornerRadius="16"
-                                       HasShadow="True"
-                                       Margin="{OnPlatform iOS='0,5,0,5', Android='0,5'}"
-                                       Padding="20">
-                                    <Frame.GestureRecognizers>
-                                        <TapGestureRecognizer
-                                            Command="{Binding Source={x:Reference collectionView}, Path=BindingContext.SubjectTappedCommand}"
-                                            CommandParameter="{Binding .}" />
-                                    </Frame.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto"
+                                  RowDefinitions="Auto,Auto">
+                                <Label Text="{Binding Materia}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="#273840"
+                                       TextTransform="Uppercase"
+                                       Grid.Row="0"
+                                       Grid.Column="0" />
 
-                                    <Grid ColumnDefinitions="*,Auto"
-                                          RowDefinitions="Auto,Auto">
-                                        <Label Text="{Binding Materia}"
-                                               FontSize="16"
-                                               FontAttributes="Bold"
-                                               TextColor="#273840"
-                                               TextTransform="Uppercase"
-                                               Grid.Row="0"
-                                               Grid.Column="0" />
+                                <Label Text="{Binding Profesor, StringFormat='Prof. {0}'}"
+                                       FontSize="14"
+                                       FontAttributes="Italic"
+                                       TextColor="Gray"
+                                       Margin="0,4,0,0"
+                                       Grid.Row="1"
+                                       Grid.Column="0" />
 
-                                        <Label Text="{Binding Profesor, StringFormat='Prof. {0}'}"
-                                               FontSize="14"
-                                               FontAttributes="Italic"
-                                               TextColor="Gray"
-                                               Margin="0,4,0,0"
-                                               Grid.Row="1"
-                                               Grid.Column="0" />
-
-                                        <Image Source="chevron_right"
-                                               WidthRequest="18"
-                                               HeightRequest="18"
-                                               HorizontalOptions="End"
-                                               VerticalOptions="Center"
-                                               Grid.RowSpan="2"
-                                               Grid.Column="1"
-                                               Margin="8,0,0,0" />
-                                    </Grid>
-                                </Frame>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </StackLayout>
-            </ScrollView>
+                                <Image Source="chevron_right"
+                                       WidthRequest="18"
+                                       HeightRequest="18"
+                                       HorizontalOptions="End"
+                                       VerticalOptions="Center"
+                                       Grid.RowSpan="2"
+                                       Grid.Column="1"
+                                       Margin="8,0,0,0" />
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
         </RefreshView>
 
-        <!-- Picker flotante abajo -->
-        <Frame BackgroundColor="White"
+        <!-- Picker abajo sin superponer -->
+        <Frame Grid.Row="1"
+               BackgroundColor="White"
                CornerRadius="20"
                HasShadow="True"
                Padding="6,2"
@@ -86,22 +89,19 @@
                HeightRequest="44"
                WidthRequest="280"
                HorizontalOptions="Center"
-               VerticalOptions="End"
-               TranslationY="0">
-                    <Picker Title="Seleccionar hijo"
+               VerticalOptions="End">
+            <Picker Title="Seleccionar hijo"
                     ItemsSource="{Binding Hijos}"
                     ItemDisplayBinding="{Binding NombreCompleto}"
                     SelectedItem="{Binding SelectedHijo}"
                     FontSize="13"
                     TextColor="#273840"
-                    HorizontalOptions="FillAndExpand" />
+                    HorizontalOptions="Fill" />
         </Frame>
-
-
-
 
         <!-- Popup -->
         <syncfusionPopup:SfPopup x:Name="sfPopup"
+                                 Grid.RowSpan="2"
                                  StaysOpen="True"
                                  OverlayMode="Blur"
                                  ShowCloseButton="True"

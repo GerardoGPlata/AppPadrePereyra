@@ -16,170 +16,173 @@
     </ContentPage.Resources>
 
     <Grid>
-        <RefreshView Command="{Binding LoadPaymentsCommand}"
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <RefreshView Grid.Row="0"
+                     Command="{Binding LoadPaymentsCommand}"
                      IsRefreshing="{Binding IsRefreshing}">
-            <ScrollView>
-                <StackLayout Padding="15"
-                             Spacing="15"
-                             Margin="0,0,0,60">
+            <CollectionView ItemsSource="{Binding PendingPayments}"
+                            Margin="{OnPlatform iOS='15,20,15,15', Android='15,0,15,15'}"
+                            ItemsLayout="VerticalList"
+                            SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <ContentView IsVisible="{Binding SinResultados}">
+                        <Label Text="No hay pagos pendientes"
+                               FontSize="16"
+                               TextColor="Gray"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               Margin="0,20"/>
+                    </ContentView>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <!-- Layout en 2 columnas: izquierda checkbox, derecha tarjeta con todo el texto -->
+                        <Grid Padding="0,0,0,10" ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="44"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                    <Label Text="No hay pagos pendientes"
-                           FontSize="16"
-                           TextColor="Gray"
-                           HorizontalOptions="Center"
-                           IsVisible="{Binding SinResultados}"/>
+                            <!-- Columna izquierda: solo checkbox -->
+                            <buttons:SfCheckBox Grid.Column="0"
+                                                ZIndex="2"
+                                                IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                WidthRequest="26"
+                                                HeightRequest="26"
+                                                CornerRadius="5.0"
+                                                VerticalOptions="Center"
+                                                HorizontalOptions="Center"
+                                                CheckedColor="#3c9c4c"
+                                                UncheckedColor="Gray"/>
 
-                    <CollectionView ItemsSource="{Binding PendingPayments}">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Padding="0,0,0,10">
-                                    <Frame BackgroundColor="White"
-                                           CornerRadius="12"
-                                           HasShadow="True"
-                                           Padding="0">
-                                        <Grid Padding="15"
-                                              RowSpacing="8">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
+                            <!-- Columna derecha: tarjeta blanca con todo el contenido textual -->
+                            <Border Grid.Column="1" Style="{StaticResource CardBorder}">
+                                <Grid RowSpacing="8" ColumnSpacing="12">
+                                    <!-- 4 filas: 1) Concepto/Importe, 2) Alumno, 3) Estado/Fecha, 4) Desglose -->
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
 
-                                            <!-- Checkbox de selección -->
-                                            <buttons:SfCheckBox Grid.Row="0"
-                                                      Grid.Column="0"
-                                                      Grid.RowSpan="5"
-                                                      IsChecked="{Binding IsSelected}"
-                                                      CornerRadius="5.0"
-                                                      VerticalOptions="Center"
-                                                      CheckedColor="#3c9c4c"
-                                                      UncheckedColor="Gray"
-                                                      Margin="0,0,10,0"/>
+                                    <!-- Fila 1: Concepto (izq) + Importe (der) -->
+                                    <Label Grid.Row="0"
+                                           Grid.Column="0"
+                                           Text="{Binding Concepto}"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="#273840"
+                                           VerticalOptions="Center"
+                                           LineBreakMode="WordWrap"/>
 
-                                            <!-- Concepto (primera fila) -->
-                                            <Label Grid.Row="0"
-                                                   Grid.Column="1"
-                                                   Text="{Binding Concepto}"
-                                                   FontSize="16"
-                                                   FontAttributes="Bold"
-                                                   TextColor="#273840"
-                                                   VerticalOptions="Center"
-                                                   LineBreakMode="WordWrap"/>
+                                    <Label Grid.Row="0"
+                                           Grid.Column="1"
+                                           Text="{Binding ImporteFormateado}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="{Binding ColorImporte}"
+                                           VerticalOptions="Center"
+                                           HorizontalOptions="End"/>
 
-                                            <!-- Importe total (primera fila, alineado a la derecha) -->
-                                            <Label Grid.Row="0"
-                                                   Grid.Column="2"
-                                                   Text="{Binding ImporteFormateado}"
-                                                   FontSize="18"
-                                                   FontAttributes="Bold"
-                                                   TextColor="{Binding ColorImporte}"
-                                                   VerticalOptions="Center"
-                                                   HorizontalOptions="End"/>
+                                    <!-- Fila 2: Alumno centrado -->
+                                    <Label Grid.Row="1"
+                                           Grid.Column="0"
+                                           Grid.ColumnSpan="2"
+                                           Text="{Binding Alumno}"
+                                           FontSize="13"
+                                           TextColor="#666666"
+                                           HorizontalOptions="Center"/>
 
-                                            <!-- Información del estudiante (segunda fila) -->
-                                            <Label Grid.Row="1"
-                                                   Grid.Column="1"
-                                                   Grid.ColumnSpan="2"
-                                                   Text="{Binding Alumno}"
-                                                   FontSize="14"
+                                    <!-- Fila 3: Estado (izq) + Fecha (der) -->
+                                    <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0"
+                                               Text="Pendiente"
+                                               FontSize="12"
+                                               TextColor="#ff6b6b"
+                                               FontAttributes="Bold"
+                                               HorizontalOptions="Start"
+                                               VerticalOptions="Center"/>
+                                        <Label Grid.Column="1"
+                                               Text="{Binding FechaLimiteFormateada, StringFormat='Fecha límite: {0}'}"
+                                               FontSize="12"
+                                               TextColor="#666666"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center"/>
+                                    </Grid>
+
+                                    <!-- Fila 4: Desglose centrado -->
+                                    <StackLayout Grid.Row="3"
+                                                 Grid.Column="0"
+                                                 Grid.ColumnSpan="2"
+                                                 Orientation="Horizontal"
+                                                 Spacing="20"
+                                                 Margin="0,8,0,0"
+                                                 HorizontalOptions="Center">
+                                        <!-- Saldo -->
+                                        <StackLayout Spacing="2">
+                                            <Label Text="Saldo"
+                                                   FontSize="10"
                                                    TextColor="#666666"
-                                                   HorizontalOptions="End"/>
+                                                   FontAttributes="Bold"
+                                                   HorizontalOptions="Center"/>
+                                            <Label Text="{Binding ImporteBase, StringFormat='{0:C2}'}"
+                                                   FontSize="12"
+                                                   TextColor="#666666"
+                                                   HorizontalOptions="Center"/>
+                                        </StackLayout>
 
-                                            <!-- Estado y fecha límite (tercera fila) -->
-                                            <Grid Grid.Row="2"
-                                                  Grid.Column="1"
-                                                  Grid.ColumnSpan="2">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
+                                        <!-- Descuento -->
+                                        <StackLayout Spacing="2">
+                                            <Label Text="Descuento"
+                                                   FontSize="10"
+                                                   TextColor="#3c9c4c"
+                                                   FontAttributes="Bold"
+                                                   HorizontalOptions="Center"/>
+                                            <Label Text="{Binding DescuentoDoc, StringFormat='{0:C2}'}"
+                                                   FontSize="12"
+                                                   TextColor="#3c9c4c"
+                                                   HorizontalOptions="Center"/>
+                                        </StackLayout>
 
-                                                <Label Grid.Column="0"
-                                                       Text="Pendiente"
-                                                       FontSize="12"
-                                                       TextColor="#ff6b6b"
-                                                       FontAttributes="Bold"
-                                                       HorizontalOptions="Start"
-                                                       VerticalOptions="Center"/>
-
-                                                <Label Grid.Column="1"
-                                                       Text="{Binding FechaLimiteFormateada, StringFormat='Fecha límite: {0}'}"
-                                                       FontSize="12"
-                                                       TextColor="#666666"
-                                                       HorizontalOptions="End"
-                                                       VerticalOptions="Center"/>
-                                            </Grid>
-
-                                            <!-- Desglose en línea horizontal (cuarta fila) -->
-                                            <StackLayout Grid.Row="3"
-                                                         Grid.Column="0"
-                                                         Grid.ColumnSpan="3"
-                                                         Orientation="Horizontal"
-                                                         Spacing="20"
-                                                         Margin="0,8,0,0"
-                                                         HorizontalOptions="Center">
-                                                <!-- Saldo -->
-                                                <StackLayout Spacing="2">
-                                                    <Label Text="Saldo"
-                                                           FontSize="10"
-                                                           TextColor="#666666"
-                                                           FontAttributes="Bold"
-                                                           HorizontalOptions="Center"/>
-                                                    <Label Text="{Binding ImporteBase, StringFormat='{0:C2}'}"
-                                                           FontSize="12"
-                                                           TextColor="#666666"
-                                                           HorizontalOptions="Center"/>
-                                                </StackLayout>
-
-                                                <!-- Descuento -->
-                                                <StackLayout Spacing="2">
-                                                    <Label Text="Descuento"
-                                                           FontSize="10"
-                                                           TextColor="#3c9c4c"
-                                                           FontAttributes="Bold"
-                                                           HorizontalOptions="Center"/>
-                                                    <Label Text="{Binding DescuentoDoc, StringFormat='{0:C2}'}"
-                                                           FontSize="12"
-                                                           TextColor="#3c9c4c"
-                                                           HorizontalOptions="Center"/>
-                                                </StackLayout>
-
-                                                <!-- Recargos -->
-                                                <StackLayout Spacing="2">
-                                                    <Label Text="Recargos"
-                                                           FontSize="10"
-                                                           TextColor="#ff8c00"
-                                                           FontAttributes="Bold"
-                                                           HorizontalOptions="Center"/>
-                                                    <Label Text="{Binding InteresDoc, StringFormat='{0:C2}'}"
-                                                           FontSize="12"
-                                                           TextColor="#ff8c00"
-                                                           HorizontalOptions="Center"/>
-                                                </StackLayout>
-                                            </StackLayout>
-                                        </Grid>
-                                    </Frame>
+                                        <!-- Recargos -->
+                                        <StackLayout Spacing="2">
+                                            <Label Text="Recargos"
+                                                   FontSize="10"
+                                                   TextColor="#ff8c00"
+                                                   FontAttributes="Bold"
+                                                   HorizontalOptions="Center"/>
+                                            <Label Text="{Binding InteresDoc, StringFormat='{0:C2}'}"
+                                                   FontSize="12"
+                                                   TextColor="#ff8c00"
+                                                   HorizontalOptions="Center"/>
+                                        </StackLayout>
+                                    </StackLayout>
                                 </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </StackLayout>
-            </ScrollView>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
         </RefreshView>
 
         <!-- Barra inferior con Total y botón PAGAR -->
-        <Grid BackgroundColor="White"
+        <Grid Grid.Row="1"
+              BackgroundColor="White"
               Padding="15,10"
               ColumnDefinitions="*,Auto"
-              VerticalOptions="End"
-              Margin="0,0,0,10"
               HeightRequest="60">
             <Label Text="{Binding Total, StringFormat='Total: {0:C2}'}"
                    FontSize="16"
@@ -202,13 +205,23 @@
 
         <!-- Popup de detalles de pago -->
         <syncfusion:SfPopup x:Name="paymentDetailsPopup"
+                            Grid.RowSpan="2"
                             StaysOpen="True"
                             OverlayMode="Blur"
                             ShowCloseButton="True"
                             IsOpen="{Binding IsPopupOpen}"
+                IsVisible="{Binding IsPopupOpen}"
                             AutoSizeMode="Height"
                             AnimationMode="Fade"
                             HeaderTitle="{Binding PopupHeader}">
+            <syncfusion:SfPopup.Triggers>
+                <DataTrigger TargetType="syncfusion:SfPopup" Binding="{Binding IsPopupOpen}" Value="False">
+                    <Setter Property="InputTransparent" Value="True"/>
+                </DataTrigger>
+                <DataTrigger TargetType="syncfusion:SfPopup" Binding="{Binding IsPopupOpen}" Value="True">
+                    <Setter Property="InputTransparent" Value="False"/>
+                </DataTrigger>
+            </syncfusion:SfPopup.Triggers>
             <syncfusion:SfPopup.PopupStyle>
                 <syncfusion:PopupStyle HeaderBackground="#273840"
                                        HeaderFontSize="16"

@@ -139,6 +139,33 @@
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
     </Style>
 
+    <!-- Estilo reutilizable para tarjetas con Border + Shadow (mejor estética en iOS) -->
+    <Style x:Key="CardBorder" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="Padding" Value="15" />
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle>
+                    <RoundRectangle.CornerRadius>
+                        <OnPlatform x:TypeArguments="CornerRadius">
+                            <On Platform="iOS" Value="24" />
+                            <On Platform="Android" Value="16" />
+                            <On Platform="MacCatalyst" Value="16" />
+                            <On Platform="WinUI" Value="16" />
+                            <On Platform="Tizen" Value="16" />
+                        </OnPlatform>
+                    </RoundRectangle.CornerRadius>
+                </RoundRectangle>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#000000" Opacity="0.18" Radius="10" Offset="0,4" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style TargetType="ImageButton">
         <Setter Property="Opacity" Value="1" />
         <Setter Property="BorderColor" Value="Transparent"/>
