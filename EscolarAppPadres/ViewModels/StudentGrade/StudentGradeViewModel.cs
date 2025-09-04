@@ -328,7 +328,7 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             catch (Exception ex)
             {
                 Console.WriteLine($"Error inesperado: {ex.Message}");
-                await DialogsHelper2.ShowErrorMessage("Error inesperado: " + ex.Message);
+                //await DialogsHelper2.ShowErrorMessage("Error inesperado: " + ex.Message);
             }
             finally
             {
