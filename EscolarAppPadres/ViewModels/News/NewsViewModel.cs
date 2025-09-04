@@ -98,7 +98,7 @@ namespace EscolarAppPadres.ViewModels.News
 
                         if (_selectedNotification.IsCustomTime)
                         {
-                            _selectedNotification.SelectedTime = new TimeSpan(0,0,0);
+                            _selectedNotification.SelectedTime = new TimeSpan(0, 0, 0);
                         }
                         else
                         {
@@ -258,7 +258,7 @@ namespace EscolarAppPadres.ViewModels.News
                 Console.WriteLine(errorMessage);
                 Console.WriteLine(errorStackTrace);
                 Console.WriteLine("=======================");
-                await DialogsHelper2.ShowErrorMessage("Ha ocurrido un problema al mostrar la notificaciones. Por favor, intenta nuevamente más tarde.");
+                //await DialogsHelper2.ShowErrorMessage("Ha ocurrido un problema al mostrar la notificaciones. Por favor, intenta nuevamente más tarde.");
             }
             finally
             {
@@ -391,7 +391,7 @@ namespace EscolarAppPadres.ViewModels.News
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public  Task toastTest()
+        public Task toastTest()
         {
             return DialogsHelper2.ShowErrorMessage("Error de prueba");
         }
