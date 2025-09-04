@@ -343,7 +343,7 @@ namespace EscolarAppPadres.ViewModels.News
                 Console.WriteLine(errorMessage);
                 Console.WriteLine(errorStackTrace);
                 Console.WriteLine("=======================");
-                await DialogsHelper2.ShowErrorMessage("Ha ocurrido un problema al actualizar la notificacion. Por favor, intenta nuevamente más tarde.");
+                // await DialogsHelper2.ShowErrorMessage("Ha ocurrido un problema al actualizar la notificacion. Por favor, intenta nuevamente más tarde.");
             }
             finally
             {
