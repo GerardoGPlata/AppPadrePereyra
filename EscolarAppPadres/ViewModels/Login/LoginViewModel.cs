@@ -139,7 +139,7 @@ namespace EscolarAppPadres.ViewModels.Login
         {
             if (string.IsNullOrEmpty(email)) return false;
 
-            email = email.Trim(); 
+            email = email.Trim();
 
             var emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
 
@@ -300,7 +300,7 @@ namespace EscolarAppPadres.ViewModels.Login
                 Console.WriteLine(errorMessage);
                 Console.WriteLine(errorStackTrace);
                 Console.WriteLine("=======================");
-                await DialogsHelper2.ShowErrorMessage("Ha ocurrido un problema al iniciar sesión. Por favor, intenta nuevamente más tarde.");
+                //await DialogsHelper2.ShowErrorMessage("Ha ocurrido un problema al iniciar sesión. Por favor, intenta nuevamente más tarde.");
             }
             finally
             {

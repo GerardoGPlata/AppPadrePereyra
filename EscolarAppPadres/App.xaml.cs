@@ -93,7 +93,7 @@ namespace EscolarAppPadres
                     Console.WriteLine(errorStackTrace);
                     Console.WriteLine("=======================");
 
-                    await DialogsHelper2.ShowErrorMessage("Ha ocurrido un problema. Por favor, intenta nuevamente más tarde.");
+                    //await DialogsHelper2.ShowErrorMessage("Ha ocurrido un problema. Por favor, intenta nuevamente más tarde.");
                 }
             }
         }
@@ -166,7 +166,7 @@ namespace EscolarAppPadres
                 Console.WriteLine(errorStackTrace);
                 Console.WriteLine("=======================");
 
-                await DialogsHelper2.ShowErrorMessage("Ha ocurrido un problema. Por favor, intenta nuevamente más tarde.");
+                //await DialogsHelper2.ShowErrorMessage("Ha ocurrido un problema. Por favor, intenta nuevamente más tarde.");
                 return false;
             }
         }
