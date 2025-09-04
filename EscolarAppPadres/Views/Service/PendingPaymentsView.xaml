@@ -26,8 +26,11 @@
                      IsRefreshing="{Binding IsRefreshing}">
             <CollectionView ItemsSource="{Binding PendingPayments}"
                             Margin="{OnPlatform iOS='15,20,15,15', Android='15,0,15,15'}"
-                            ItemsLayout="VerticalList"
                             SelectionMode="None">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical"
+                            ItemSpacing="10"/>
+                </CollectionView.ItemsLayout>
                 <CollectionView.EmptyView>
                     <ContentView IsVisible="{Binding SinResultados}">
                         <Label Text="No hay pagos pendientes"
