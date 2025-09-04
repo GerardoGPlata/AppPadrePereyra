@@ -34,7 +34,15 @@
                      IsRefreshing="{Binding IsRefreshing}"
                      Margin="15,10">
 
-            <ScrollView>
+            <ScrollView IsVisible="True">
+                <ScrollView.Triggers>
+                    <DataTrigger TargetType="ScrollView"
+                                 Binding="{Binding SinResultados}"
+                                 Value="True">
+                        <Setter Property="IsVisible"
+                                Value="False"/>
+                    </DataTrigger>
+                </ScrollView.Triggers>
                 <StackLayout>
                     <!-- Encabezados de la tabla -->
                     <Grid x:Name="headerGrid"
@@ -105,7 +113,7 @@
             <syncfusionPopup:SfPopup.ContentTemplate>
                 <DataTemplate>
                     <Grid Padding="20,16,20,16"
-                            RowSpacing="8">
+                          RowSpacing="8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
@@ -135,30 +143,30 @@
                             </Grid.ColumnDefinitions>
 
                             <Label Text="Aspecto"
-                                    FontAttributes="Bold"
-                                    FontSize="12"
-                                    TextColor="#273840"
-                                    Grid.Row="0"
-                                    Grid.Column="0"/>
+                                   FontAttributes="Bold"
+                                   FontSize="12"
+                                   TextColor="#273840"
+                                   Grid.Row="0"
+                                   Grid.Column="0"/>
                             <Label Text="Puntaje"
-                                    FontAttributes="Bold"
-                                    FontSize="12"
-                                    TextColor="#273840"
-                                    HorizontalTextAlignment="End"
-                                    Grid.Row="0"
-                                    Grid.Column="1"/>
+                                   FontAttributes="Bold"
+                                   FontSize="12"
+                                   TextColor="#273840"
+                                   HorizontalTextAlignment="End"
+                                   Grid.Row="0"
+                                   Grid.Column="1"/>
                             <Label Text="Calificacion"
-                                    FontAttributes="Bold"
-                                    FontSize="12"
-                                    TextColor="#273840"
-                                    HorizontalTextAlignment="End"
-                                    Grid.Row="0"
-                                    Grid.Column="2"/>
+                                   FontAttributes="Bold"
+                                   FontSize="12"
+                                   TextColor="#273840"
+                                   HorizontalTextAlignment="End"
+                                   Grid.Row="0"
+                                   Grid.Column="2"/>
 
                             <CollectionView ItemsSource="{Binding PopupCriteria}"
-                                    Grid.Row="1"
-                                    Grid.ColumnSpan="3"
-                                    Margin="0,2,0,0">
+                                            Grid.Row="1"
+                                            Grid.ColumnSpan="3"
+                                            Margin="0,2,0,0">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>
                                         <Grid ColumnSpacing="6">
@@ -168,19 +176,19 @@
                                                 <ColumnDefinition Width="1.2*"/>
                                             </Grid.ColumnDefinitions>
                                             <Label Text="{Binding Aspecto}"
-                                                    FontSize="12"
-                                                    TextColor="#49454E"
-                                                    Grid.Column="0"/>
+                                                   FontSize="12"
+                                                   TextColor="#49454E"
+                                                   Grid.Column="0"/>
                                             <Label Text="{Binding PuntajeObtenido}"
-                                                    FontSize="12"
-                                                    TextColor="#49454E"
-                                                    HorizontalTextAlignment="End"
-                                                    Grid.Column="1"/>
+                                                   FontSize="12"
+                                                   TextColor="#49454E"
+                                                   HorizontalTextAlignment="End"
+                                                   Grid.Column="1"/>
                                             <Label Text="{Binding CalificacionCriterio}"
-                                                    FontSize="12"
-                                                    TextColor="#49454E"
-                                                    HorizontalTextAlignment="End"
-                                                    Grid.Column="2"/>
+                                                   FontSize="12"
+                                                   TextColor="#49454E"
+                                                   HorizontalTextAlignment="End"
+                                                   Grid.Column="2"/>
                                         </Grid>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
@@ -188,26 +196,26 @@
                         </Grid>
 
                         <Grid Grid.Row="2"
-                                ColumnSpacing="6"
-                                Padding="0,4,0,0">
+                              ColumnSpacing="6"
+                              Padding="0,4,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
                                 <ColumnDefinition Width="1.2*"/>
                                 <ColumnDefinition Width="1.2*"/>
                             </Grid.ColumnDefinitions>
                             <Label Text="Total"
-                                    FontAttributes="Bold"
-                                    FontSize="13"
-                                    TextColor="#273840"
-                                    Grid.Column="0"/>
+                                   FontAttributes="Bold"
+                                   FontSize="13"
+                                   TextColor="#273840"
+                                   Grid.Column="0"/>
                             <Label Text=""
-                                    Grid.Column="1"/>
+                                   Grid.Column="1"/>
                             <Label Text="{Binding PopupTotal}"
-                                    FontAttributes="Bold"
-                                    FontSize="13"
-                                    TextColor="#273840"
-                                    HorizontalTextAlignment="End"
-                                    Grid.Column="2"/>
+                                   FontAttributes="Bold"
+                                   FontSize="13"
+                                   TextColor="#273840"
+                                   HorizontalTextAlignment="End"
+                                   Grid.Column="2"/>
                         </Grid>
                     </Grid>
                 </DataTemplate>
