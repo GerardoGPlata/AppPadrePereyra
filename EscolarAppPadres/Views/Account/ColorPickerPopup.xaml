@@ -1,67 +1,127 @@
-<toolkit:Popup
+<?xml version="1.0" encoding="utf-8" ?>
+<syncfusionPopup:SfPopup
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:syncfusionPopup="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
+    xmlns:helpers="clr-namespace:EscolarAppPadres.Helpers"
     x:Class="EscolarAppPadres.Views.Account.ColorPickerPopup"
-    Size="300,400"
-    Color="#F9F9F9">
+    x:Name="Root"
+    StaysOpen="True"
+    OverlayMode="Blur"
+    ShowCloseButton="True"
+    AutoSizeMode="Height"
+    AnimationMode="Fade"
+    HeaderTitle="Selecciona un color">
 
-    <VerticalStackLayout Padding="20" Spacing="25" BackgroundColor="White" 
-                          >
-        <Label Text="Selecciona un color"
-               FontAttributes="Bold"
-               FontSize="20"
-               TextColor="Black"
-               HorizontalOptions="Center" />
+    <syncfusionPopup:SfPopup.PopupStyle>
+        <syncfusionPopup:PopupStyle HeaderBackground="#273840"
+                                    HeaderFontSize="18"
+                                    HeaderTextColor="White"
+                                    PopupBackground="White"
+                                    CloseButtonIcon="close_icon"
+                                    BlurIntensity="Dark"/>
+    </syncfusionPopup:SfPopup.PopupStyle>
 
-        <CollectionView x:Name="ColorsCollection"
-                        ItemsSource="{Binding Colores}"
-                        SelectionMode="Single"
-                        SelectedItem="{Binding SelectedColor, Mode=TwoWay}"
-                        SelectionChanged="ColorsCollection_SelectionChanged"
-                        ItemsLayout="VerticalGrid, 4">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Frame WidthRequest="30" HeightRequest="30"
-               CornerRadius="25"
-               Padding="0"
-               HasShadow="True"
-               BackgroundColor="White"
-               BorderColor="{Binding ., 
-                   Converter={StaticResource SelectedColorBorderConverter}, 
-                   ConverterParameter={Binding Source={RelativeSource AncestorType={x:Type toolkit:Popup}}, Path=BindingContext.SelectedColor}}"
-               HorizontalOptions="Center"
-               VerticalOptions="Center">
-                            <BoxView Color="{Binding ., Converter={StaticResource ColorConverter}}"
-                     CornerRadius="25"
-                     HorizontalOptions="Fill"
-                     VerticalOptions="Fill" />
+    <syncfusionPopup:SfPopup.ContentTemplate>
+        <DataTemplate>
+            <Grid Padding="16"
+                  RowSpacing="0">
+                <Grid.Resources>
+                    <helpers:ColorConverter x:Key="ColorConverter"/>
+                    <helpers:NotNullToBoolConverter x:Key="NotNullToBoolConverter"/>
+                    <helpers:SelectedColorBorderMultiConverter x:Key="SelectedColorBorderMultiConverter"/>
+                    <helpers:SelectedColorToOpacityMultiConverter x:Key="SelectedColorToOpacityMultiConverter"/>
+                </Grid.Resources>
 
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type toolkit:Popup}}, Path=BindingContext.ColorTappedCommand}"
-                                      CommandParameter="{Binding .}" />
-                            </Frame.GestureRecognizers>
-                        </Frame>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Preview seleccionado -->
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="Auto,*"
+                      ColumnSpacing="10"
+                      Padding="0,4,0,12">
+                    <Grid WidthRequest="34"
+                          HeightRequest="34"
+                          VerticalOptions="Center">
+                        <Ellipse>
+                            <Ellipse.Fill>
+                                <SolidColorBrush Color="{Binding Source={x:Reference Root}, Path=SelectedColor, Converter={StaticResource ColorConverter}}"/>
+                            </Ellipse.Fill>
+                        </Ellipse>
                     </Grid>
-                </DataTemplate>
+                    <Label Grid.Column="1"
+                           Text="{Binding Source={x:Reference Root}, Path=SelectedColor}"
+                           FontSize="14"
+                           TextColor="#273840"
+                           VerticalOptions="Center"/>
+                </Grid>
 
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                <!-- Paleta de colores -->
+                <CollectionView
+                    Grid.Row="1"
+                    ItemsSource="{Binding Source={x:Reference Root}, Path=Colores}"
+                    SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical"
+                                         Span="5"
+                                         HorizontalItemSpacing="10"
+                                         VerticalItemSpacing="10"/>
+                    </CollectionView.ItemsLayout>
 
-        <HorizontalStackLayout HorizontalOptions="Center" Spacing="20">
-            <Button Text="Cancelar"
-                    Clicked="OnCancelClicked"
-                    BackgroundColor="#E0E0E0"
-                    TextColor="Black"
-                    CornerRadius="12" />
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid InputTransparent="False"
+                                  BackgroundColor="Transparent">
+                                <Border WidthRequest="38"
+                                        HeightRequest="38"
+                                        StrokeThickness="0"
+                                        BackgroundColor="Transparent"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="19"/>
+                                    </Border.StrokeShape>
 
-            <Button Text="Aceptar"
-                    Clicked="OnAcceptClicked"
-                    IsEnabled="{Binding SelectedColor, Converter={StaticResource NotNullToBoolConverter}}"
-                    BackgroundColor="#2196F3"
-                    TextColor="White"
-                    CornerRadius="12" />
-        </HorizontalStackLayout>
-    </VerticalStackLayout>
-</toolkit:Popup>
+                                    <Grid>
+                                        <!-- Círculo de color sin stroke -->
+                                        <Ellipse InputTransparent="True">
+                                            <Ellipse.Fill>
+                                                <SolidColorBrush Color="{Binding ., Converter={StaticResource ColorConverter}}"/>
+                                            </Ellipse.Fill>
+                                        </Ellipse>
+
+                                        <!-- Indicador de selección -->
+                                        <Image Source="checked_icon"
+                                               WidthRequest="20"
+                                               HeightRequest="20"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"
+                                               InputTransparent="True">
+                                            <Image.Opacity>
+                                                <MultiBinding Converter="{StaticResource SelectedColorToOpacityMultiConverter}">
+                                                    <Binding/>
+                                                    <Binding Source="{x:Reference Root}"
+                                                             Path="SelectedColor"/>
+                                                </MultiBinding>
+                                            </Image.Opacity>
+                                        </Image>
+                                    </Grid>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={x:Reference Root}, Path=ColorTappedCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Sin botones: autoaceptar en tap -->
+            </Grid>
+        </DataTemplate>
+    </syncfusionPopup:SfPopup.ContentTemplate>
+</syncfusionPopup:SfPopup>

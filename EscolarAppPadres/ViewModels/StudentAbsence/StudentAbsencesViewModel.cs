@@ -114,7 +114,8 @@ namespace EscolarAppPadres.ViewModels.Absences
             }
             catch (Exception ex)
             {
-                await DialogsHelper2.ShowErrorMessage("Ocurrió un error inesperado: " + ex.Message);
+                //await DialogsHelper2.ShowErrorMessage("Ocurrió un error inesperado: " + ex.Message);
+                Console.WriteLine($"Error inesperado: {ex.Message}");
             }
             finally
             {

@@ -132,11 +132,20 @@ namespace EscolarAppPadres.ViewModels.Login
         private async Task SeleccionarColorAsync(HijoConColor hijo)
         {
             var popup = new ColorPickerPopup();
+            popup.SelectedColor = hijo.ColorHex;
+            // Actualiza en vivo el color del hijo en cada tap (sin persistir aún)
+            EventHandler<string> handler = (_, hex) =>
+            {
+                if (string.IsNullOrEmpty(hex)) return;
+                hijo.ColorHex = hex;
+            };
+            popup.ColorChanged += handler;
             var selectedColorTask = popup.ResultSource.Task;
-
-            await Application.Current.MainPage.ShowPopupAsync(popup);
+            popup.Show();
 
             var nuevoColor = await selectedColorTask;
+            // Limpia suscripción
+            popup.ColorChanged -= handler;
             if (string.IsNullOrEmpty(nuevoColor)) return;
 
             hijo.ColorHex = nuevoColor;
@@ -321,7 +330,7 @@ namespace EscolarAppPadres.ViewModels.Login
             IsNavigating = false;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
         {

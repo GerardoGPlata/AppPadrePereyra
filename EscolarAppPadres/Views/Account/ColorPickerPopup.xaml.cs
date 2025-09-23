@@ -1,67 +1,95 @@
-using CommunityToolkit.Maui.Views;
+using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Syncfusion.Maui.Popup;
+using Microsoft.Maui.ApplicationModel;
 
-namespace EscolarAppPadres.Views.Account;
-
-public partial class ColorPickerPopup : Popup, INotifyPropertyChanged
+namespace EscolarAppPadres.Views.Account
 {
-    public ObservableCollection<string> Colores { get; } = new([
-        "#FF5733", "#33B5FF", "#FF33A8", "#33FF57", "#FFC300",
-        "#8E44AD", "#1ABC9C", "#E67E22", "#2ECC71", "#3498DB",
-        "#F39C12", "#C0392B"
-    ]);
-
-    private string? _selectedColor;
-    public string? SelectedColor
+    public partial class ColorPickerPopup : SfPopup
     {
-        get => _selectedColor;
-        set
+        private bool _completed;
+
+
+        public ObservableCollection<string> Colores { get; } = new(new[]
         {
-            if (_selectedColor != value)
+            "#000000","#F87171","#FB923C","#FBBF24","#A3E635","#34D399","#22D3EE",
+            "#60A5FA","#818CF8","#C084FC","#F472B6","#94A3B8","#64748B","#475569","#0EA5E9",
+            "#EF4444","#F59E0B","#10B981","#059669","#2563EB","#7C3AED","#D946EF","#EA580C"
+        });
+
+        public static readonly BindableProperty SelectedColorProperty = BindableProperty.Create(
+            nameof(SelectedColor), typeof(string), typeof(ColorPickerPopup), default(string),
+            propertyChanged: (bindable, oldVal, newVal) =>
             {
-                _selectedColor = value;
-                OnPropertyChanged();
+                var popup = (ColorPickerPopup)bindable;
+                var hex = newVal as string;
+                if (!string.IsNullOrWhiteSpace(hex))
+                {
+                    popup.ColorChanged?.Invoke(popup, hex);
+                }
             }
-        }
-    }
+        );
 
-    public TaskCompletionSource<string?> ResultSource { get; set; } = new();
-    public ICommand ColorTappedCommand => new Command<string>((color) =>
-    {
-        SelectedColor = color;
-    });
-
-
-    public ColorPickerPopup()
-    {
-        InitializeComponent();
-        BindingContext = this;
-    }
-
-    private void OnCancelClicked(object sender, EventArgs e)
-    {
-        ResultSource.TrySetResult(null);
-        Close();
-    }
-
-    private void OnAcceptClicked(object sender, EventArgs e)
-    {
-        ResultSource.TrySetResult(SelectedColor);
-        Close();
-    }
-
-    private void ColorsCollection_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (e.CurrentSelection.FirstOrDefault() is string color)
+        public string? SelectedColor
         {
-            SelectedColor = color;
+            get => (string?)GetValue(SelectedColorProperty);
+            set => SetValue(SelectedColorProperty, value);
         }
-    }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        public TaskCompletionSource<string?> ResultSource { get; } =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public ICommand ColorTappedCommand { get; }
+
+        public event EventHandler<string>? ColorChanged;
+
+
+        public ColorPickerPopup()
+        {
+            InitializeComponent();
+            BindingContext = this;
+            ColorTappedCommand = new Command<string?>(c =>
+            {
+                if (string.IsNullOrWhiteSpace(c)) return;
+                // Solo actualizar selección; no cerrar ni completar resultado aquí
+                SelectedColor = c;
+            });
+
+            // SelectedColor es TwoWay desde el CollectionView. Si deseas auto-aceptar, puedes hacerlo en el callback de SelectedColorProperty.
+
+            // Si el usuario cierra con la “X”, devolvemos el color seleccionado si no se había completado.
+            this.Closed += (_, __) =>
+            {
+                if (!_completed)
+                {
+                    _completed = true;
+                    ResultSource.TrySetResult(SelectedColor);
+                }
+            };
+        }
+
+        // Sin selección nativa: el tap del item establece SelectedColor
+
+        void OnCancelClicked(object sender, EventArgs e)
+        {
+            if (!_completed)
+            {
+                _completed = true;
+                ResultSource.TrySetResult(null);
+            }
+            this.Dismiss();
+        }
+
+        void OnAcceptClicked(object sender, EventArgs e)
+        {
+            if (!_completed)
+            {
+                _completed = true;
+                ResultSource.TrySetResult(SelectedColor);
+            }
+            this.Dismiss();
+        }
+
+    }
 }

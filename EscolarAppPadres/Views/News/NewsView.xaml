@@ -29,6 +29,8 @@
                                       RowSpacing="10"
                                       ColumnDefinitions="*,*">
 
+                                    <!-- Región comentada: Previsualización y fallback de imagen -->
+                                    <!--
                                     <Frame Grid.Row="0"
                                            Grid.ColumnSpan="2"
                                            CornerRadius="10"
@@ -36,33 +38,6 @@
                                            BackgroundColor="White"
                                            BorderColor="LightGray">
                                         <Grid ColumnDefinitions="*,*">
-                                            <!-- Vista previa de la página web -->
-                                            <WebView Grid.Row="0"
-                                                     Grid.ColumnSpan="2"
-                                                     Source="{Binding Notificacion.Vinculo}"
-                                                     HeightRequest="170"
-                                                     HorizontalOptions="Fill"
-                                                     VerticalOptions="Fill"
-                                                     InputTransparent="True"
-                                                     IsVisible="True">
-                                                <WebView.Triggers>
-                                                    <!-- Ocultar WebView si no hay vínculo -->
-                                                    <DataTrigger TargetType="WebView"
-                                                                 Binding="{Binding Notificacion.Vinculo}"
-                                                                 Value="{x:Null}">
-                                                        <Setter Property="IsVisible"
-                                                                Value="False"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger TargetType="WebView"
-                                                                 Binding="{Binding Notificacion.Vinculo}"
-                                                                 Value="">
-                                                        <Setter Property="IsVisible"
-                                                                Value="False"/>
-                                                    </DataTrigger>
-                                                </WebView.Triggers>
-                                            </WebView>
-
-                                            <!-- Fallback a imagen si no hay vínculo o si la vista previa no aplica -->
                                             <Image Grid.Row="0"
                                                    Grid.ColumnSpan="2"
                                                    Source="{Binding Notificacion.NotificacionImageFormato}"
@@ -85,7 +60,6 @@
                                                 </Image.Triggers>
                                             </Image>
 
-                                            <!-- Indicador de estado (overlay) -->
                                             <Image Grid.Row="0"
                                                    Grid.ColumnSpan="2"
                                                    Source="{Binding EstadoImagen}"
@@ -96,7 +70,7 @@
                                                    IsVisible="False"/>
                                         </Grid>
                                     </Frame>
-
+                                    -->
                                     <Label Grid.Row="1"
                                            Grid.ColumnSpan="2"
                                            Text="{Binding Notificacion.Titulo}"

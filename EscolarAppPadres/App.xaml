@@ -7,20 +7,22 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
-                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Convierte string a Color -->
-            <converters:ColorConverter x:Key="ColorConverter" />
+            <converters:ColorConverter x:Key="ColorConverter"/>
 
             <!-- Muestra un borde si el color está seleccionado -->
-            <converters:SelectedColorBorderConverter x:Key="SelectedColorBorderConverter" />
+            <converters:SelectedColorBorderConverter x:Key="SelectedColorBorderConverter"/>
+            <converters:SelectedColorBorderMultiConverter x:Key="SelectedColorBorderMultiConverter"/>
+            <converters:SelectedColorToOpacityMultiConverter x:Key="SelectedColorToOpacityMultiConverter"/>
 
             <!-- Habilita el botón si hay selección -->
-            <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
+            <converters:NotNullToBoolConverter x:Key="NotNullToBoolConverter"/>
 
-            <converters:TipoDocumentoToColorConverter x:Key="TipoDocumentoToColorConverter" />
+            <converters:TipoDocumentoToColorConverter x:Key="TipoDocumentoToColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

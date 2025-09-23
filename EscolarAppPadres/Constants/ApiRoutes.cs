@@ -78,6 +78,7 @@ namespace EscolarAppPadres.Constants
             public const string GetPendingPayments = "Payments/PendingPayments";
             public const string GetStatusCharge = "Payments/GetStatusCharge";
             public const string CreateChargeMovil = "Payments/CreateChargeMovil";
+            public const string GetPaidPayments = "Payments/PaidPayments";
         }
         public static class Services
         {

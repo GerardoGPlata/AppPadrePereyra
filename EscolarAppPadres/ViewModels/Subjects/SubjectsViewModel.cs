@@ -21,15 +21,15 @@ namespace EscolarAppPadres.ViewModels.Subjects
         #endregion
 
         #region Properties
-        private ObservableCollection<StudentSubject> _studentSubjects;
+        private ObservableCollection<StudentSubject> _studentSubjects = new ObservableCollection<StudentSubject>();
         public ObservableCollection<Hijo> Hijos { get; set; } = new ObservableCollection<Hijo>();
         private bool _isRefreshing;
         private bool _sinResultados;
 
-        private string subjectName;
-        private string subjectProfessor;
+        private string subjectName = string.Empty;
+        private string subjectProfessor = string.Empty;
 
-        private Hijo _selectedHijo;
+        private Hijo? _selectedHijo;
 
         public string SubjectName
         {
@@ -84,7 +84,7 @@ namespace EscolarAppPadres.ViewModels.Subjects
             }
         }
 
-        private string _popupContent;
+        private string _popupContent = string.Empty;
         public string PopupContent
         {
             get => _popupContent;
@@ -97,7 +97,7 @@ namespace EscolarAppPadres.ViewModels.Subjects
 
         public ICommand SubjectTappedCommand { get; }
 
-        public event EventHandler<string> OnSubjectPopupRequested;
+        public event EventHandler<string>? OnSubjectPopupRequested;
 
 
 
@@ -139,7 +139,7 @@ namespace EscolarAppPadres.ViewModels.Subjects
                 // 1. Obtener credenciales del almacen seguro
                 var token = await SecureStorage.GetAsync("auth_token");
                 var profileId = await SecureStorage.GetAsync("Tipo_Usuario_Id");
-                string alumnoId = SelectedHijo?.AlumnoId.ToString();
+                string? alumnoId = SelectedHijo?.AlumnoId.ToString();
                 if (string.IsNullOrEmpty(alumnoId))
                 {
                     // await DialogsHelper2.ShowErrorMessage("Seleccione un hijo válido.");
@@ -220,22 +220,50 @@ namespace EscolarAppPadres.ViewModels.Subjects
             if (selectedSubject == null)
                 return;
 
-            var homeworkService = new HomeworkService();
-            var token = await SecureStorage.GetAsync("auth_token");
-            var response = await homeworkService.GetStudentHomeworkAsync(token, selectedSubject.ProfesorPorMateriaId);
-
-            if (response?.Data != null && response.Data.Any())
+            DialogsHelper.ShowLoadingMessage("Cargando...", dimBackground: true);
+            try
             {
-                string tareas = string.Join("\n• ", response.Data.Select(t => t.TareaNombre));
-                PopupContent = $"Tareas para {selectedSubject.Materia}:\n\n• {tareas}";
-            }
-            else
-            {
-                PopupContent = $"No se encontraron tareas.";
-            }
+                var homeworkService = new HomeworkService();
+                var token = await SecureStorage.GetAsync("auth_token");
+                if (string.IsNullOrEmpty(token))
+                {
+                    await DialogsHelper.ShowErrorMessage("Sesión expirada", "Por favor inicie sesión nuevamente.");
+                    return;
+                }
 
-            // Dispara el evento para que el code-behind abra el popup
-            OnSubjectPopupRequested?.Invoke(this, selectedSubject.Materia);
+                var response = await homeworkService.GetStudentHomeworkAsync(token, selectedSubject.ProfesorPorMateriaId);
+
+                if (response?.Data != null && response.Data.Any())
+                {
+                    string tareas = string.Join("\n• ", response.Data.Select(t => t.TareaNombre));
+                    PopupContent = $"Tareas para {selectedSubject.Materia}:\n\n• {tareas}";
+                }
+                else
+                {
+                    PopupContent = $"No se encontraron tareas.";
+                }
+
+                // Dispara el evento para que el code-behind abra el popup
+                OnSubjectPopupRequested?.Invoke(this, selectedSubject.Materia);
+            }
+            catch (HttpRequestException httpEx)
+            {
+                Console.WriteLine($"Error de red al cargar tareas: {httpEx.Message}");
+                await DialogsHelper.ShowErrorMessage("Red", "No se pudo conectar al servidor. Verifique su conexión e intente de nuevo.");
+            }
+            catch (TaskCanceledException)
+            {
+                await DialogsHelper.ShowErrorMessage("Tiempo de espera", "La solicitud ha expirado. Intente nuevamente.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error inesperado al cargar tareas: {ex.Message}");
+                await DialogsHelper.ShowErrorMessage("Error", "Ocurrió un error inesperado al cargar las tareas.");
+            }
+            finally
+            {
+                DialogsHelper.HideLoadingMessage();
+            }
         }
 
         public async Task LoadChildrenData()
@@ -265,7 +293,7 @@ namespace EscolarAppPadres.ViewModels.Subjects
             }
         }
 
-        public Hijo SelectedHijo
+        public Hijo? SelectedHijo
         {
             get => _selectedHijo;
             set
@@ -295,7 +323,7 @@ namespace EscolarAppPadres.ViewModels.Subjects
         #endregion
 
         #region INotifyPropertyChanged Implementation
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         #endregion

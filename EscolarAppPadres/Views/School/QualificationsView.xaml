@@ -108,6 +108,7 @@
                                             HeaderFontSize="30"
                                             HeaderTextColor="White"
                                             PopupBackground="White"
+                                            CloseButtonIcon="close_icon"
                                             BlurIntensity="Dark"/>
             </syncfusionPopup:SfPopup.PopupStyle>
             <syncfusionPopup:SfPopup.ContentTemplate>

@@ -14,7 +14,7 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
 {
     public class SubjectGrades : INotifyPropertyChanged
     {
-        public string NombreCorto { get; set; }
+        public string NombreCorto { get; set; } = string.Empty;
 
         private Dictionary<string, double?> _calificacionesPorPeriodo = new();
         public Dictionary<string, double?> CalificacionesPorPeriodo
@@ -34,7 +34,7 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             {
                 var calificacionesValidas = CalificacionesPorPeriodo.Values
                     .Where(c => c.HasValue)
-                    .Select(c => c.Value)
+                    .Select(c => c!.Value)
                     .ToList();
 
                 if (!calificacionesValidas.Any())
@@ -44,7 +44,7 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
@@ -83,8 +83,8 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             }
         }
 
-        private Hijo _selectedHijo;
-        public Hijo SelectedHijo
+        private Hijo? _selectedHijo;
+        public Hijo? SelectedHijo
         {
             get => _selectedHijo;
             set
@@ -125,14 +125,14 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             }
         }
 
-        private string _popupHeader;
+        private string _popupHeader = string.Empty;
         public string PopupHeader
         {
             get => _popupHeader;
             set { _popupHeader = value; OnPropertyChanged(nameof(PopupHeader)); }
         }
 
-        private string _popupPeriod;
+        private string _popupPeriod = string.Empty;
         public string PopupPeriod
         {
             get => _popupPeriod;
@@ -146,7 +146,7 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             set { _popupCriteria = value; OnPropertyChanged(nameof(PopupCriteria)); }
         }
 
-        private string _popupTotal;
+        private string _popupTotal = string.Empty;
         public string PopupTotal
         {
             get => _popupTotal;
@@ -154,7 +154,7 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
         }
 
         // Evento para notificar cuando se deben actualizar las columnas
-        public event EventHandler ColumnsChanged;
+        public event EventHandler? ColumnsChanged;
         #endregion
 
         #region Commands
@@ -268,25 +268,27 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                     return;
                 }
 
+                // Preparar datos en segundo plano sin tocar colecciones de UI
+                List<EvaluationPeriod> periods = new();
+                List<string> periodos = new();
+                ObservableCollection<SubjectGrades> nuevasMaterias = new();
+
                 await Task.Run(() =>
                 {
-                    foreach (var period in response.Data)
-                        EvaluationPeriods.Add(period);
+                    periods = response.Data.ToList();
 
-                    var periodos = response.Data.Select(p => p.DescripcionCorta).ToList();
-                    var materias = response.Data
+                    periodos = periods.Select(p => p.DescripcionCorta).ToList();
+                    var materias = periods
                         .SelectMany(p => p.Calificaciones)
                         .GroupBy(c => c.NombreCorto)
                         .Select(g => g.Key)
                         .ToList();
 
-                    var nuevasMaterias = new ObservableCollection<SubjectGrades>();
-
                     foreach (var materia in materias)
                     {
                         var calificaciones = new Dictionary<string, double?>();
 
-                        foreach (var periodo in EvaluationPeriods)
+                        foreach (var periodo in periods)
                         {
                             var calificacion = periodo.Calificaciones
                                 .FirstOrDefault(c => c.NombreCorto == materia)?.Calificacion;
@@ -300,21 +302,26 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
                             CalificacionesPorPeriodo = calificaciones
                         });
                     }
+                });
+
+                // Actualizar UI en el hilo principal
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    EvaluationPeriods.Clear();
+                    foreach (var period in periods)
+                        EvaluationPeriods.Add(period);
 
                     NombresPeriodos = periodos;
 
-                    MainThread.BeginInvokeOnMainThread(() =>
+                    if (nuevasMaterias.Count == 0)
                     {
-                        if (nuevasMaterias.Count == 0)
-                        {
-                            SinResultados = true;
-                        }
-                        else
-                        {
-                            MateriasConCalificaciones = nuevasMaterias;
-                            ColumnsChanged?.Invoke(this, EventArgs.Empty);
-                        }
-                    });
+                        SinResultados = true;
+                    }
+                    else
+                    {
+                        MateriasConCalificaciones = nuevasMaterias;
+                        ColumnsChanged?.Invoke(this, EventArgs.Empty);
+                    }
                 });
             }
             catch (HttpRequestException)
@@ -338,23 +345,47 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
 
         public async Task<List<StudentCriteriaGrade>> GetCriteriaGradesForSubjectAsync(int materiaId, int periodoEvaluacionId)
         {
-            var token = await SecureStorage.GetAsync("auth_token");
-            var alumnoId = SelectedHijo?.AlumnoId.ToString();
+            DialogsHelper.ShowLoadingMessage("Cargando...", dimBackground: true);
+            try
+            {
+                var token = await SecureStorage.GetAsync("auth_token");
+                var alumnoId = SelectedHijo?.AlumnoId.ToString();
 
-            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(alumnoId))
+                if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(alumnoId))
+                    return new List<StudentCriteriaGrade>();
+
+                var response = await _criteriaGradesService.GetStudentCriteriaGradesAsync(token, alumnoId, materiaId, periodoEvaluacionId);
+
+                if (response != null && response.Data != null && response.Data.Any())
+                    return response.Data;
+
                 return new List<StudentCriteriaGrade>();
-
-            var response = await _criteriaGradesService.GetStudentCriteriaGradesAsync(token, alumnoId, materiaId, periodoEvaluacionId);
-
-            if (response != null && response.Data != null && response.Data.Any())
-                return response.Data;
-
-            return new List<StudentCriteriaGrade>();
+            }
+            catch (HttpRequestException)
+            {
+                await DialogsHelper.ShowErrorMessage("Red", "No se pudo conectar al servidor. Verifique su conexión e intente de nuevo.");
+                return new List<StudentCriteriaGrade>();
+            }
+            catch (TaskCanceledException)
+            {
+                await DialogsHelper.ShowErrorMessage("Tiempo de espera", "La solicitud ha expirado. Intente nuevamente.");
+                return new List<StudentCriteriaGrade>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error inesperado al cargar criterios: {ex.Message}");
+                await DialogsHelper.ShowErrorMessage("Error", "Ocurrió un error inesperado al cargar los criterios.");
+                return new List<StudentCriteriaGrade>();
+            }
+            finally
+            {
+                DialogsHelper.HideLoadingMessage();
+            }
         }
         #endregion
 
         #region INotifyPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         #endregion
