@@ -1,5 +1,6 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:EscolarAppPadres.Controls;assembly=EscolarAppPadres"
              x:Class="EscolarAppPadres.Views.School.AbsencesView"
              Title="ESCOLAR"
              BackgroundColor="#f5f8fa"
@@ -11,18 +12,21 @@
             Command="{Binding LoadAbsencesCommand}"
             IsRefreshing="{Binding IsRefreshing}">
             <ScrollView>
-                <StackLayout Padding="15" Spacing="15" Margin="0,0,0,60">
+                <StackLayout Padding="15"
+                             Spacing="15"
+                             Margin="0,0,0,60">
                     <!-- Deja espacio para el picker flotante -->
                     <Label Text="No se encontraron ausencias"
                            FontSize="16"
                            TextColor="Gray"
                            HorizontalOptions="Center"
-                           IsVisible="{Binding SinResultados}" />
+                           IsVisible="{Binding SinResultados}"/>
 
                     <CollectionView ItemsSource="{Binding StudentAbsences}"
                                     SelectionMode="None">
                         <CollectionView.ItemsLayout>
-                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="{OnPlatform iOS='15', Android='10'}" />
+                            <LinearItemsLayout Orientation="Vertical"
+                                               ItemSpacing="{OnPlatform iOS='15', Android='10'}"/>
                         </CollectionView.ItemsLayout>
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
@@ -40,14 +44,14 @@
                                                FontSize="16"
                                                TextColor="#273840"
                                                Grid.Row="0"
-                                               Grid.Column="0" />
+                                               Grid.Column="0"/>
 
                                         <Label Text="{Binding Fecha, StringFormat='Fecha: {0:dd/MM/yyyy}'}"
                                                FontSize="14"
                                                TextColor="Gray"
                                                Margin="0,4,0,0"
                                                Grid.Row="1"
-                                               Grid.Column="0" />
+                                               Grid.Column="0"/>
 
                                         <Label Text="{Binding NombreProfesor, StringFormat='Prof. {0}'}"
                                                FontSize="14"
@@ -55,14 +59,14 @@
                                                TextColor="Gray"
                                                Margin="0,4,0,0"
                                                Grid.Row="2"
-                                               Grid.Column="0" />
+                                               Grid.Column="0"/>
 
                                         <Label Text="{Binding TipoAsistenciaNombre, StringFormat='Motivo: {0}'}"
                                                FontSize="14"
                                                TextColor="Black"
                                                Margin="0,4,0,0"
                                                Grid.Row="3"
-                                               Grid.Column="0" />
+                                               Grid.Column="0"/>
                                     </Grid>
                                 </Frame>
                             </DataTemplate>
@@ -73,7 +77,7 @@
         </RefreshView>
 
         <!-- Picker flotante abajo -->
-        <Frame BackgroundColor="White"
+        <Frame BackgroundColor="#008347"
                CornerRadius="20"
                HasShadow="True"
                Padding="6,2"
@@ -83,13 +87,27 @@
                HorizontalOptions="Center"
                VerticalOptions="End"
                TranslationY="0">
-            <Picker Title="Seleccionar hijo"
-                    ItemsSource="{Binding Hijos}"
-                    ItemDisplayBinding="{Binding NombreCompleto}"
-                    SelectedItem="{Binding SelectedHijo}"
-                    FontSize="13"
-                    TextColor="#273840"
-                    HorizontalOptions="FillAndExpand" />
+            <Grid ColumnDefinitions="*,Auto"
+                  VerticalOptions="Center"
+                  HeightRequest="32">
+                <controls:ChildPicker Title="Seleccionar hijo"
+                                      ItemsSource="{Binding Hijos}"
+                                      ItemDisplayBinding="{Binding NombreCompleto}"
+                                      SelectedItem="{Binding SelectedHijo}"
+                                      FontSize="11.7"
+                                      FontAttributes="Bold"
+                                      TextColor="White"
+                                      TitleColor="White"
+                                      HorizontalOptions="Fill"
+                                      Margin="0,0,4,0"/>
+                <Image Source="chevron_down_white"
+                       Grid.Column="1"
+                       WidthRequest="18"
+                       HeightRequest="18"
+                       VerticalOptions="Center"
+                       HorizontalOptions="End"
+                       Margin="4,0,4,0"/>
+            </Grid>
         </Frame>
     </Grid>
 </ContentPage>

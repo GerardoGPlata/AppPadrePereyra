@@ -3,6 +3,7 @@
              xmlns:local="clr-namespace:EscolarAppPadres.Helpers"
              xmlns:viewModels="clr-namespace:EscolarAppPadres.ViewModels.StudentGrade"
              xmlns:syncfusionPopup="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
+             xmlns:controls="clr-namespace:EscolarAppPadres.Controls;assembly=EscolarAppPadres"
              x:Class="EscolarAppPadres.Views.School.QualificationsView"
              Title="ESCOLAR"
              Padding="{OnPlatform iOS='0,20,0,0', Android='0'}"
@@ -79,19 +80,34 @@
                     HeightRequest="44"
                     HorizontalOptions="Center"/>
 
-            <Frame BackgroundColor="White"
+            <Frame BackgroundColor="#008347"
                    CornerRadius="20"
                    HasShadow="True"
                    Padding="6,2"
                    HeightRequest="44"
                    WidthRequest="280"
                    HorizontalOptions="Center">
-                <Picker Title="Seleccionar hijo"
-                        ItemsSource="{Binding Hijos}"
-                        ItemDisplayBinding="{Binding NombreCompleto}"
-                        SelectedItem="{Binding SelectedHijo}"
-                        FontSize="13"
-                        TextColor="#273840"/>
+                <Grid ColumnDefinitions="*,Auto"
+                      VerticalOptions="Center"
+                      HeightRequest="32">
+                    <controls:ChildPicker Title="Seleccionar hijo"
+                                          ItemsSource="{Binding Hijos}"
+                                          ItemDisplayBinding="{Binding NombreCompleto}"
+                                          SelectedItem="{Binding SelectedHijo}"
+                                          FontSize="11.7"
+                                          FontAttributes="Bold"
+                                          TextColor="White"
+                                          TitleColor="White"
+                                          HorizontalOptions="Fill"
+                                          Margin="0,0,4,0"/>
+                    <Image Source="chevron_down_white"
+                           Grid.Column="1"
+                           WidthRequest="18"
+                           HeightRequest="18"
+                           VerticalOptions="Center"
+                           HorizontalOptions="End"
+                           Margin="4,0,4,0"/>
+                </Grid>
             </Frame>
         </StackLayout>
 

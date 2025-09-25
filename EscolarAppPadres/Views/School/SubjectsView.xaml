@@ -1,6 +1,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:syncfusionPopup="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
+             xmlns:controls="clr-namespace:EscolarAppPadres.Controls;assembly=EscolarAppPadres"
              x:Class="EscolarAppPadres.Views.School.SubjectsView"
              Title="ESCOLAR"
              BackgroundColor="#f5f8fa"
@@ -81,7 +82,7 @@
 
         <!-- Picker abajo sin superponer -->
         <Frame Grid.Row="1"
-               BackgroundColor="White"
+               BackgroundColor="#008347"
                CornerRadius="20"
                HasShadow="True"
                Padding="6,2"
@@ -90,13 +91,27 @@
                WidthRequest="280"
                HorizontalOptions="Center"
                VerticalOptions="End">
-            <Picker Title="Seleccionar hijo"
-                    ItemsSource="{Binding Hijos}"
-                    ItemDisplayBinding="{Binding NombreCompleto}"
-                    SelectedItem="{Binding SelectedHijo}"
-                    FontSize="13"
-                    TextColor="#273840"
-                    HorizontalOptions="Fill"/>
+            <Grid ColumnDefinitions="*,Auto"
+                  VerticalOptions="Center"
+                  HeightRequest="32">
+                <controls:ChildPicker Title="Seleccionar hijo"
+                                      ItemsSource="{Binding Hijos}"
+                                      ItemDisplayBinding="{Binding NombreCompleto}"
+                                      SelectedItem="{Binding SelectedHijo}"
+                                      FontSize="11.7"
+                                      FontAttributes="Bold"
+                                      TextColor="White"
+                                      TitleColor="White"
+                                      HorizontalOptions="Fill"
+                                      Margin="0,0,4,0"/>
+                <Image Source="chevron_down_white"
+                       Grid.Column="1"
+                       WidthRequest="18"
+                       HeightRequest="18"
+                       VerticalOptions="Center"
+                       HorizontalOptions="End"
+                       Margin="4,0,4,0"/>
+            </Grid>
         </Frame>
 
         <!-- Popup -->

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Maui.Handlers;
+using EscolarAppPadres.Controls; // ChildPicker
 
 namespace EscolarAppPadres.Handlers
 {
@@ -116,12 +117,36 @@ namespace EscolarAppPadres.Handlers
             });
         }
 
+        // Estilo para ChildPicker (remover underline / fondo nativo)
+        public static void ApplyChildPickerStyle()
+        {
+            PickerHandler.Mapper.AppendToMapping(nameof(ChildPicker), (handler, view) =>
+            {
+#if __ANDROID__
+                // Quita el background y tint que generan la línea inferior
+                handler.PlatformView.Background = null;
+                handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
+                try { handler.PlatformView.BackgroundTintList = null; } catch { }
+                // Centrar texto
+                handler.PlatformView.TextAlignment = Android.Views.TextAlignment.Center;
+                handler.PlatformView.Gravity = Android.Views.GravityFlags.CenterVertical | Android.Views.GravityFlags.CenterHorizontal;
+#elif __IOS__
+                if (handler.PlatformView is UIKit.UITextField tf)
+                {
+                    tf.BorderStyle = UIKit.UITextBorderStyle.None;
+                    tf.TextAlignment = UIKit.UITextAlignment.Center;
+                }
+#endif
+            });
+        }
+
         // Método global para aplicar todos los estilos
         public static void ApplyAllControlStyles()
         {
             ApplyEntryStyle();
             ApplyRadioButtonStyle();
             ApplyCheckBoxStyle();
+            ApplyChildPickerStyle();
         }
     }
 }
