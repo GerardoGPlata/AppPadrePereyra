@@ -47,13 +47,13 @@ namespace EscolarAppPadres.Models.Payments
                 {
                     // Configurar cultura en español
                     var culturaEspanol = new System.Globalization.CultureInfo("es-ES");
-                    
+
                     // Formatear: "jue. 10 abr, 2025"
                     string diaSemana = fecha.ToString("ddd", culturaEspanol).ToLower();
                     string dia = fecha.Day.ToString();
                     string mes = fecha.ToString("MMM", culturaEspanol).ToLower();
                     string año = fecha.Year.ToString();
-                    
+
                     return $"{diaSemana}. {dia} {mes}, {año}";
                 }
                 return FechaLimiteFormato;
@@ -78,9 +78,13 @@ namespace EscolarAppPadres.Models.Payments
         {
             get
             {
+                if (IsPaid) return "#888888"; // gris para pagados
                 return EsFechaVencida ? "#ff6b6b" : "#3c9c4c";
             }
         }
+
+        // Indicador de pago realizado
+        public bool IsPaid { get; set; }
 
         // Propiedades para identificar el origen
         public ColegiaturaDto ColegiaturaOriginal { get; set; }

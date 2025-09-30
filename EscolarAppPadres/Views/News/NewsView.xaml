@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
              x:Class="EscolarAppPadres.Views.News.NewsView"
              Title="NOTICIAS">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem IconImageSource="filter_outline"
+                     Order="Primary"
+                     Priority="0"
+                     Command="{Binding OpenFilterPopupNewsCommand}"/>
+    </ContentPage.ToolbarItems>
 
     <AbsoluteLayout>
         <Grid AbsoluteLayout.LayoutFlags="All"
@@ -128,20 +136,71 @@
                    IsVisible="{Binding SinResultados}"/>
         </Grid>
 
-        <Button x:Name="Filtros"
-                FontSize="18"
-                TextColor="Black"
-                CornerRadius="20"
-                BackgroundColor="{StaticResource StaticBackgroundColorGreen}"
-                AbsoluteLayout.LayoutFlags="PositionProportional"
-                AbsoluteLayout.LayoutBounds="1,1,AutoSize,AutoSize"
-                Margin="10"
-                HeightRequest="65"
-                WidthRequest="65"
-                Command="{Binding OpenFilterPopupNewsCommand}">
-            <Button.ImageSource>
-                <FileImageSource File="filter_outline"/>
-            </Button.ImageSource>
-        </Button>
+        <!-- Popup de filtros -->
+        <syncfusion:SfPopup x:Name="newsFilterPopup"
+                            IsOpen="{Binding IsFilterPopupOpen}"
+                            IsVisible="{Binding IsFilterPopupOpen}"
+                            StaysOpen="True"
+                            ShowCloseButton="True"
+                            OverlayMode="Blur"
+                            AutoSizeMode="Height"
+                            AnimationMode="Fade"
+                            HeaderTitle="Filtrar Noticias"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+            <syncfusion:SfPopup.PopupStyle>
+                <syncfusion:PopupStyle HeaderBackground="#273840"
+                                       HeaderTextColor="White"
+                                       HeaderFontSize="16"
+                                       CloseButtonIcon="close_icon"
+                                       PopupBackground="White"
+                                       BlurIntensity="Dark"/>
+            </syncfusion:SfPopup.PopupStyle>
+            <syncfusion:SfPopup.ContentTemplate>
+                <DataTemplate>
+                    <VerticalStackLayout Padding="20"
+                            Spacing="18"
+                            WidthRequest="300">
+                        <Label Text="Mostrar:"
+                                FontSize="14"
+                                TextColor="#555"/>
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="Auto,*"
+                                    ColumnSpacing="10">
+                                <CheckBox IsChecked="{Binding FiltroNoLeidos}"
+                                        Color="#008347"/>
+                                <Label Grid.Column="1"
+                                        Text="No leídos"
+                                        VerticalOptions="Center"
+                                        TextColor="#333"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="Auto,*"
+                                    ColumnSpacing="10">
+                                <CheckBox IsChecked="{Binding FiltroLeidos}"
+                                        Color="#008347"/>
+                                <Label Grid.Column="1"
+                                        Text="Leídos"
+                                        VerticalOptions="Center"
+                                        TextColor="#333"/>
+                            </Grid>
+                        </VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto"
+                                ColumnSpacing="12"
+                                Margin="0,10,0,0">
+                            <Button Text="Cancelar"
+                                    Grid.Column="0"
+                                    BackgroundColor="#cccccc"
+                                    TextColor="#273840"
+                                    Command="{Binding CloseFilterPopupNewsCommand}"/>
+                            <Button Text="Aplicar"
+                                    Grid.Column="1"
+                                    BackgroundColor="#3c9c4c"
+                                    TextColor="White"
+                                    Command="{Binding ApplyFiltersNewsCommand}"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </syncfusion:SfPopup.ContentTemplate>
+        </syncfusion:SfPopup>
     </AbsoluteLayout>
 </ContentPage>

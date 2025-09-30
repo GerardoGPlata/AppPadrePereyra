@@ -28,6 +28,7 @@ namespace EscolarAppPadres.ViewModels.News
         private bool _sinResultados;
 
         private bool _isOpened;
+        private bool _isFilterPopupOpen;
 
         public NewsViewModel()
         {
@@ -51,6 +52,9 @@ namespace EscolarAppPadres.ViewModels.News
             FiltroLeidos = Preferences.Get("FiltroLeidos", false);
 
             LoadNewsCommand = new Command(async () => await LoadNewsAsync());
+            ApplyFiltersNewsCommand = new Command(() => { ApplyFiltersNews(); IsFilterPopupOpen = false; });
+            OpenFilterPopupNewsCommand = new Command(() => IsFilterPopupOpen = true);
+            CloseFilterPopupNewsCommand = new Command(() => IsFilterPopupOpen = false);
         }
 
         public ObservableCollection<NotificacionesLeidas> Noticias
@@ -189,8 +193,9 @@ namespace EscolarAppPadres.ViewModels.News
         public ICommand LoadNewsCommand { get; }
         public ICommand SendReadNewsCommand => new Command<NotificacionesLeidas>(async (notificacion) => await NewsReadAsync(notificacion));
         public ICommand OpenBondNewsCommand => new Command<NotificacionesLeidas>(async (selectedNoticia) => await NavigateToOpenBondTappedAsync(selectedNoticia));
-        public ICommand ApplyFiltersNewsCommand => new Command(ApplyFiltersNews);
-        public ICommand OpenFilterPopupNewsCommand => new Command(async () => await OpenFilterPopupNewsAsync());
+        public ICommand ApplyFiltersNewsCommand { get; }
+        public ICommand OpenFilterPopupNewsCommand { get; }
+        public ICommand CloseFilterPopupNewsCommand { get; }
         public ICommand OpenFilterCalendarReminderCommand => new Command<NotificacionesLeidas>(async (noticia) => await OpenFilterCalendarReminderNewsAsync(noticia));
         public ICommand OpenFilterCalendarReminderVinculoCommand => new Command<NotificacionesLeidas>(async (noticia) => await OpenFilterCalendarReminderVinculoNewsAsync(noticia));
 
@@ -361,9 +366,24 @@ namespace EscolarAppPadres.ViewModels.News
             }
         }
 
-        private async Task OpenFilterPopupNewsAsync()
+        public bool IsFilterPopupOpen
         {
-            await PopupFilterNewsView.ShowPopupFilterNewsIfNotOpen(this);
+            get => _isFilterPopupOpen;
+            set
+            {
+                if (_isFilterPopupOpen != value)
+                {
+                    _isFilterPopupOpen = value;
+                    OnPropertyChanged(nameof(IsFilterPopupOpen));
+                }
+            }
+        }
+
+        // Método legacy mantenido por compatibilidad (ya no muestra popup externo)
+        private Task OpenFilterPopupNewsAsync()
+        {
+            IsFilterPopupOpen = true;
+            return Task.CompletedTask;
         }
 
         public async Task OpenFilterCalendarReminderNewsAsync(NotificacionesLeidas notificacionesLeidas)

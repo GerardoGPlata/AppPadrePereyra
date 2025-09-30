@@ -4,14 +4,276 @@
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Popup;assembly=Syncfusion.Maui.Popup"
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              xmlns:converters="clr-namespace:EscolarAppPadres.Helpers"
+             xmlns:helpers="clr-namespace:EscolarAppPadres.Helpers"
              x:Class="EscolarAppPadres.Views.Service.PendingPaymentsView"
-             Title="PAGOS"
+             Title="{Binding DisplayTitle}"
              BackgroundColor="#f5f8fa"
              Padding="{OnPlatform iOS='0,20,0,0', Android='0'}">
+
+    <!-- Toolbar: Botón de filtro (solo visible en esta página) -->
+    <ContentPage.ToolbarItems>
+        <ToolbarItem IconImageSource="filter_outline"
+                     Text="Filtrar"
+                     Priority="0"
+                     Order="Primary"
+                     Command="{Binding ShowFilterCommand}"/>
+    </ContentPage.ToolbarItems>
 
     <ContentPage.Resources>
         <ResourceDictionary>
             <converters:TipoDocumentoToColorConverter x:Key="TipoDocumentoToColorConverter"/>
+
+            <!-- Template pagos pendientes (original) -->
+            <DataTemplate x:Key="PendingPaymentTemplate">
+                <Border Style="{StaticResource CardBorder}"
+                        Margin="0,0,0,10"
+                        Padding="12,12,12,12">
+                    <Grid RowSpacing="8"
+                          ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="36"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <buttons:SfCheckBox Grid.Column="0"
+                                            Grid.Row="0"
+                                            Grid.RowSpan="4"
+                                            IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                            WidthRequest="60"
+                                            HeightRequest="60"
+                                            CornerRadius="5.0"
+                                            VerticalOptions="Center"
+                                            HorizontalOptions="Start"
+                                            Margin="-6,0,0,0"
+                                            ZIndex="100"
+                                            CheckedColor="#3c9c4c"
+                                            UncheckedColor="#B0B0B0"/>
+                        <Grid Grid.Row="0"
+                              Grid.Column="1"
+                              ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0"
+                                   Text="{Binding Concepto}"
+                                   FontSize="15"
+                                   FontAttributes="Bold"
+                                   TextColor="#273840"
+                                   VerticalOptions="Center"
+                                   MaxLines="1"
+                                   LineBreakMode="TailTruncation"/>
+                            <Label Grid.Column="1"
+                                   Text="{Binding ImporteFormateado}"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="{Binding ColorImporte}"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="End"/>
+                        </Grid>
+                        <Label Grid.Row="1"
+                               Grid.Column="1"
+                               Text="{Binding Alumno}"
+                               FontSize="13"
+                               TextColor="#666666"
+                               TextTransform="Uppercase"
+                               HorizontalOptions="End"/>
+                        <Grid Grid.Row="2"
+                              Grid.Column="1"
+                              ColumnSpacing="16"
+                              HorizontalOptions="End">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0"
+                                   Text="Pendiente"
+                                   FontSize="12"
+                                   TextColor="#ff6b6b"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Start"
+                                   VerticalOptions="Center"/>
+                            <Label Grid.Column="1"
+                                   Text="{Binding FechaLimiteFormateada, StringFormat='Fecha límite: {0}'}"
+                                   FontSize="12"
+                                   TextColor="#666666"
+                                   HorizontalOptions="Start"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                        <Grid Grid.Row="3"
+                              Grid.Column="1"
+                              Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackLayout Grid.Column="0"
+                                         Spacing="2"
+                                         HorizontalOptions="Center">
+                                <Label Text="Saldo"
+                                       FontSize="10"
+                                       TextColor="#666666"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"/>
+                                <Label Text="{Binding ImporteBase, StringFormat='{0:C2}'}"
+                                       FontSize="12"
+                                       TextColor="#666666"
+                                       HorizontalTextAlignment="Center"/>
+                            </StackLayout>
+                            <StackLayout Grid.Column="1"
+                                         Spacing="2"
+                                         HorizontalOptions="Center">
+                                <Label Text="Descuento"
+                                       FontSize="10"
+                                       TextColor="#3c9c4c"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"/>
+                                <Label Text="{Binding DescuentoDoc, StringFormat='{0:C2}'}"
+                                       FontSize="12"
+                                       TextColor="#3c9c4c"
+                                       HorizontalTextAlignment="Center"/>
+                            </StackLayout>
+                            <StackLayout Grid.Column="2"
+                                         Spacing="2"
+                                         HorizontalOptions="Center">
+                                <Label Text="Recargos"
+                                       FontSize="10"
+                                       TextColor="#ff8c00"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"/>
+                                <Label Text="{Binding InteresDoc, StringFormat='{0:C2}'}"
+                                       FontSize="12"
+                                       TextColor="#ff8c00"
+                                       HorizontalTextAlignment="Center"/>
+                            </StackLayout>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <!-- Template pagos realizados (sin checkbox, todo gris, estado 'Pagado') -->
+            <DataTemplate x:Key="PaidPaymentTemplate">
+                <Border Style="{StaticResource CardBorder}"
+                        Margin="0,0,0,10"
+                        Padding="12,12,12,12">
+                    <Grid RowSpacing="8"
+                          ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0"
+                              ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0"
+                                   Text="{Binding Concepto}"
+                                   FontSize="15"
+                                   FontAttributes="Bold"
+                                   TextColor="#555555"
+                                   MaxLines="1"
+                                   LineBreakMode="TailTruncation"/>
+                            <Label Grid.Column="1"
+                                   Text="{Binding ImporteFormateado}"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#555555"
+                                   HorizontalOptions="End"/>
+                        </Grid>
+                        <Label Grid.Row="1"
+                               Text="{Binding Alumno}"
+                               FontSize="13"
+                               TextColor="#888888"
+                               TextTransform="Uppercase"
+                               HorizontalOptions="End"/>
+                        <Grid Grid.Row="2"
+                              ColumnSpacing="16"
+                              HorizontalOptions="End">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0"
+                                   Text="Pagado"
+                                   FontSize="12"
+                                   TextColor="#008347"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Start"
+                                   VerticalOptions="Center"/>
+                            <Label Grid.Column="1"
+                                   Text="{Binding FechaLimiteFormateada, StringFormat='Fecha límite: {0}'}"
+                                   FontSize="12"
+                                   TextColor="#888888"
+                                   HorizontalOptions="Start"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                        <Grid Grid.Row="3"
+                              Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackLayout Grid.Column="0"
+                                         Spacing="2"
+                                         HorizontalOptions="Center">
+                                <Label Text="Saldo"
+                                       FontSize="10"
+                                       TextColor="#888888"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"/>
+                                <Label Text="{Binding ImporteBase, StringFormat='{0:C2}'}"
+                                       FontSize="12"
+                                       TextColor="#888888"
+                                       HorizontalTextAlignment="Center"/>
+                            </StackLayout>
+                            <StackLayout Grid.Column="1"
+                                         Spacing="2"
+                                         HorizontalOptions="Center">
+                                <Label Text="Descuento"
+                                       FontSize="10"
+                                       TextColor="#888888"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"/>
+                                <Label Text="{Binding DescuentoDoc, StringFormat='{0:C2}'}"
+                                       FontSize="12"
+                                       TextColor="#888888"
+                                       HorizontalTextAlignment="Center"/>
+                            </StackLayout>
+                            <StackLayout Grid.Column="2"
+                                         Spacing="2"
+                                         HorizontalOptions="Center">
+                                <Label Text="Recargos"
+                                       FontSize="10"
+                                       TextColor="#888888"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"/>
+                                <Label Text="{Binding InteresDoc, StringFormat='{0:C2}'}"
+                                       FontSize="12"
+                                       TextColor="#888888"
+                                       HorizontalTextAlignment="Center"/>
+                            </StackLayout>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <helpers:PaymentTemplateSelector x:Key="PaymentTemplateSelector"
+                                             PendingTemplate="{StaticResource PendingPaymentTemplate}"
+                                             PaidTemplate="{StaticResource PaidPaymentTemplate}"/>
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -42,151 +304,8 @@
                     </ContentView>
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Border Style="{StaticResource CardBorder}"
-                                Margin="0,0,0,10"
-                                Padding="12,12,12,12">
-                            <Grid RowSpacing="8"
-                                  ColumnSpacing="10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <!-- Checkbox dentro y centrado verticalmente -->
-                                <buttons:SfCheckBox Grid.Column="0"
-                                                    Grid.Row="0"
-                                                    Grid.RowSpan="4"
-                                                    IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                                    WidthRequest="60"
-                                                    HeightRequest="60"
-                                                    CornerRadius="5.0"
-                                                    VerticalOptions="Center"
-                                                    HorizontalOptions="Start"
-                                                    Margin="-6,0,0,0"
-                                                    ZIndex="100"
-                                                    CheckedColor="#3c9c4c"
-                                                    UncheckedColor="#B0B0B0"/>
-
-                                <!-- Fila 1: Concepto + Importe -->
-                                <Grid Grid.Row="0"
-                                      Grid.Column="1"
-                                      ColumnSpacing="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Label Grid.Column="0"
-                                           Text="{Binding Concepto}"
-                                           FontSize="15"
-                                           FontAttributes="Bold"
-                                           TextColor="#273840"
-                                           VerticalOptions="Center"
-                                           MaxLines="1"
-                                           LineBreakMode="TailTruncation"/>
-                                    <Label Grid.Column="1"
-                                           Text="{Binding ImporteFormateado}"
-                                           FontSize="16"
-                                           FontAttributes="Bold"
-                                           TextColor="{Binding ColorImporte}"
-                                           VerticalOptions="Center"
-                                           HorizontalOptions="End"/>
-                                </Grid>
-
-                                <!-- Fila 2: Alumno -->
-                                <Label Grid.Row="1"
-                                       Grid.Column="1"
-                                       Text="{Binding Alumno}"
-                                       FontSize="13"
-                                       TextColor="#666666"
-                                       TextTransform="Uppercase"
-                                       HorizontalOptions="End"/>
-
-                                <!-- Fila 3: Estado (izq) + Fecha (der) -->
-                                <Grid Grid.Row="2"
-                                      Grid.Column="1"
-                                      ColumnSpacing="16"
-                                      HorizontalOptions="End">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Label Grid.Column="0"
-                                           Text="Pendiente"
-                                           FontSize="12"
-                                           TextColor="#ff6b6b"
-                                           FontAttributes="Bold"
-                                           HorizontalOptions="Start"
-                                           VerticalOptions="Center"/>
-                                    <Label Grid.Column="1"
-                                           Text="{Binding FechaLimiteFormateada, StringFormat='Fecha límite: {0}'}"
-                                           FontSize="12"
-                                           TextColor="#666666"
-                                           HorizontalOptions="Start"
-                                           VerticalOptions="Center"/>
-                                </Grid>
-
-                                <!-- Fila 4: Desglose en 3 columnas iguales -->
-                                <Grid Grid.Row="3"
-                                      Grid.Column="1"
-                                      Margin="0,8,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <!-- Saldo -->
-                                    <StackLayout Grid.Column="0"
-                                                 Spacing="2"
-                                                 HorizontalOptions="Center">
-                                        <Label Text="Saldo"
-                                               FontSize="10"
-                                               TextColor="#666666"
-                                               FontAttributes="Bold"
-                                               HorizontalTextAlignment="Center"/>
-                                        <Label Text="{Binding ImporteBase, StringFormat='{0:C2}'}"
-                                               FontSize="12"
-                                               TextColor="#666666"
-                                               HorizontalTextAlignment="Center"/>
-                                    </StackLayout>
-                                    <!-- Descuento -->
-                                    <StackLayout Grid.Column="1"
-                                                 Spacing="2"
-                                                 HorizontalOptions="Center">
-                                        <Label Text="Descuento"
-                                               FontSize="10"
-                                               TextColor="#3c9c4c"
-                                               FontAttributes="Bold"
-                                               HorizontalTextAlignment="Center"/>
-                                        <Label Text="{Binding DescuentoDoc, StringFormat='{0:C2}'}"
-                                               FontSize="12"
-                                               TextColor="#3c9c4c"
-                                               HorizontalTextAlignment="Center"/>
-                                    </StackLayout>
-                                    <!-- Recargos -->
-                                    <StackLayout Grid.Column="2"
-                                                 Spacing="2"
-                                                 HorizontalOptions="Center">
-                                        <Label Text="Recargos"
-                                               FontSize="10"
-                                               TextColor="#ff8c00"
-                                               FontAttributes="Bold"
-                                               HorizontalTextAlignment="Center"/>
-                                        <Label Text="{Binding InteresDoc, StringFormat='{0:C2}'}"
-                                               FontSize="12"
-                                               TextColor="#ff8c00"
-                                               HorizontalTextAlignment="Center"/>
-                                    </StackLayout>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
+                    <helpers:PaymentTemplateSelector PendingTemplate="{StaticResource PendingPaymentTemplate}"
+                                                     PaidTemplate="{StaticResource PaidPaymentTemplate}"/>
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </RefreshView>
@@ -378,6 +497,75 @@
                                 HeightRequest="50"
                                 Margin="0,10,0,0"/>
                     </StackLayout>
+                </DataTemplate>
+            </syncfusion:SfPopup.ContentTemplate>
+        </syncfusion:SfPopup>
+
+        <!-- Popup de filtro de pagos -->
+        <syncfusion:SfPopup x:Name="filterPopup"
+                            Grid.RowSpan="2"
+                            StaysOpen="True"
+                            OverlayMode="Blur"
+                            ShowCloseButton="True"
+                            IsOpen="{Binding IsFilterPopupOpen}"
+                            IsVisible="{Binding IsFilterPopupOpen}"
+                            AutoSizeMode="Height"
+                            AnimationMode="Fade"
+                            HeaderTitle="Filtrar Pagos">
+            <syncfusion:SfPopup.Triggers>
+                <DataTrigger TargetType="syncfusion:SfPopup"
+                             Binding="{Binding IsFilterPopupOpen}"
+                             Value="False">
+                    <Setter Property="InputTransparent"
+                            Value="True"/>
+                </DataTrigger>
+                <DataTrigger TargetType="syncfusion:SfPopup"
+                             Binding="{Binding IsFilterPopupOpen}"
+                             Value="True">
+                    <Setter Property="InputTransparent"
+                            Value="False"/>
+                </DataTrigger>
+            </syncfusion:SfPopup.Triggers>
+            <syncfusion:SfPopup.PopupStyle>
+                <syncfusion:PopupStyle HeaderBackground="#273840"
+                                       HeaderFontSize="16"
+                                       HeaderTextColor="White"
+                                       PopupBackground="White"
+                                       CloseButtonIcon="close_icon"
+                                       BlurIntensity="Dark"/>
+            </syncfusion:SfPopup.PopupStyle>
+            <syncfusion:SfPopup.ContentTemplate>
+                <DataTemplate>
+                    <VerticalStackLayout Padding="20"
+                                         Spacing="18">
+                        <Label Text="Mostrar:"
+                               FontSize="14"
+                               TextColor="#555"/>
+                        <VerticalStackLayout Spacing="10">
+                            <buttons:SfRadioButton Text="Pagos Pendientes"
+                                                   IsChecked="{Binding IsPendingFilter}"
+                                                   CheckedColor="#008347"
+                                                   UncheckedColor="#008347"/>
+                            <buttons:SfRadioButton Text="Pagos Realizados"
+                                                   IsChecked="{Binding IsPaidFilter}"
+                                                   CheckedColor="#008347"
+                                                   UncheckedColor="#008347"/>
+                        </VerticalStackLayout>
+                        <Grid ColumnDefinitions="*,Auto"
+                              ColumnSpacing="12"
+                              Margin="0,10,0,0">
+                            <Button Text="Cancelar"
+                                    Grid.Column="0"
+                                    BackgroundColor="#cccccc"
+                                    TextColor="#273840"
+                                    Command="{Binding CloseFilterPopupCommand}"/>
+                            <Button Text="Aplicar"
+                                    Grid.Column="1"
+                                    BackgroundColor="#3c9c4c"
+                                    TextColor="White"
+                                    Command="{Binding ApplyFilterCommand}"/>
+                        </Grid>
+                    </VerticalStackLayout>
                 </DataTemplate>
             </syncfusion:SfPopup.ContentTemplate>
         </syncfusion:SfPopup>

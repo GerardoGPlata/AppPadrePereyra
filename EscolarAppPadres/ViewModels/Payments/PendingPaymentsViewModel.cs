@@ -150,17 +150,254 @@ namespace EscolarAppPadres.ViewModels.Payments
         public ICommand PagarCommand { get; }
         public ICommand ConfirmPaymentCommand { get; }
         public ICommand ClosePopupCommand { get; }
+        public ICommand ShowFilterCommand { get; }
+        public ICommand CloseFilterPopupCommand { get; }
+        public ICommand ApplyFilterCommand { get; }
 
         public PendingPaymentsViewModel()
         {
             _paymentsService = new PaymentsService();
             PendingPayments = new ObservableCollection<PaymentItem>();
             SelectedPayments = new ObservableCollection<PaymentItem>();
-            LoadPaymentsCommand = new Command(async () => await LoadPendingPaymentsAsync());
+            LoadPaymentsCommand = new Command(async () => await RefreshPaymentsAsync());
             PagarCommand = new Command(ShowPaymentPopup);
             ConfirmPaymentCommand = new Command(async () => await ProcessPaymentAsync());
             ClosePopupCommand = new Command(() => IsPopupOpen = false);
+            ShowFilterCommand = new Command(ShowFilter);
+            CloseFilterPopupCommand = new Command(CloseFilterPopup);
+            ApplyFilterCommand = new Command(ApplyFilter);
             PopupHeader = "DETALLE DE PAGO";
+            _displayTitle = "Pagos Pendientes";
+        }
+
+        private string _displayTitle;
+        public string DisplayTitle
+        {
+            get => _displayTitle;
+            set
+            {
+                if (_displayTitle != value)
+                {
+                    _displayTitle = value;
+                    OnPropertyChanged(nameof(DisplayTitle));
+                }
+            }
+        }
+
+        private void ShowFilter()
+        {
+            IsFilterPopupOpen = true;
+        }
+
+        private bool _isFilterPopupOpen;
+        public bool IsFilterPopupOpen
+        {
+            get => _isFilterPopupOpen;
+            set { _isFilterPopupOpen = value; OnPropertyChanged(nameof(IsFilterPopupOpen)); }
+        }
+
+        private bool _isPendingFilter = true; // default seleccionado
+        public bool IsPendingFilter
+        {
+            get => _isPendingFilter;
+            set
+            {
+                if (_isPendingFilter == value) return;
+                _isPendingFilter = value;
+
+                if (value)
+                {
+                    // Desactivar el otro
+                    if (_isPaidFilter)
+                    {
+                        _isPaidFilter = false;
+                        OnPropertyChanged(nameof(IsPaidFilter));
+                    }
+                    DisplayTitle = "Pagos Pendientes";
+                }
+                else
+                {
+                    // Garantizar que al menos uno esté activo
+                    if (!_isPaidFilter)
+                    {
+                        _isPaidFilter = true;
+                        OnPropertyChanged(nameof(IsPaidFilter));
+                        DisplayTitle = "Pagos Realizados";
+                    }
+                }
+                OnPropertyChanged(nameof(IsPendingFilter));
+            }
+        }
+
+        private bool _isPaidFilter; // inicia false
+        public bool IsPaidFilter
+        {
+            get => _isPaidFilter;
+            set
+            {
+                if (_isPaidFilter == value) return;
+                _isPaidFilter = value;
+
+                if (value)
+                {
+                    if (_isPendingFilter)
+                    {
+                        _isPendingFilter = false;
+                        OnPropertyChanged(nameof(IsPendingFilter));
+                    }
+                    DisplayTitle = "Pagos Realizados";
+                }
+                else
+                {
+                    if (!_isPendingFilter)
+                    {
+                        _isPendingFilter = true;
+                        OnPropertyChanged(nameof(IsPendingFilter));
+                        DisplayTitle = "Pagos Pendientes";
+                    }
+                }
+                OnPropertyChanged(nameof(IsPaidFilter));
+            }
+        }
+
+        private async void ApplyFilter()
+        {
+            IsFilterPopupOpen = false;
+            if (IsPaidFilter)
+            {
+                DisplayTitle = "Pagos Realizados";
+                await LoadPaidPaymentsAsync();
+            }
+            else
+            {
+                DisplayTitle = "Pagos Pendientes";
+                await LoadPendingPaymentsAsync();
+            }
+        }
+
+        private async Task RefreshPaymentsAsync()
+        {
+            if (IsPaidFilter)
+                await LoadPaidPaymentsAsync();
+            else
+                await LoadPendingPaymentsAsync();
+        }
+
+        // Método público para uso desde la vista al aparecer
+        public Task RefreshCurrentAsync() => RefreshPaymentsAsync();
+
+        private void CloseFilterPopup()
+        {
+            IsFilterPopupOpen = false;
+        }
+
+        private async Task LoadPaidPaymentsAsync()
+        {
+            if (!await _loadingSemaphore.WaitAsync(100))
+                return;
+            try
+            {
+                IsRefreshing = true;
+                SinResultados = false;
+                PendingPayments.Clear();
+                var token = await SecureStorage.GetAsync("auth_token");
+                if (string.IsNullOrEmpty(token))
+                {
+                    await DialogsHelper2.ShowErrorMessage("Token de autenticación no encontrado.");
+                    return;
+                }
+                var response = await _paymentsService.GetPaidPaymentsAsync(token);
+                if (response?.Result == true && response.Data != null)
+                {
+                    _paymentsData = response.Data.FirstOrDefault() ?? new PendingPaymentsResponse();
+                    var paymentItems = new List<PaymentItem>();
+                    foreach (var colegiatura in _paymentsData.Colegiaturas)
+                    {
+                        var paymentItem = new PaymentItem
+                        {
+                            DocumentoPorPagarId = colegiatura.DocumentoPorPagarId,
+                            Documento = colegiatura.Documento,
+                            Concepto = colegiatura.Concepto,
+                            Alumno = colegiatura.Alumno,
+                            Matricula = colegiatura.Matricula,
+                            Grado = colegiatura.Grado,
+                            Grupo = colegiatura.Grupo ?? "",
+                            ImporteCalculado = colegiatura.ImporteCalculado,
+                            FechaLimiteFormato = colegiatura.FechaLimiteFormato,
+                            TipoDocumentoTexto = colegiatura.TipoDocumentoTexto,
+                            TipoDocumento = 2,
+                            ColegiaturaOriginal = colegiatura,
+                            IsPaid = true,
+                            IsSelected = false
+                        };
+                        paymentItem.PropertyChanged += Payment_PropertyChanged;
+                        paymentItems.Add(paymentItem);
+                    }
+                    foreach (var inscripcion in _paymentsData.Inscripciones)
+                    {
+                        var paymentItem = new PaymentItem
+                        {
+                            DocumentoPorPagarId = inscripcion.DocumentoPorPagarId.ToString(),
+                            Documento = inscripcion.Documento,
+                            Concepto = inscripcion.Concepto,
+                            Alumno = inscripcion.Alumno,
+                            Matricula = inscripcion.Matricula,
+                            Grado = inscripcion.Grado,
+                            Grupo = inscripcion.Grupo ?? "",
+                            ImporteCalculado = inscripcion.ImporteCalculado,
+                            FechaLimiteFormato = inscripcion.FechaLimiteFormato,
+                            TipoDocumentoTexto = inscripcion.TipoDocumentoTexto,
+                            TipoDocumento = 1,
+                            InscripcionOriginal = inscripcion,
+                            IsPaid = true,
+                            IsSelected = false
+                        };
+                        paymentItem.PropertyChanged += Payment_PropertyChanged;
+                        paymentItems.Add(paymentItem);
+                    }
+                    foreach (var otroDocumento in _paymentsData.OtrosDocumentos)
+                    {
+                        var paymentItem = new PaymentItem
+                        {
+                            DocumentoPorPagarId = otroDocumento.DocumentoPorPagarId.ToString(),
+                            Documento = otroDocumento.Documento,
+                            Concepto = otroDocumento.Concepto,
+                            Alumno = otroDocumento.Alumno,
+                            Matricula = otroDocumento.Matricula,
+                            Grado = otroDocumento.Grado,
+                            Grupo = otroDocumento.Grupo ?? "",
+                            ImporteCalculado = otroDocumento.ImporteCalculado,
+                            FechaLimiteFormato = otroDocumento.FechaLimiteFormato,
+                            TipoDocumentoTexto = otroDocumento.TipoDocumentoTexto,
+                            TipoDocumento = 3,
+                            OtroDocumentoOriginal = otroDocumento,
+                            IsPaid = true,
+                            IsSelected = false
+                        };
+                        paymentItem.PropertyChanged += Payment_PropertyChanged;
+                        paymentItems.Add(paymentItem);
+                    }
+                    foreach (var item in paymentItems)
+                        PendingPayments.Add(item);
+                    SinResultados = !PendingPayments.Any();
+                    CalcularTotal();
+                }
+                else
+                {
+                    SinResultados = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                await DialogsHelper2.ShowErrorMessage($"Error al cargar pagos completados: {ex.Message}");
+                SinResultados = true;
+            }
+            finally
+            {
+                IsRefreshing = false;
+                OnPropertyChanged(nameof(PendingPayments));
+                _loadingSemaphore.Release();
+            }
         }
 
         private void ShowPaymentPopup()
@@ -220,7 +457,7 @@ namespace EscolarAppPadres.ViewModels.Payments
 
                 foreach (var payment in SelectedPayments)
                 {
-                    string documentoId = null;
+                    string? documentoId = null;
 
                     if (payment.ColegiaturaOriginal != null)
                     {
@@ -537,7 +774,7 @@ namespace EscolarAppPadres.ViewModels.Payments
             await LoadPendingPaymentsAsync();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

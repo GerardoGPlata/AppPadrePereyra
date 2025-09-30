@@ -109,6 +109,12 @@ namespace EscolarAppPadres.Services
             public string PaymentUrl { get; set; }
             public string Referencia { get; set; }
         }
+
+        /// <summary>
+        /// Obtiene los pagos pendientes del estudiante.
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public async Task<ResponseModel<PendingPaymentsResponse>?> GetStudentPaymentsAsync(string token)
         {
             const int timeoutSeconds = 30;
@@ -119,6 +125,108 @@ namespace EscolarAppPadres.Services
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 var url = $"{ApiRoutes.BaseUrl}{ApiRoutes.Payments.GetPendingPayments}";
+                Console.WriteLine($"URL de la solicitud: {url}");
+
+                var response = await _httpClient.GetAsync(url, cts.Token);
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Respuesta del servidor: {responseContent}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new ResponseModel<PendingPaymentsResponse>
+                    {
+                        IsClientError = true,
+                        Message = $"Error del servidor: {response.StatusCode}"
+                    };
+                }
+
+                if (string.IsNullOrWhiteSpace(responseContent))
+                {
+                    return new ResponseModel<PendingPaymentsResponse>
+                    {
+                        IsClientError = true,
+                        Message = "El servidor devolvió una respuesta vacía"
+                    };
+                }
+
+                var tempResponse = JsonSerializer.Deserialize<TempApiResponse>(
+                    responseContent,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (tempResponse == null)
+                {
+                    return new ResponseModel<PendingPaymentsResponse>
+                    {
+                        IsClientError = true,
+                        Message = "No se pudo interpretar la respuesta del servidor"
+                    };
+                }
+
+                var pendingPaymentsResponse = tempResponse.Data?.FirstOrDefault() ?? new PendingPaymentsResponse();
+
+                return new ResponseModel<PendingPaymentsResponse>
+                {
+                    Result = tempResponse.Result,
+                    Valoration = tempResponse.Valoration,
+                    Message = tempResponse.Message,
+                    Log = tempResponse.Log?.ToString(),
+                    Data = new List<PendingPaymentsResponse> { pendingPaymentsResponse }
+                };
+
+            }
+            catch (JsonException jsonEx)
+            {
+                Console.WriteLine($"Error al deserializar: {jsonEx.Message}");
+                return new ResponseModel<PendingPaymentsResponse>
+                {
+                    IsClientError = true,
+                    Message = "Formato de respuesta inválido del servidor"
+                };
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Error de red: {ex.Message}");
+                return new ResponseModel<PendingPaymentsResponse>
+                {
+                    IsClientError = true,
+                    Message = "No se pudo conectar al servidor. Verifique su conexión a Internet e intente de nuevo."
+                };
+            }
+            catch (TaskCanceledException)
+            {
+                Console.WriteLine("Tiempo de espera agotado");
+                return new ResponseModel<PendingPaymentsResponse>
+                {
+                    IsClientError = true,
+                    Message = $"La solicitud tardó más de {timeoutSeconds} segundos. Verifique su conexión e intente de nuevo."
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error inesperado: {ex.Message}");
+                return new ResponseModel<PendingPaymentsResponse>
+                {
+                    IsClientError = true,
+                    Message = "Ocurrió un error inesperado. Intente de nuevo."
+                };
+            }
+        }
+
+        /// <summary>
+        /// Obtiene los pagos ya realizados del estudiante.
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel<PendingPaymentsResponse>?> GetPaidPaymentsAsync(string token)
+        {
+            const int timeoutSeconds = 30;
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
+
+            try
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var url = $"{ApiRoutes.BaseUrl}{ApiRoutes.Payments.GetPaidPayments}";
                 Console.WriteLine($"URL de la solicitud: {url}");
 
                 var response = await _httpClient.GetAsync(url, cts.Token);
