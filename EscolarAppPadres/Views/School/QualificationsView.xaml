@@ -111,6 +111,44 @@
             </Frame>
         </StackLayout>
 
+        <syncfusionPopup:SfPopup x:Name="boletaPopup"
+                                 StaysOpen="True"
+                                 OverlayMode="Blur"
+                                 ShowCloseButton="True"
+                                 IsOpen="{Binding IsBoletaPopupOpen}"
+                                 AutoSizeMode="Height"
+                                 AnimationMode="Fade"
+                                 HeaderTitle="{Binding BoletaPopupTitle}"
+                                 Closed="OnBoletaPopupClosed">
+            <syncfusionPopup:SfPopup.PopupStyle>
+                <syncfusionPopup:PopupStyle HeaderBackground="#273840"
+                                            HeaderFontSize="28"
+                                            HeaderTextColor="White"
+                                            PopupBackground="White"
+                                            CloseButtonIcon="close_icon"
+                                            BlurIntensity="Light"/>
+            </syncfusionPopup:SfPopup.PopupStyle>
+            <syncfusionPopup:SfPopup.ContentTemplate>
+                <DataTemplate>
+                    <VerticalStackLayout Padding="20"
+                                         Spacing="16">
+                        <Label Text="{Binding BoletaPopupMessage}"
+                               FontSize="14"
+                               TextColor="#273840"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+                        <Button Text="Aceptar"
+                                WidthRequest="140"
+                                HorizontalOptions="Center"
+                                BackgroundColor="#69b457"
+                                TextColor="White"
+                                CornerRadius="20"
+                                Clicked="OnBoletaPopupAcceptClicked"/>
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </syncfusionPopup:SfPopup.ContentTemplate>
+        </syncfusionPopup:SfPopup>
+
         <syncfusionPopup:SfPopup x:Name="criteriaPopup"
                                  StaysOpen="True"
                                  OverlayMode="Blur"

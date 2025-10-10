@@ -22,6 +22,8 @@ namespace EscolarAppPadres.Views.School
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+            _studentGradeViewModel.ColumnsChanged -= OnColumnsChanged;
+            _studentGradeViewModel.ColumnsChanged += OnColumnsChanged;
             await _studentGradeViewModel.InitializeAsync();
         }
 
@@ -237,6 +239,27 @@ namespace EscolarAppPadres.Views.School
 
                 criteriaPopup.BindingContext = _studentGradeViewModel;
                 criteriaPopup.IsOpen = true;
+            }
+        }
+
+        private void OnBoletaPopupClosed(object sender, EventArgs e)
+        {
+            _studentGradeViewModel.HideBoletaPopup();
+        }
+
+        private void OnBoletaPopupAcceptClicked(object sender, EventArgs e)
+        {
+            _studentGradeViewModel.HideBoletaPopup();
+            boletaPopup.IsOpen = false;
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+
+            if (_studentGradeViewModel != null)
+            {
+                _studentGradeViewModel.ColumnsChanged -= OnColumnsChanged;
             }
         }
     }

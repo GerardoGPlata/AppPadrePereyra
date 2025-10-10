@@ -1,12 +1,18 @@
 ﻿using EscolarAppPadres.Helpers;
 using EscolarAppPadres.Models;
 using EscolarAppPadres.Services;
+using EscolarAppPadres.Views.School;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Controls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -153,6 +159,48 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             set { _popupTotal = value; OnPropertyChanged(nameof(PopupTotal)); }
         }
 
+        private bool _isBoletaPopupOpen;
+        public bool IsBoletaPopupOpen
+        {
+            get => _isBoletaPopupOpen;
+            set
+            {
+                if (_isBoletaPopupOpen != value)
+                {
+                    _isBoletaPopupOpen = value;
+                    OnPropertyChanged(nameof(IsBoletaPopupOpen));
+                }
+            }
+        }
+
+        private string _boletaPopupMessage = string.Empty;
+        public string BoletaPopupMessage
+        {
+            get => _boletaPopupMessage;
+            set
+            {
+                if (_boletaPopupMessage != value)
+                {
+                    _boletaPopupMessage = value;
+                    OnPropertyChanged(nameof(BoletaPopupMessage));
+                }
+            }
+        }
+
+        private string _boletaPopupTitle = "Aviso";
+        public string BoletaPopupTitle
+        {
+            get => _boletaPopupTitle;
+            set
+            {
+                if (_boletaPopupTitle != value)
+                {
+                    _boletaPopupTitle = value;
+                    OnPropertyChanged(nameof(BoletaPopupTitle));
+                }
+            }
+        }
+
         // Evento para notificar cuando se deben actualizar las columnas
         public event EventHandler? ColumnsChanged;
         #endregion
@@ -163,6 +211,8 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
         public ICommand DescargarBoletaCommand { get; }
         #endregion
 
+        private CancellationTokenSource? _boletaDownloadCts;
+
         #region Constructor
         public StudentGradeViewModel()
         {
@@ -170,25 +220,85 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             _criteriaGradesService = new StudentCriteriaGradesService();
             LoadGradesCommand = new Command(async () => await LoadGradesAsync());
             RefreshCommand = new Command(async () => await RefreshDataAsync());
-            DescargarBoletaCommand = new Command(DescargarBoleta);
+            DescargarBoletaCommand = new Command(async () => await DescargarBoletaAsync());
         }
         #endregion
 
         #region Methods
-        private void DescargarBoleta()
+        private async Task DescargarBoletaAsync()
         {
-            if (SelectedHijo?.AlumnoId > 0)
+            DialogsHelper.ShowLoadingMessage("Cargando boleta...");
+            CancellationToken cancellationToken = CancellationToken.None;
+            try
             {
-                var alumnoId = SelectedHijo.AlumnoId;
-                var url = $"https://webpereyra.com.mx/Jesuitas_webServices/web/api/Controlescolar/Boletaimpresion/alumno/{alumnoId}?publicacion=1";
-                Launcher.OpenAsync(new Uri(url));
-            }
-            else
-            {
-                MainThread.BeginInvokeOnMainThread(async () =>
+                if (SelectedHijo?.AlumnoId is null or <= 0)
                 {
-                    await DialogsHelper2.ShowErrorMessage("Seleccione un hijo válido para descargar la boleta.");
-                });
+                    await ShowBoletaMessageAsync("Seleccione un hijo válido para descargar la boleta.");
+                    return;
+                }
+
+                var url = $"https://webpereyra.com.mx/Jesuitas_webServices/web/api/Controlescolar/Boletaimpresion/alumno/{SelectedHijo.AlumnoId}?publicacion=1";
+
+                _boletaDownloadCts?.Cancel();
+                _boletaDownloadCts?.Dispose();
+                _boletaDownloadCts = new CancellationTokenSource();
+                cancellationToken = _boletaDownloadCts.Token;
+
+                using var client = new HttpClient
+                {
+                    Timeout = TimeSpan.FromSeconds(45)
+                };
+
+                using var response = await client.GetAsync(url, cancellationToken);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+                    var message = TryExtractMessage(errorBody) ?? $"No se pudo descargar la boleta (Código {(int)response.StatusCode}).";
+                    await ShowBoletaMessageAsync(message);
+                    return;
+                }
+
+                var mediaType = response.Content.Headers.ContentType?.MediaType ?? string.Empty;
+
+                if (mediaType.Contains("pdf", StringComparison.OrdinalIgnoreCase))
+                {
+                    var pdfBytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                    if (pdfBytes == null || pdfBytes.Length == 0)
+                    {
+                        await ShowBoletaMessageAsync("El archivo de la boleta está vacío.");
+                        return;
+                    }
+
+                    await OpenPdfAsync(pdfBytes);
+                }
+                else
+                {
+                    var rawContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                    var message = TryExtractMessage(rawContent) ?? "No se pudo descargar la boleta en este momento.";
+                    await ShowBoletaMessageAsync(message);
+                }
+            }
+            catch (HttpRequestException)
+            {
+                await ShowBoletaMessageAsync("No se pudo conectar al servidor. Verifique su conexión a Internet e intente de nuevo.", "Red");
+            }
+            catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+                await ShowBoletaMessageAsync("La solicitud ha expirado. Intente nuevamente.", "Tiempo de espera");
+            }
+            catch (OperationCanceledException)
+            {
+                // Descarga cancelada manualmente o reemplazada por una nueva solicitud.
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error inesperado al descargar boleta: {ex.Message}");
+                await ShowBoletaMessageAsync("Ocurrió un error inesperado al descargar la boleta.", "Error");
+            }
+            finally
+            {
+                DialogsHelper.HideLoadingMessage();
             }
         }
 
@@ -343,9 +453,169 @@ namespace EscolarAppPadres.ViewModels.StudentGrade
             }
         }
 
+        private async Task OpenPdfAsync(byte[] pdfBytes)
+        {
+            if (pdfBytes == null || pdfBytes.Length == 0)
+            {
+                await ShowBoletaMessageAsync("El archivo de la boleta está vacío.");
+                return;
+            }
+
+            var pdfStream = new MemoryStream(pdfBytes);
+
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                var navigation = Application.Current?.MainPage?.Navigation;
+                if (navigation != null)
+                {
+                    await navigation.PushAsync(new BoletaPdfView(pdfStream));
+                }
+                else
+                {
+                    pdfStream.Dispose();
+                    BoletaPopupTitle = "Error";
+                    BoletaPopupMessage = "No fue posible mostrar la boleta.";
+                    IsBoletaPopupOpen = true;
+                }
+            });
+        }
+
+        private async Task ShowBoletaMessageAsync(string message, string title = "Aviso")
+        {
+            if (MainThread.IsMainThread)
+            {
+                BoletaPopupTitle = title;
+                BoletaPopupMessage = message;
+                IsBoletaPopupOpen = true;
+            }
+            else
+            {
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    BoletaPopupTitle = title;
+                    BoletaPopupMessage = message;
+                    IsBoletaPopupOpen = true;
+                });
+            }
+        }
+
+        public void HideBoletaPopup()
+        {
+            IsBoletaPopupOpen = false;
+        }
+
+        private static string? TryExtractMessage(string? content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return null;
+            }
+
+            try
+            {
+                using var document = JsonDocument.Parse(content);
+                var message = ExtractMessageFromElement(document.RootElement);
+                if (!string.IsNullOrWhiteSpace(message))
+                {
+                    return message;
+                }
+            }
+            catch (JsonException)
+            {
+                // Contenido no es JSON, se usará el texto sin procesar.
+            }
+
+            var trimmed = content.Trim();
+            if (trimmed.Length > 500)
+            {
+                trimmed = trimmed.Substring(0, 497) + "...";
+            }
+
+            return trimmed;
+        }
+
+        private static string? ExtractMessageFromElement(JsonElement element)
+            => ExtractMessageFromElement(element, false, true);
+
+        private static string? ExtractMessageFromElement(JsonElement element, bool treatStringAsMessage, bool isRoot)
+        {
+            switch (element.ValueKind)
+            {
+                case JsonValueKind.Object:
+                    {
+                        foreach (var property in element.EnumerateObject())
+                        {
+                            if (IsMessageKey(property.Name))
+                            {
+                                var direct = ExtractMessageFromElement(property.Value, true, false);
+                                if (!string.IsNullOrWhiteSpace(direct))
+                                {
+                                    return direct;
+                                }
+                            }
+                        }
+
+                        foreach (var property in element.EnumerateObject())
+                        {
+                            var result = ExtractMessageFromElement(property.Value, false, false);
+                            if (!string.IsNullOrWhiteSpace(result))
+                            {
+                                return result;
+                            }
+                        }
+
+                        break;
+                    }
+                case JsonValueKind.Array:
+                    {
+                        foreach (var item in element.EnumerateArray())
+                        {
+                            var result = ExtractMessageFromElement(item, treatStringAsMessage, false);
+                            if (!string.IsNullOrWhiteSpace(result))
+                            {
+                                return result;
+                            }
+                        }
+
+                        break;
+                    }
+                case JsonValueKind.String:
+                    {
+                        var text = element.GetString();
+                        if (!string.IsNullOrWhiteSpace(text) && (treatStringAsMessage || isRoot))
+                        {
+                            return text;
+                        }
+
+                        break;
+                    }
+                case JsonValueKind.Number:
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                    {
+                        if (treatStringAsMessage)
+                        {
+                            return element.ToString();
+                        }
+
+                        break;
+                    }
+            }
+
+            return null;
+        }
+
+        private static bool IsMessageKey(string propertyName)
+        {
+            return propertyName.Equals("message", StringComparison.OrdinalIgnoreCase) ||
+                   propertyName.Equals("descripcion", StringComparison.OrdinalIgnoreCase) ||
+                   propertyName.Equals("description", StringComparison.OrdinalIgnoreCase) ||
+                   propertyName.Equals("detail", StringComparison.OrdinalIgnoreCase);
+        }
+
         public async Task<List<StudentCriteriaGrade>> GetCriteriaGradesForSubjectAsync(int materiaId, int periodoEvaluacionId)
         {
-            DialogsHelper.ShowLoadingMessage("Cargando...", dimBackground: true);
+            DialogsHelper.ShowLoadingMessage("Cargando...");
             try
             {
                 var token = await SecureStorage.GetAsync("auth_token");
