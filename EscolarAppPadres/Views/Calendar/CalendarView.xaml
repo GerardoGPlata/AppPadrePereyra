@@ -30,7 +30,9 @@
                                        AllowAppointmentDrag="False"
                                        AllowViewNavigation="False"
                                        ShowTodayButton="False"
-                                       Tapped="OnSchedulerTapped">
+                                       Tapped="OnSchedulerTapped"
+                                       ShowBusyIndicator="True"
+                                       TodayHighlightBrush="#008347">
                     <scheduler:SfScheduler.AppointmentMapping>
                         <scheduler:SchedulerAppointmentMapping
                             StartTime="StartDateTime"
@@ -43,6 +45,14 @@
                         <scheduler:SchedulerDaysView StartHour="8"
                                                      EndHour="20"/>
                     </scheduler:SfScheduler.DaysView>
+                    <scheduler:SfScheduler.AgendaView>
+                        <scheduler:SchedulerAgendaView>
+                            <scheduler:SchedulerAgendaView.MonthHeaderSettings>
+                                <scheduler:SchedulerMonthHeaderSettings Background="#008347"
+                                                                        Height="50"/>
+                            </scheduler:SchedulerAgendaView.MonthHeaderSettings>
+                        </scheduler:SchedulerAgendaView>
+                    </scheduler:SfScheduler.AgendaView>
                 </scheduler:SfScheduler>
 
                 <CollectionView IsVisible="{Binding IsAgendaVisible}"
@@ -89,7 +99,7 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-                <Label Text="No hay eventos programados"
+                <Label Text=""
                        TextColor="Black"
                        HorizontalOptions="Center"
                        VerticalOptions="Center"
@@ -100,7 +110,7 @@
             </Grid>
         </ScrollView>
 
-        <Button x:Name="Filtros"
+        <!-- <Button x:Name="Filtros"
                 FontSize="18"
                 TextColor="Black"
                 CornerRadius="20"
@@ -114,7 +124,7 @@
             <Button.ImageSource>
                 <FileImageSource File="filter_outline"/>
             </Button.ImageSource>
-        </Button>
+        </Button> -->
 
         <!-- Popup de filtro de calendario (Syncfusion) -->
         <syncfusion:SfPopup x:Name="calendarFilterPopup"
@@ -175,32 +185,240 @@
                                FontSize="14"
                                TextColor="#555"
                                Margin="0,10,0,0"/>
-                        <VerticalStackLayout Spacing="10">
-                            <buttons:SfCheckBox Text="Eventos"
-                                                IsChecked="{Binding IsEventoChecked}"
-                                                CheckedColor="#008347"
-                                                UncheckedColor="#008347"/>
-                            <buttons:SfCheckBox Text="Días festivos"
-                                                IsChecked="{Binding IsDiaFestivoChecked}"
-                                                CheckedColor="#008347"
-                                                UncheckedColor="#008347"/>
-                            <buttons:SfCheckBox Text="Exámenes"
-                                                IsChecked="{Binding IsExamenesChecked}"
-                                                CheckedColor="#008347"
-                                                UncheckedColor="#008347"/>
-                            <buttons:SfCheckBox Text="Tareas"
-                                                IsChecked="{Binding IsTareasChecked}"
-                                                CheckedColor="#008347"
-                                                UncheckedColor="#008347"/>
-                            <buttons:SfCheckBox Text="Becas"
-                                                IsChecked="{Binding IsBecasChecked}"
-                                                CheckedColor="#008347"
-                                                UncheckedColor="#008347"/>
-                            <buttons:SfCheckBox Text="Admisiones"
-                                                IsChecked="{Binding IsAdmisionesChecked}"
-                                                CheckedColor="#008347"
-                                                UncheckedColor="#008347"/>
-                        </VerticalStackLayout>
+
+                        <FlexLayout Direction="Row"
+                                    Wrap="Wrap"
+                                    AlignItems="Center"
+                                    JustifyContent="Start"
+                                    Margin="0,8,0,0">
+                            <Border Stroke="#32CD32"
+                                    StrokeThickness="2"
+                                    BackgroundColor="Transparent"
+                                    Padding="16,8"
+                                    Margin="0,0,10,10">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20"/>
+                                </Border.StrokeShape>
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border"
+                                                 Binding="{Binding IsEventoChecked}"
+                                                 Value="True">
+                                        <Setter Property="BackgroundColor"
+                                                Value="#32CD32"/>
+                                        <Setter Property="StrokeThickness"
+                                                Value="0"/>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleEventFilterCommand}"
+                                                          CommandParameter="1"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Evento"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="#32CD32">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsEventoChecked}"
+                                                     Value="True">
+                                            <Setter Property="TextColor"
+                                                    Value="White"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Border>
+
+                            <Border Stroke="#00FF00"
+                                    StrokeThickness="2"
+                                    BackgroundColor="Transparent"
+                                    Padding="16,8"
+                                    Margin="0,0,10,10">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20"/>
+                                </Border.StrokeShape>
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border"
+                                                 Binding="{Binding IsDiaFestivoChecked}"
+                                                 Value="True">
+                                        <Setter Property="BackgroundColor"
+                                                Value="#00FF00"/>
+                                        <Setter Property="StrokeThickness"
+                                                Value="0"/>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleEventFilterCommand}"
+                                                          CommandParameter="2"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Día festivo"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="#00AA00">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsDiaFestivoChecked}"
+                                                     Value="True">
+                                            <Setter Property="TextColor"
+                                                    Value="White"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Border>
+
+                            <Border Stroke="#CA4327"
+                                    StrokeThickness="2"
+                                    BackgroundColor="Transparent"
+                                    Padding="16,8"
+                                    Margin="0,0,10,10">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20"/>
+                                </Border.StrokeShape>
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border"
+                                                 Binding="{Binding IsExamenesChecked}"
+                                                 Value="True">
+                                        <Setter Property="BackgroundColor"
+                                                Value="#CA4327"/>
+                                        <Setter Property="StrokeThickness"
+                                                Value="0"/>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleEventFilterCommand}"
+                                                          CommandParameter="3"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Exámenes"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="#CA4327">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsExamenesChecked}"
+                                                     Value="True">
+                                            <Setter Property="TextColor"
+                                                    Value="White"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Border>
+
+                            <Border Stroke="#008000"
+                                    StrokeThickness="2"
+                                    BackgroundColor="Transparent"
+                                    Padding="16,8"
+                                    Margin="0,0,10,10">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20"/>
+                                </Border.StrokeShape>
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border"
+                                                 Binding="{Binding IsTareasChecked}"
+                                                 Value="True">
+                                        <Setter Property="BackgroundColor"
+                                                Value="#008000"/>
+                                        <Setter Property="StrokeThickness"
+                                                Value="0"/>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleEventFilterCommand}"
+                                                          CommandParameter="4"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Tareas"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="#008000">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsTareasChecked}"
+                                                     Value="True">
+                                            <Setter Property="TextColor"
+                                                    Value="White"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Border>
+
+                            <Border Stroke="#F08080"
+                                    StrokeThickness="2"
+                                    BackgroundColor="Transparent"
+                                    Padding="16,8"
+                                    Margin="0,0,10,10">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20"/>
+                                </Border.StrokeShape>
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border"
+                                                 Binding="{Binding IsBecasChecked}"
+                                                 Value="True">
+                                        <Setter Property="BackgroundColor"
+                                                Value="#F08080"/>
+                                        <Setter Property="StrokeThickness"
+                                                Value="0"/>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleEventFilterCommand}"
+                                                          CommandParameter="5"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Becas"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="#C75D5D">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsBecasChecked}"
+                                                     Value="True">
+                                            <Setter Property="TextColor"
+                                                    Value="White"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Border>
+
+                            <Border Stroke="#FFA500"
+                                    StrokeThickness="2"
+                                    BackgroundColor="Transparent"
+                                    Padding="16,8"
+                                    Margin="0,0,10,10">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20"/>
+                                </Border.StrokeShape>
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border"
+                                                 Binding="{Binding IsAdmisionesChecked}"
+                                                 Value="True">
+                                        <Setter Property="BackgroundColor"
+                                                Value="#FFA500"/>
+                                        <Setter Property="StrokeThickness"
+                                                Value="0"/>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleEventFilterCommand}"
+                                                          CommandParameter="6"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Admisiones"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="#D97706">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsAdmisionesChecked}"
+                                                     Value="True">
+                                            <Setter Property="TextColor"
+                                                    Value="White"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Border>
+                        </FlexLayout>
 
                         <Grid ColumnDefinitions="*,Auto"
                               ColumnSpacing="12"

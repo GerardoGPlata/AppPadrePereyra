@@ -8,15 +8,23 @@
 
     <ScrollView>
         <VerticalStackLayout
-        Padding="30,0"
-        Spacing="25"
-        VerticalOptions="Center">
+            Padding="30,0"
+            Spacing="25"
+            VerticalOptions="Center">
 
-            <Image Source="icono_logo" HeightRequest="200" WidthRequest="200" />
+            <Image Source="icono_logo"
+                    HeightRequest="200"
+                    WidthRequest="200"/>
 
             <VerticalStackLayout Spacing="5">
-                <Label Text="¡Bienvenido!" FontSize="28" TextColor="Black" HorizontalTextAlignment="Center"/>
-                <Label Text="Inicie sesión en su cuenta" FontSize="18" TextColor="Black" HorizontalTextAlignment="Center"/>
+                <Label Text="¡Bienvenido!"
+                        FontSize="28"
+                        TextColor="Black"
+                        HorizontalTextAlignment="Center"/>
+                <Label Text="Inicie sesión en su cuenta"
+                        FontSize="18"
+                        TextColor="Black"
+                        HorizontalTextAlignment="Center"/>
             </VerticalStackLayout>
 
             <!--<StackLayout Orientation="Horizontal">
@@ -36,19 +44,37 @@
             </StackLayout>-->
 
             <!-- Campo Email: Grid con ícono y contenedor del Entry para evitar superposición en iOS -->
-            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                <Border HeightRequest="56" WidthRequest="56" BackgroundColor="White" Stroke="Transparent">
+            <Grid ColumnDefinitions="Auto,*"
+                    ColumnSpacing="12">
+                <Border HeightRequest="56"
+                        WidthRequest="56"
+                        BackgroundColor="White"
+                        Stroke="Transparent">
                     <Border.Shadow>
-                        <Shadow Brush="#000000" Opacity="0.18" Radius="10" Offset="0,4"/>
+                        <Shadow Brush="#000000"
+                                Opacity="0.18"
+                                Radius="10"
+                                Offset="0,4"/>
                     </Border.Shadow>
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="28"/>
                     </Border.StrokeShape>
-                    <Image Source="person_outline" HeightRequest="20" WidthRequest="20" VerticalOptions="Center" HorizontalOptions="Center"/>
+                    <Image Source="person_outline"
+                            HeightRequest="20"
+                            WidthRequest="20"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center"/>
                 </Border>
-                <Border Grid.Column="1" HeightRequest="56" BackgroundColor="White" Stroke="Transparent" HorizontalOptions="Fill">
+                <Border Grid.Column="1"
+                        HeightRequest="56"
+                        BackgroundColor="White"
+                        Stroke="Transparent"
+                        HorizontalOptions="Fill">
                     <Border.Shadow>
-                        <Shadow Brush="#000000" Opacity="0.18" Radius="10" Offset="0,4"/>
+                        <Shadow Brush="#000000"
+                                Opacity="0.18"
+                                Radius="10"
+                                Offset="0,4"/>
                     </Border.Shadow>
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="24"/>
@@ -56,7 +82,7 @@
                     <handlers:BorderEntry x:Name="EmailEntry"
                                           VerticalOptions="Center"
                                           Margin="16,0,16,0"
-                                          Placeholder="Correo electónico"
+                                          Placeholder="Correo Electrónico"
                                           PlaceholderColor="Gray"
                                           TextColor="Black"
                                           Keyboard="Email"
@@ -65,25 +91,44 @@
             </Grid>
 
             <!-- Campo Password: Grid con ícono y contenedor del Entry (con botón de ojo) -->
-            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                <Border HeightRequest="56" WidthRequest="56" BackgroundColor="White" Stroke="Transparent">
+            <Grid ColumnDefinitions="Auto,*"
+                    ColumnSpacing="12">
+                <Border HeightRequest="56"
+                        WidthRequest="56"
+                        BackgroundColor="White"
+                        Stroke="Transparent">
                     <Border.Shadow>
-                        <Shadow Brush="#000000" Opacity="0.18" Radius="10" Offset="0,4"/>
+                        <Shadow Brush="#000000"
+                                Opacity="0.18"
+                                Radius="10"
+                                Offset="0,4"/>
                     </Border.Shadow>
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="28"/>
                     </Border.StrokeShape>
-                    <Image Source="lock_closed_outline" HeightRequest="20" WidthRequest="20" VerticalOptions="Center" HorizontalOptions="Center"/>
+                    <Image Source="lock_closed_outline"
+                            HeightRequest="20"
+                            WidthRequest="20"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center"/>
                 </Border>
 
-                <Border Grid.Column="1" HeightRequest="56" BackgroundColor="White" Stroke="Transparent" HorizontalOptions="Fill">
+                <Border Grid.Column="1"
+                        HeightRequest="56"
+                        BackgroundColor="White"
+                        Stroke="Transparent"
+                        HorizontalOptions="Fill">
                     <Border.Shadow>
-                        <Shadow Brush="#000000" Opacity="0.18" Radius="10" Offset="0,4"/>
+                        <Shadow Brush="#000000"
+                                Opacity="0.18"
+                                Radius="10"
+                                Offset="0,4"/>
                     </Border.Shadow>
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="24"/>
                     </Border.StrokeShape>
-                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                    <Grid ColumnDefinitions="*,Auto"
+                            VerticalOptions="Center">
                         <handlers:BorderEntry x:Name="PasswordEntry"
                                               Grid.Column="0"
                                               VerticalOptions="Center"
@@ -108,19 +153,23 @@
                 </Border>
             </Grid>
 
-            <Button x:Name="LoginButton" 
-                Text="Iniciar Sesión"
-                TextColor="{Binding LoginButtonTextColor}"
-                WidthRequest="200" 
-                CornerRadius="20" 
-                HorizontalOptions="Center" 
-                BackgroundColor="{Binding LoginButtonBackgroundColor}"
-                BorderColor="#008347"
-                BorderWidth="2"
-                Command="{ Binding LoginCommand }"/>
+            <Button x:Name="LoginButton"
+                    Text="Iniciar Sesión"
+                    TextColor="{Binding LoginButtonTextColor}"
+                    WidthRequest="200"
+                    CornerRadius="20"
+                    HorizontalOptions="Center"
+                    BackgroundColor="{Binding LoginButtonBackgroundColor}"
+                    BorderColor="#008347"
+                    BorderWidth="2"
+                    Command="{ Binding LoginCommand }"/>
 
-            <StackLayout Orientation="Horizontal" Spacing="5" HorizontalOptions="Center">
-                <Label Text="¿Olvidaste la contraseña?" TextColor="Black" FontAttributes="Bold">
+            <StackLayout Orientation="Horizontal"
+                    Spacing="5"
+                    HorizontalOptions="Center">
+                <Label Text="¿Olvidaste la contraseña?"
+                        TextColor="Black"
+                        FontAttributes="Bold">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Command="{ Binding ForgotPasswordCommand }"/>
                     </Label.GestureRecognizers>

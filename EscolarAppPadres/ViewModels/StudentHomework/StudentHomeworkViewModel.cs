@@ -69,7 +69,7 @@ namespace EscolarAppPadres.ViewModels.Homework
                 IsLoading = true;
 
             SinResultados = false;
-
+            DialogsHelper.ShowLoadingMessage("Cargando tareas...");
             try
             {
                 var token = await SecureStorage.GetAsync("auth_token");
@@ -105,6 +105,7 @@ namespace EscolarAppPadres.ViewModels.Homework
                 IsRefreshing = false;
                 IsLoading = false;
                 OnPropertyChanged(nameof(StudentHomework));
+                DialogsHelper.HideLoadingMessage();
             }
         }
 

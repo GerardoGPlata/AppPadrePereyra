@@ -84,5 +84,12 @@ namespace EscolarAppPadres.Constants
         {
             public const string GetSchoolDirectory = "Services/GetSchoolDirectory";
         }
+
+        public static class Calendar
+        {
+            public const string getAllEventsCalendar = "Calendar/getAllEventsCalendar";
+
+        }
+
     }
 }

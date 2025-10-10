@@ -69,7 +69,7 @@
                      VerticalOptions="End"
                      Spacing="10">
 
-            <Button Text="Descargar boleta"
+            <Button Text="Descargar Boleta"
                     Command="{Binding DescargarBoletaCommand}"
                     BackgroundColor="#69b457"
                     TextColor="White"
@@ -83,18 +83,18 @@
             <Frame BackgroundColor="#008347"
                    CornerRadius="20"
                    HasShadow="True"
-                   Padding="6,2"
-                   HeightRequest="44"
+                   Padding="8,4"
+                   HeightRequest="50"
                    WidthRequest="280"
                    HorizontalOptions="Center">
                 <Grid ColumnDefinitions="*,Auto"
                       VerticalOptions="Center"
-                      HeightRequest="32">
+                      HeightRequest="44">
                     <controls:ChildPicker Title="Seleccionar hijo"
                                           ItemsSource="{Binding Hijos}"
                                           ItemDisplayBinding="{Binding NombreCompleto}"
                                           SelectedItem="{Binding SelectedHijo}"
-                                          FontSize="11.7"
+                                          FontSize="13"
                                           FontAttributes="Bold"
                                           TextColor="White"
                                           TitleColor="White"

@@ -29,7 +29,7 @@ namespace EscolarAppPadres.Models
         public string Nombre { get; set; }
 
         [JsonPropertyName("nivelid")]
-        public SchoolLevelEnum NivelId { get; set; }
+        public string? NivelId { get; set; }
 
         [JsonPropertyName("nivel")]
         public string Nivel { get; set; }
@@ -42,6 +42,24 @@ namespace EscolarAppPadres.Models
 
         [JsonPropertyName("datefin")]
         public DateTime? DateFin { get; set; }
+
+        [JsonPropertyName("fechainicio")]
+        public string? FechaInicioTexto { get; set; }
+
+        [JsonPropertyName("fechafin")]
+        public string? FechaFinTexto { get; set; }
+
+        [JsonPropertyName("horainicio")]
+        public string? HoraInicioTexto { get; set; }
+
+        [JsonPropertyName("horafin")]
+        public string? HoraFinTexto { get; set; }
+
+        [JsonIgnore]
+        public TimeSpan? HoraInicio { get; set; }
+
+        [JsonIgnore]
+        public TimeSpan? HoraFin { get; set; }
 
         [JsonPropertyName("editable")]
         public byte Editable { get; set; }
@@ -56,6 +74,9 @@ namespace EscolarAppPadres.Models
         public bool DiaEntero { get; set; }
         public string Alumno { get; set; }
         public string Imagen { get; set; }
+
+        [JsonIgnore]
+        public bool EsEditable => Editable == 1;
 
         // Computed properties
         public DateTime StartDateTimeInRange => DateInicio;

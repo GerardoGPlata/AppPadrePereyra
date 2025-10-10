@@ -8,11 +8,11 @@
     <ScrollView>
         <StackLayout Padding="10">
             <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto"
-                    RowSpacing="15"
-                    ColumnDefinitions="*,*"
-                    ColumnSpacing="10">
+                  RowSpacing="15"
+                  ColumnDefinitions="*,*"
+                  ColumnSpacing="10">
                 <StackLayout Grid.Row="0"
-                        Grid.ColumnSpan="2">
+                             Grid.ColumnSpan="2">
                     <Border StrokeThickness="0.2"
                             Stroke="Gray"
                             BackgroundColor="#F0F0F0">
@@ -20,30 +20,30 @@
                             <RoundRectangle CornerRadius="10,10,10,10"/>
                         </Border.StrokeShape>
                         <Grid Padding="10"
-                                RowDefinitions="Auto,Auto,Auto,Auto"
-                                ColumnDefinitions="Auto,*"
-                                ColumnSpacing="15">
+                              RowDefinitions="Auto,Auto,Auto,Auto"
+                              ColumnDefinitions="Auto,*"
+                              ColumnSpacing="15">
 
 
                             <Label Grid.Row="0"
-                                    Grid.Column="1"
-                                    Text="{Binding NombreCompleto}"
-                                    FontSize="18"
-                                    FontAttributes="Bold"
-                                    TextColor="#333333"/>
+                                   Grid.Column="1"
+                                   Text="{Binding NombreCompleto}"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#333333"/>
                             <Label Grid.Row="1"
-                                    Grid.Column="1"
-                                    Text="{Binding Correo}"
-                                    FontSize="14"
-                                    FontAttributes="Bold"
-                                    TextColor="#888888"/>
+                                   Grid.Column="1"
+                                   Text="{Binding Correo}"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#888888"/>
 
                         </Grid>
                     </Border>
                 </StackLayout>
 
                 <StackLayout Grid.Row="1"
-                        Grid.ColumnSpan="2">
+                             Grid.ColumnSpan="2">
                     <Border StrokeThickness="0.2"
                             Stroke="Gray"
                             BackgroundColor="#F0F0F0">
@@ -51,14 +51,14 @@
                             <RoundRectangle CornerRadius="10,10,10,10"/>
                         </Border.StrokeShape>
                         <CollectionView ItemsSource="{Binding Hijos}"
-                                Margin="10">
+                                        Margin="10">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Padding="10"
-                                            ColumnDefinitions="Auto,*"
-                                            ColumnSpacing="10">
+                                          ColumnDefinitions="Auto,*"
+                                          ColumnSpacing="10">
                                         <Frame WidthRequest="30"
-                                                HeightRequest="30"
+                                               HeightRequest="30"
                                                CornerRadius="15"
                                                BackgroundColor="{Binding ColorHex}"
                                                HasShadow="False"
@@ -73,13 +73,13 @@
 
 
                                         <StackLayout Grid.Column="1"
-                                                VerticalOptions="Center">
+                                                     VerticalOptions="Center">
                                             <Label Text="{Binding NombreCompleto}"
-                                                    FontAttributes="Bold"
-                                                    TextColor="#333"/>
+                                                   FontAttributes="Bold"
+                                                   TextColor="#333"/>
                                             <Label Text="{Binding Matricula, StringFormat='Matrícula: {0}'}"
-                                                    FontSize="12"
-                                                    TextColor="#888"/>
+                                                   FontSize="12"
+                                                   TextColor="#888"/>
                                         </StackLayout>
                                     </Grid>
                                 </DataTemplate>
@@ -89,25 +89,14 @@
                 </StackLayout>
 
                 <StackLayout Grid.Row="2"
-                        Grid.ColumnSpan="2">
+                             Grid.ColumnSpan="2">
                     <Frame CornerRadius="10"
-                            BorderColor="Gray">
-                        <Grid RowDefinitions="Auto,Auto,Auto"
-                                ColumnDefinitions="*,*"
-                                RowSpacing="{OnPlatform iOS=16, Android=10, WinUI=12}">
+                           BorderColor="Gray">
+                        <Grid RowDefinitions="Auto,Auto"
+                              ColumnDefinitions="*"
+                              RowSpacing="{OnPlatform iOS=16, Android=10, WinUI=12}">
 
-                            <ImageButton Grid.Row="0"
-                                         Grid.Column="1"
-                                         Source="{Binding ImageButtonSource}"
-                                         WidthRequest="35"
-                                         HeightRequest="35"
-                                         HorizontalOptions="End"
-                                         VerticalOptions="Start"
-                                         Command="{Binding GlowCommand}"
-                                         BackgroundColor="Transparent"/>
-
-                            <Image Grid.Row="1"
-                                   Grid.ColumnSpan="2"
+                            <Image Grid.Row="0"
                                    Source="qr"
                                    Aspect="AspectFit"
                                    WidthRequest="270"
@@ -115,8 +104,7 @@
                                    HorizontalOptions="Center"
                                    VerticalOptions="Center"/>
 
-                            <Label Grid.Row="2"
-                                   Grid.ColumnSpan="2"
+                            <Label Grid.Row="1"
                                    Text="xgg83q13"
                                    FontSize="18"
                                    FontAttributes="Bold"
@@ -128,11 +116,11 @@
                 </StackLayout>
 
                 <toolkit:Expander Grid.Row="3"
-                        Grid.ColumnSpan="2"
-                        x:Name="AccountConfigExpander"
-                        VerticalOptions="Start"
-                        HorizontalOptions="Fill"
-                        IsExpanded="True">
+                                  Grid.ColumnSpan="2"
+                                  x:Name="AccountConfigExpander"
+                                  VerticalOptions="Start"
+                                  HorizontalOptions="Fill"
+                                  IsExpanded="True">
                     <toolkit:Expander.Header>
                         <Border StrokeThickness="0.5"
                                 Stroke="Gray"
@@ -141,33 +129,33 @@
                                 <RoundRectangle CornerRadius="10,10,0,0"/>
                             </Border.StrokeShape>
                             <Grid Padding="10"
-                                    ColumnSpacing="10"
-                                    RowDefinitions="Auto"
-                                    ColumnDefinitions="Auto,*,Auto">
+                                  ColumnSpacing="10"
+                                  RowDefinitions="Auto"
+                                  ColumnDefinitions="Auto,*,Auto">
                                 <Image Grid.Column="0"
-                                        Source="settings_outline"
-                                        WidthRequest="30"
-                                        HeightRequest="30"/>
+                                       Source="settings_outline"
+                                       WidthRequest="30"
+                                       HeightRequest="30"/>
                                 <Label Grid.Column="1"
-                                        Text="Configuración y privacidad"
-                                        FontSize="18"
-                                        FontAttributes="Bold"
-                                        TextColor="#333333"
-                                        VerticalOptions="Center"/>
+                                       Text="Configuración y privacidad"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#333333"
+                                       VerticalOptions="Center"/>
                                 <Image Grid.Column="2"
-                                        HeightRequest="30"
-                                        WidthRequest="30"
-                                        VerticalOptions="Center">
+                                       HeightRequest="30"
+                                       WidthRequest="30"
+                                       VerticalOptions="Center">
                                     <Image.Triggers>
                                         <DataTrigger TargetType="Image"
-                                                Binding="{Binding Source={x:Reference AccountConfigExpander}, Path=IsExpanded}"
-                                                Value="True">
+                                                     Binding="{Binding Source={x:Reference AccountConfigExpander}, Path=IsExpanded}"
+                                                     Value="True">
                                             <Setter Property="Source"
                                                     Value="chevron_up_outline"/>
                                         </DataTrigger>
                                         <DataTrigger TargetType="Image"
-                                                Binding="{Binding Source={x:Reference AccountConfigExpander}, Path=IsExpanded}"
-                                                Value="False">
+                                                     Binding="{Binding Source={x:Reference AccountConfigExpander}, Path=IsExpanded}"
+                                                     Value="False">
                                             <Setter Property="Source"
                                                     Value="chevron_down_outline"/>
                                         </DataTrigger>
@@ -186,21 +174,21 @@
                             </Border.StrokeShape>
 
                             <StackLayout Padding="15"
-                                    Spacing="10">
+                                         Spacing="10">
                                 <Frame CornerRadius="10"
-                                        HasShadow="True"
-                                        Padding="10">
+                                       HasShadow="True"
+                                       Padding="10">
                                     <Grid ColumnDefinitions="Auto,*"
-                                            RowDefinitions="Auto"
-                                            ColumnSpacing="10">
+                                          RowDefinitions="Auto"
+                                          ColumnSpacing="10">
                                         <Image Grid.Column="0"
-                                                Source="shield_half_outline"
-                                                WidthRequest="25"
-                                                HeightRequest="25"/>
+                                               Source="shield_half_outline"
+                                               WidthRequest="25"
+                                               HeightRequest="25"/>
                                         <Label Grid.Column="1"
-                                                Text="Políticas de Privacidad"
-                                                FontSize="16"
-                                                VerticalOptions="Center"/>
+                                               Text="Políticas de Privacidad"
+                                               FontSize="16"
+                                               VerticalOptions="Center"/>
                                     </Grid>
                                     <Frame.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.PrivacyPolicyCommand}"/>
@@ -208,19 +196,19 @@
                                 </Frame>
 
                                 <Frame CornerRadius="10"
-                                        HasShadow="True"
-                                        Padding="10">
+                                       HasShadow="True"
+                                       Padding="10">
                                     <Grid ColumnDefinitions="Auto,*"
-                                            RowDefinitions="Auto"
-                                            ColumnSpacing="10">
+                                          RowDefinitions="Auto"
+                                          ColumnSpacing="10">
                                         <Image Grid.Column="0"
-                                                Source="lock_closed_outline"
-                                                WidthRequest="25"
-                                                HeightRequest="25"/>
+                                               Source="lock_closed_outline"
+                                               WidthRequest="25"
+                                               HeightRequest="25"/>
                                         <Label Grid.Column="1"
-                                                Text="Cambiar Contraseña"
-                                                FontSize="16"
-                                                VerticalOptions="Center"/>
+                                               Text="Cambiar Contraseña"
+                                               FontSize="16"
+                                               VerticalOptions="Center"/>
                                     </Grid>
                                     <Frame.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ChangePasswordCommand}"/>
@@ -232,9 +220,9 @@
                 </toolkit:Expander>
 
                 <StackLayout Grid.Row="4"
-                        Grid.ColumnSpan="2"
-                        VerticalOptions="Fill"
-                        HorizontalOptions="Fill">
+                             Grid.ColumnSpan="2"
+                             VerticalOptions="Fill"
+                             HorizontalOptions="Fill">
                     <Button x:Name="LogoutButton"
                             FontSize="18"
                             Text="Cerrar Sesión"

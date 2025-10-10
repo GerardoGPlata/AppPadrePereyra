@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using EscolarAppPadres.Constants;
 using EscolarAppPadres.Helpers;
 using EscolarAppPadres.Models;
 using EscolarAppPadres.Services;
@@ -58,6 +62,8 @@ namespace EscolarAppPadres.ViewModels.Calendar
 
         private readonly EventService _eventService;
         private ObservableCollection<Event> _eventos;
+        private List<Event> _allEvents = new();
+        private bool _suppressFilterRefresh;
 
         public ObservableCollection<Event> Eventos
         {
@@ -74,6 +80,15 @@ namespace EscolarAppPadres.ViewModels.Calendar
             _eventService = new EventService();
             _selectedCalendarLayout = WeekLayout.Month;
             _schedulerViewMode = SchedulerView.Month;
+
+            _suppressFilterRefresh = true;
+            _isEventoChecked = true;
+            _isDiaFestivoChecked = true;
+            _isExamenesChecked = false;
+            _isTareasChecked = false;
+            _isBecasChecked = false;
+            _isAdmisionesChecked = false;
+            _suppressFilterRefresh = false;
             // Establecer selección inicial a Mes usando el setter para notificar bindings
             IsMesSelected = true;
 
@@ -128,187 +143,10 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 }
 
                 var eventosOrdenados = response.Data.OrderBy(e => e.DateInicio).ToList();
-                var tempEventCollection = new EventCollection();
-
-                foreach (var evento in eventosOrdenados)
-                {
-                    if (token.IsCancellationRequested) return;
-
-                    var eventModel = ConvertToEventModel(evento);
-                    var eventDate = evento.DateInicio.Date;
-
-                    if (tempEventCollection.ContainsKey(eventDate))
-                    {
-                        ((List<EventModel>)tempEventCollection[eventDate]).Add(eventModel);
-                    }
-                    else
-                    {
-                        tempEventCollection[eventDate] = new List<EventModel> { eventModel };
-                    }
-                }
 
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
-                    Eventos = new ObservableCollection<Event>(eventosOrdenados);
-                    _Events = tempEventCollection;
-                    Events = _Events; // Forzar la actualización del binding
-                    // Mostrar siempre el Scheduler por defecto
-                    IsCalendarVisible = true;
-                    IsAgendaVisible = false;
-
-                    // Poblar las citas del Scheduler (limpio y vuelvo a crear)
-                    _schedulerEvents.Clear();
-                    _schedulerEventModels.Clear();
-                    foreach (var ev in Eventos)
-                    {
-                        var colorHex = ev.Color ?? "#32CD32";
-                        Color bg;
-                        try { bg = Color.FromArgb(colorHex); } catch { bg = Colors.LightGreen; }
-
-                        bool hasEnd = ev.DateFin.HasValue;
-                        bool isMultiDay = hasEnd && ev.DateFin!.Value.Date > ev.DateInicio.Date;
-                        bool hasExplicitStartTime = ev.DateInicio.TimeOfDay != TimeSpan.Zero;
-                        bool hasExplicitEndTime = hasEnd && ev.DateFin!.Value.TimeOfDay != TimeSpan.Zero;
-
-                        if (isMultiDay)
-                        {
-                            // Crear una cita por día del rango, 8:00–9:00 por defecto salvo donde haya hora explícita
-                            var fromDate = ev.DateInicio.Date;
-                            var toDate = ev.DateFin!.Value.Date;
-                            for (var d = fromDate; d <= toDate; d = d.AddDays(1))
-                            {
-                                DateTime dStart = d.AddHours(8);
-                                DateTime dEnd = dStart.AddHours(1);
-
-                                if (d == ev.DateInicio.Date && hasExplicitStartTime)
-                                {
-                                    dStart = ev.DateInicio;
-                                    dEnd = hasExplicitEndTime && ev.DateFin!.Value.Date == d
-                                        ? ev.DateFin!.Value
-                                        : dStart.AddHours(1);
-                                }
-                                else if (d == ev.DateFin!.Value.Date && hasExplicitEndTime)
-                                {
-                                    // Último día con hora fin explícita
-                                    dEnd = ev.DateFin!.Value;
-                                    // Si no hay hora inicio explícita para el último día, 8:00 por defecto
-                                    if (dStart >= dEnd)
-                                        dStart = dEnd.AddHours(-1);
-                                }
-
-                                if (dEnd <= dStart)
-                                {
-                                    dEnd = dStart.AddHours(1);
-                                }
-
-                                _schedulerEvents.Add(new SchedulerAppointment
-                                {
-                                    StartTime = dStart,
-                                    EndTime = dEnd,
-                                    Subject = ev.Nombre ?? ev.TipoEvento ?? "Evento",
-                                    Background = new SolidColorBrush(bg),
-                                    IsAllDay = false
-                                });
-                            }
-                        }
-                        else
-                        {
-                            // Evento de un día: usar horas explícitas si existen, si no 08:00–09:00
-                            DateTime start = hasExplicitStartTime ? ev.DateInicio : ev.DateInicio.Date.AddHours(8);
-                            DateTime end = hasEnd
-                                ? (hasExplicitEndTime ? ev.DateFin!.Value : start.AddHours(1))
-                                : start.AddHours(1);
-
-                            if (end <= start)
-                                end = start.AddHours(1);
-
-                            _schedulerEvents.Add(new SchedulerAppointment
-                            {
-                                StartTime = start,
-                                EndTime = end,
-                                Subject = ev.Nombre ?? ev.TipoEvento ?? "Evento",
-                                Background = new SolidColorBrush(bg),
-                                IsAllDay = false
-                            });
-                        }
-                        // Construir también la fuente para AppointmentMapping como lista plana por día
-
-                        if (isMultiDay)
-                        {
-                            var fromDate = ev.DateInicio.Date;
-                            var toDate = ev.DateFin!.Value.Date;
-                            for (var d = fromDate; d <= toDate; d = d.AddDays(1))
-                            {
-                                DateTime dStart = d.AddHours(8);
-                                DateTime dEnd = dStart.AddHours(1);
-
-                                if (d == ev.DateInicio.Date && hasExplicitStartTime)
-                                {
-                                    dStart = ev.DateInicio;
-                                    dEnd = hasExplicitEndTime && ev.DateFin!.Value.Date == d
-                                        ? ev.DateFin!.Value
-                                        : dStart.AddHours(1);
-                                }
-                                else if (d == ev.DateFin!.Value.Date && hasExplicitEndTime)
-                                {
-                                    dEnd = ev.DateFin!.Value;
-                                    if (dStart >= dEnd)
-                                        dStart = dEnd.AddHours(-1);
-                                }
-
-                                if (dEnd <= dStart)
-                                    dEnd = dStart.AddHours(1);
-
-                                _schedulerEventModels.Add(new EventModel
-                                {
-                                    TipoEvento = ev.TipoEvento,
-                                    Nivel = ev.Nivel,
-                                    Nombre = ev.Nombre,
-                                    Descripcion = ev.Descripcion,
-                                    FechaInicio = dStart.Date,
-                                    HoraInicio = dStart.TimeOfDay,
-                                    FechaFin = dEnd.Date,
-                                    HoraFin = dEnd.TimeOfDay,
-                                    Imagen = ev.Imagen ?? "icono_logo.png",
-                                    ColorIndicador = ev.Color ?? "#32CD32"
-                                });
-                            }
-                        }
-                        else
-                        {
-                            DateTime start = hasExplicitStartTime ? ev.DateInicio : ev.DateInicio.Date.AddHours(8);
-                            DateTime end = hasEnd
-                                ? (hasExplicitEndTime ? ev.DateFin!.Value : start.AddHours(1))
-                                : start.AddHours(1);
-
-                            if (end <= start)
-                                end = start.AddHours(1);
-
-                            _schedulerEventModels.Add(new EventModel
-                            {
-                                TipoEvento = ev.TipoEvento,
-                                Nivel = ev.Nivel,
-                                Nombre = ev.Nombre,
-                                Descripcion = ev.Descripcion,
-                                FechaInicio = start.Date,
-                                HoraInicio = start.TimeOfDay,
-                                FechaFin = end.Date,
-                                HoraFin = end.TimeOfDay,
-                                Imagen = ev.Imagen ?? "icono_logo.png",
-                                ColorIndicador = ev.Color ?? "#32CD32"
-                            });
-                        }
-                    }
-                    // Establecer fecha de visualización a hoy o primer evento
-                    _displayDate = Eventos.FirstOrDefault()?.DateInicio.Date ?? DateTime.Today;
-
-                    OnPropertyChanged(nameof(Eventos));
-                    OnPropertyChanged(nameof(Events));
-                    OnPropertyChanged(nameof(SchedulerEvents));
-                    OnPropertyChanged(nameof(DisplayDate));
-                    OnPropertyChanged(nameof(SchedulerEventModels));
-
-                    // Asegurarse de actualizar la vista apropiadamente
+                    _allEvents = eventosOrdenados;
                     ApplyFiltersCalendar();
                 });
             }
@@ -601,6 +439,10 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 {
                     _isEventoChecked = value;
                     OnPropertyChanged(nameof(IsEventoChecked));
+                    if (!_suppressFilterRefresh)
+                    {
+                        ApplyFiltersCalendar();
+                    }
                 }
             }
         }
@@ -614,6 +456,10 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 {
                     _isDiaFestivoChecked = value;
                     OnPropertyChanged(nameof(IsDiaFestivoChecked));
+                    if (!_suppressFilterRefresh)
+                    {
+                        ApplyFiltersCalendar();
+                    }
                 }
             }
         }
@@ -627,6 +473,10 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 {
                     _isExamenesChecked = value;
                     OnPropertyChanged(nameof(IsExamenesChecked));
+                    if (!_suppressFilterRefresh)
+                    {
+                        ApplyFiltersCalendar();
+                    }
                 }
             }
         }
@@ -640,6 +490,10 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 {
                     _isTareasChecked = value;
                     OnPropertyChanged(nameof(IsTareasChecked));
+                    if (!_suppressFilterRefresh)
+                    {
+                        ApplyFiltersCalendar();
+                    }
                 }
             }
         }
@@ -653,6 +507,10 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 {
                     _isBecasChecked = value;
                     OnPropertyChanged(nameof(IsBecasChecked));
+                    if (!_suppressFilterRefresh)
+                    {
+                        ApplyFiltersCalendar();
+                    }
                 }
             }
         }
@@ -666,6 +524,10 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 {
                     _isAdmisionesChecked = value;
                     OnPropertyChanged(nameof(IsAdmisionesChecked));
+                    if (!_suppressFilterRefresh)
+                    {
+                        ApplyFiltersCalendar();
+                    }
                 }
             }
         }
@@ -749,6 +611,8 @@ namespace EscolarAppPadres.ViewModels.Calendar
             }
         }
 
+        private ICommand? _toggleEventFilterCommand;
+        public ICommand ToggleEventFilterCommand => _toggleEventFilterCommand ??= new Command<string>(ToggleEventFilter);
         public ICommand ApplyFiltersCalendarCommand => new Command(ApplyFiltersCalendar);
         public ICommand OpenFilterPopupCalendarCommand => new Command(async () => await OpenFilterPopupCalendarAsync());
         public ICommand CloseFilterPopupCalendarCommand => new Command(() => IsFilterPopupOpen = false);
@@ -758,7 +622,8 @@ namespace EscolarAppPadres.ViewModels.Calendar
 
         private void ApplyFiltersCalendar()
         {
-            // Siempre usar el Scheduler; decidir vista según selección
+            RefreshFilteredEvents();
+
             IsCalendarVisible = true;
             IsAgendaVisible = false;
 
@@ -771,13 +636,249 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 SelectedCalendarLayout = WeekLayout.Week;
                 SchedulerViewMode = SchedulerView.Week;
             }
-            else // por defecto Mes
+            else
             {
                 SelectedCalendarLayout = WeekLayout.Month;
                 SchedulerViewMode = SchedulerView.Month;
             }
 
             SelectedDateResult = false;
+        }
+
+        private void RefreshFilteredEvents()
+        {
+            var filteredEvents = FilterEvents(_allEvents);
+            RebuildCalendarCollections(filteredEvents);
+        }
+
+        private IEnumerable<Event> FilterEvents(IEnumerable<Event> source)
+        {
+            if (source == null)
+            {
+                return Enumerable.Empty<Event>();
+            }
+
+            var activeTypes = GetActiveEventTypes();
+
+            if (!activeTypes.Any())
+            {
+                return Enumerable.Empty<Event>();
+            }
+
+            return source.Where(e => activeTypes.Contains(e.TipoEventoId));
+        }
+
+        private HashSet<EventTypeEnum> GetActiveEventTypes()
+        {
+            var set = new HashSet<EventTypeEnum>();
+
+            if (IsEventoChecked) set.Add(EventTypeEnum.Event);
+            if (IsDiaFestivoChecked) set.Add(EventTypeEnum.Holiday);
+            if (IsExamenesChecked) set.Add(EventTypeEnum.Test);
+            if (IsTareasChecked) set.Add(EventTypeEnum.Homework);
+            if (IsBecasChecked) set.Add(EventTypeEnum.Scholarship);
+            if (IsAdmisionesChecked) set.Add(EventTypeEnum.Admission);
+
+            return set;
+        }
+
+        private void RebuildCalendarCollections(IEnumerable<Event> eventsSource)
+        {
+            _suppressFilterRefresh = true;
+
+            try
+            {
+                var orderedEvents = (eventsSource ?? Enumerable.Empty<Event>())
+                    .OrderBy(e => e.DateInicio)
+                    .ThenBy(e => e.DateFin ?? e.DateInicio)
+                    .ToList();
+
+                var eventCollection = new EventCollection();
+                var schedulerAppointments = new ObservableCollection<SchedulerAppointment>();
+                var schedulerModels = new ObservableCollection<EventModel>();
+
+                foreach (var evento in orderedEvents)
+                {
+                    var eventModel = ConvertToEventModel(evento);
+                    var eventDate = evento.DateInicio.Date;
+
+                    if (eventCollection.ContainsKey(eventDate))
+                    {
+                        ((List<EventModel>)eventCollection[eventDate]).Add(eventModel);
+                    }
+                    else
+                    {
+                        eventCollection[eventDate] = new List<EventModel> { eventModel };
+                    }
+
+                    AppendSchedulerEntries(evento, schedulerAppointments, schedulerModels);
+                }
+
+                Eventos = new ObservableCollection<Event>(orderedEvents);
+                Events = eventCollection;
+                SchedulerEvents = schedulerAppointments;
+                SchedulerEventModels = schedulerModels;
+                AgendaEvents = schedulerModels.OrderBy(m => m.StartDateTime).ToList();
+                DisplayDate = orderedEvents.FirstOrDefault()?.DateInicio.Date ?? DateTime.Today;
+                SelectedAgendaResult = !schedulerModels.Any();
+
+                UpdateFooterArrowVisibility();
+            }
+            finally
+            {
+                _suppressFilterRefresh = false;
+            }
+        }
+
+        private void AppendSchedulerEntries(Event evento,
+                                             ObservableCollection<SchedulerAppointment> appointments,
+                                             ObservableCollection<EventModel> models)
+        {
+            var colorHex = string.IsNullOrWhiteSpace(evento.Color) ? "#32CD32" : evento.Color;
+            Color backgroundColor;
+
+            try
+            {
+                backgroundColor = Color.FromArgb(colorHex);
+            }
+            catch
+            {
+                backgroundColor = Colors.LightGreen;
+            }
+
+            foreach (var (start, end) in GenerateDailySegments(evento))
+            {
+                appointments.Add(new SchedulerAppointment
+                {
+                    StartTime = start,
+                    EndTime = end,
+                    Subject = evento.Nombre ?? evento.TipoEvento ?? "Evento",
+                    Background = new SolidColorBrush(backgroundColor),
+                    IsAllDay = evento.DiaEntero
+                });
+
+                models.Add(new EventModel
+                {
+                    TipoEvento = evento.TipoEvento,
+                    Nivel = evento.Nivel,
+                    Nombre = evento.Nombre,
+                    Descripcion = evento.Descripcion,
+                    FechaInicio = start.Date,
+                    HoraInicio = start.TimeOfDay,
+                    FechaFin = end.Date,
+                    HoraFin = end.TimeOfDay,
+                    Imagen = string.IsNullOrWhiteSpace(evento.Imagen) ? "icono_logo.png" : evento.Imagen,
+                    ColorIndicador = evento.Color ?? "#32CD32",
+                    IsAllDay = evento.DiaEntero
+                });
+            }
+        }
+
+        private IEnumerable<(DateTime Start, DateTime End)> GenerateDailySegments(Event evento)
+        {
+            var segments = new List<(DateTime Start, DateTime End)>();
+
+            bool hasEnd = evento.DateFin.HasValue;
+            bool isMultiDay = hasEnd && evento.DateFin!.Value.Date > evento.DateInicio.Date;
+            bool hasExplicitStartTime = evento.DateInicio.TimeOfDay != TimeSpan.Zero;
+            bool hasExplicitEndTime = hasEnd && evento.DateFin!.Value.TimeOfDay != TimeSpan.Zero;
+
+            if (isMultiDay)
+            {
+                var fromDate = evento.DateInicio.Date;
+                var toDate = evento.DateFin!.Value.Date;
+
+                for (var day = fromDate; day <= toDate; day = day.AddDays(1))
+                {
+                    segments.Add(BuildSegmentForDay(evento, day, hasExplicitStartTime, hasExplicitEndTime));
+                }
+            }
+            else
+            {
+                DateTime start = hasExplicitStartTime ? evento.DateInicio : evento.DateInicio.Date.AddHours(8);
+                DateTime end = hasEnd
+                    ? (hasExplicitEndTime ? evento.DateFin!.Value : start.AddHours(1))
+                    : start.AddHours(1);
+
+                if (end <= start)
+                {
+                    end = start.AddHours(1);
+                }
+
+                segments.Add((start, end));
+            }
+
+            return segments;
+        }
+
+        private static (DateTime Start, DateTime End) BuildSegmentForDay(Event evento,
+                                                                          DateTime day,
+                                                                          bool hasExplicitStartTime,
+                                                                          bool hasExplicitEndTime)
+        {
+            DateTime start = day.AddHours(8);
+            DateTime end = start.AddHours(1);
+
+            if (day == evento.DateInicio.Date && hasExplicitStartTime)
+            {
+                start = evento.DateInicio;
+                end = hasExplicitEndTime && evento.DateFin!.Value.Date == day
+                    ? evento.DateFin!.Value
+                    : start.AddHours(1);
+            }
+            else if (evento.DateFin.HasValue && day == evento.DateFin.Value.Date && hasExplicitEndTime)
+            {
+                end = evento.DateFin!.Value;
+
+                if (start >= end)
+                {
+                    start = end.AddHours(-1);
+                }
+            }
+
+            if (end <= start)
+            {
+                end = start.AddHours(1);
+            }
+
+            return (start, end);
+        }
+
+        private void ToggleEventFilter(string? parameter)
+        {
+            if (string.IsNullOrWhiteSpace(parameter))
+            {
+                return;
+            }
+
+            if (!Enum.TryParse<EventTypeEnum>(parameter, out var eventType))
+            {
+                return;
+            }
+
+            switch (eventType)
+            {
+                case EventTypeEnum.Event:
+                    IsEventoChecked = !IsEventoChecked;
+                    break;
+                case EventTypeEnum.Holiday:
+                    IsDiaFestivoChecked = !IsDiaFestivoChecked;
+                    break;
+                case EventTypeEnum.Test:
+                    IsExamenesChecked = !IsExamenesChecked;
+                    break;
+                case EventTypeEnum.Homework:
+                    IsTareasChecked = !IsTareasChecked;
+                    break;
+                case EventTypeEnum.Scholarship:
+                    IsBecasChecked = !IsBecasChecked;
+                    break;
+                case EventTypeEnum.Admission:
+                    IsAdmisionesChecked = !IsAdmisionesChecked;
+                    break;
+                default:
+                    break;
+            }
         }
 
         public SchedulerView SchedulerViewMode
