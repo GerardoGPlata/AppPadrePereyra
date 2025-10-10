@@ -15,6 +15,7 @@ using EscolarAppPadres.Models;
 using EscolarAppPadres.Services;
 using EscolarAppPadres.Views.Calendar;
 using EscolarAppPadres.Views.FiltersPopup;
+using Microsoft.Maui.Graphics;
 using Plugin.Maui.Calendar.Enums;
 using Plugin.Maui.Calendar.Models;
 using Syncfusion.Maui.Scheduler;
@@ -64,6 +65,7 @@ namespace EscolarAppPadres.ViewModels.Calendar
         private ObservableCollection<Event> _eventos;
         private List<Event> _allEvents = new();
         private bool _suppressFilterRefresh;
+        private CancellationTokenSource? _filterCts;
 
         public ObservableCollection<Event> Eventos
         {
@@ -647,7 +649,7 @@ namespace EscolarAppPadres.ViewModels.Calendar
 
         private void RefreshFilteredEvents()
         {
-            var filteredEvents = FilterEvents(_allEvents);
+            var filteredEvents = (FilterEvents(_allEvents) ?? Enumerable.Empty<Event>()).ToList();
             RebuildCalendarCollections(filteredEvents);
         }
 
@@ -684,43 +686,119 @@ namespace EscolarAppPadres.ViewModels.Calendar
 
         private void RebuildCalendarCollections(IEnumerable<Event> eventsSource)
         {
+            var eventsList = (eventsSource ?? Enumerable.Empty<Event>()).ToList();
+
+            _filterCts?.Cancel();
+            var cts = new CancellationTokenSource();
+            _filterCts = cts;
+
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var snapshot = BuildCalendarSnapshot(eventsList, cts.Token);
+
+                    if (snapshot == null || cts.IsCancellationRequested)
+                    {
+                        return;
+                    }
+
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        if (cts.IsCancellationRequested)
+                        {
+                            return;
+                        }
+
+                        ApplyCalendarSnapshot(snapshot);
+                    });
+                }
+                catch (OperationCanceledException)
+                {
+                    // Operación cancelada intencionalmente
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error al preparar la vista de calendario: {ex}");
+                }
+                finally
+                {
+                    if (ReferenceEquals(_filterCts, cts))
+                    {
+                        _filterCts = null;
+                    }
+
+                    cts.Dispose();
+                }
+            }, cts.Token);
+        }
+
+        private CalendarSnapshot BuildCalendarSnapshot(List<Event> eventsSource, CancellationToken token)
+        {
+            var orderedEvents = eventsSource
+                .OrderBy(e => e.DateInicio)
+                .ThenBy(e => e.DateFin ?? e.DateInicio)
+                .ToList();
+
+            var eventCollection = new EventCollection();
+            var appointmentInfos = new List<CalendarAppointmentInfo>();
+            var schedulerModels = new List<EventModel>();
+
+            foreach (var evento in orderedEvents)
+            {
+                token.ThrowIfCancellationRequested();
+
+                var eventModel = ConvertToEventModel(evento);
+                var eventDate = evento.DateInicio.Date;
+
+                if (eventCollection.ContainsKey(eventDate))
+                {
+                    ((List<EventModel>)eventCollection[eventDate]).Add(eventModel);
+                }
+                else
+                {
+                    eventCollection[eventDate] = new List<EventModel> { eventModel };
+                }
+
+                AppendSchedulerEntries(evento, appointmentInfos, schedulerModels, token);
+            }
+
+            var agendaModels = schedulerModels.OrderBy(m => m.StartDateTime).ToList();
+            var displayDate = orderedEvents.FirstOrDefault()?.DateInicio.Date ?? DateTime.Today;
+
+            return new CalendarSnapshot(
+                orderedEvents,
+                eventCollection,
+                appointmentInfos,
+                schedulerModels,
+                agendaModels,
+                displayDate);
+        }
+
+        private void ApplyCalendarSnapshot(CalendarSnapshot snapshot)
+        {
             _suppressFilterRefresh = true;
 
             try
             {
-                var orderedEvents = (eventsSource ?? Enumerable.Empty<Event>())
-                    .OrderBy(e => e.DateInicio)
-                    .ThenBy(e => e.DateFin ?? e.DateInicio)
-                    .ToList();
+                Eventos = new ObservableCollection<Event>(snapshot.OrderedEvents);
+                Events = snapshot.EventCollection;
 
-                var eventCollection = new EventCollection();
-                var schedulerAppointments = new ObservableCollection<SchedulerAppointment>();
-                var schedulerModels = new ObservableCollection<EventModel>();
-
-                foreach (var evento in orderedEvents)
-                {
-                    var eventModel = ConvertToEventModel(evento);
-                    var eventDate = evento.DateInicio.Date;
-
-                    if (eventCollection.ContainsKey(eventDate))
+                var schedulerAppointments = new ObservableCollection<SchedulerAppointment>(
+                    snapshot.Appointments.Select(info => new SchedulerAppointment
                     {
-                        ((List<EventModel>)eventCollection[eventDate]).Add(eventModel);
-                    }
-                    else
-                    {
-                        eventCollection[eventDate] = new List<EventModel> { eventModel };
-                    }
+                        StartTime = info.Start,
+                        EndTime = info.End,
+                        Subject = info.Subject,
+                        Background = new SolidColorBrush(info.BackgroundColor),
+                        IsAllDay = info.IsAllDay
+                    }));
 
-                    AppendSchedulerEntries(evento, schedulerAppointments, schedulerModels);
-                }
-
-                Eventos = new ObservableCollection<Event>(orderedEvents);
-                Events = eventCollection;
                 SchedulerEvents = schedulerAppointments;
-                SchedulerEventModels = schedulerModels;
-                AgendaEvents = schedulerModels.OrderBy(m => m.StartDateTime).ToList();
-                DisplayDate = orderedEvents.FirstOrDefault()?.DateInicio.Date ?? DateTime.Today;
-                SelectedAgendaResult = !schedulerModels.Any();
+                SchedulerEventModels = new ObservableCollection<EventModel>(snapshot.SchedulerModels);
+                AgendaEvents = snapshot.AgendaModels.ToList();
+                DisplayDate = snapshot.DisplayDate;
+                SelectedAgendaResult = !snapshot.SchedulerModels.Any();
 
                 UpdateFooterArrowVisibility();
             }
@@ -731,8 +809,9 @@ namespace EscolarAppPadres.ViewModels.Calendar
         }
 
         private void AppendSchedulerEntries(Event evento,
-                                             ObservableCollection<SchedulerAppointment> appointments,
-                                             ObservableCollection<EventModel> models)
+                                            IList<CalendarAppointmentInfo> appointments,
+                                            IList<EventModel> models,
+                                            CancellationToken token)
         {
             var colorHex = string.IsNullOrWhiteSpace(evento.Color) ? "#32CD32" : evento.Color;
             Color backgroundColor;
@@ -748,14 +827,14 @@ namespace EscolarAppPadres.ViewModels.Calendar
 
             foreach (var (start, end) in GenerateDailySegments(evento))
             {
-                appointments.Add(new SchedulerAppointment
-                {
-                    StartTime = start,
-                    EndTime = end,
-                    Subject = evento.Nombre ?? evento.TipoEvento ?? "Evento",
-                    Background = new SolidColorBrush(backgroundColor),
-                    IsAllDay = evento.DiaEntero
-                });
+                token.ThrowIfCancellationRequested();
+
+                appointments.Add(new CalendarAppointmentInfo(
+                    start,
+                    end,
+                    evento.Nombre ?? evento.TipoEvento ?? "Evento",
+                    backgroundColor,
+                    evento.DiaEntero));
 
                 models.Add(new EventModel
                 {
@@ -945,6 +1024,50 @@ namespace EscolarAppPadres.ViewModels.Calendar
 
                 await PopupFilterReadEventCalendarView.ShowPopupFilterEventCalendarReminderIfNotOpen(this, Event.Nombre!, Event.Descripcion!, FechaHoraInicio, FechaHoraFin);
             }
+        }
+
+        private sealed class CalendarSnapshot
+        {
+            public CalendarSnapshot(
+                List<Event> orderedEvents,
+                EventCollection eventCollection,
+                List<CalendarAppointmentInfo> appointments,
+                List<EventModel> schedulerModels,
+                List<EventModel> agendaModels,
+                DateTime displayDate)
+            {
+                OrderedEvents = orderedEvents;
+                EventCollection = eventCollection;
+                Appointments = appointments;
+                SchedulerModels = schedulerModels;
+                AgendaModels = agendaModels;
+                DisplayDate = displayDate;
+            }
+
+            public List<Event> OrderedEvents { get; }
+            public EventCollection EventCollection { get; }
+            public List<CalendarAppointmentInfo> Appointments { get; }
+            public List<EventModel> SchedulerModels { get; }
+            public List<EventModel> AgendaModels { get; }
+            public DateTime DisplayDate { get; }
+        }
+
+        private sealed class CalendarAppointmentInfo
+        {
+            public CalendarAppointmentInfo(DateTime start, DateTime end, string subject, Color backgroundColor, bool isAllDay)
+            {
+                Start = start;
+                End = end;
+                Subject = subject;
+                BackgroundColor = backgroundColor;
+                IsAllDay = isAllDay;
+            }
+
+            public DateTime Start { get; }
+            public DateTime End { get; }
+            public string Subject { get; }
+            public Color BackgroundColor { get; }
+            public bool IsAllDay { get; }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
