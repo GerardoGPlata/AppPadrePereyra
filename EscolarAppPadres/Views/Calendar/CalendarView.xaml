@@ -161,12 +161,12 @@
             </syncfusion:SfPopup.PopupStyle>
             <syncfusion:SfPopup.ContentTemplate>
                 <DataTemplate>
-                    <VerticalStackLayout Padding="20"
-                                         Spacing="18">
+                    <VerticalStackLayout Padding="14,16"
+                                         Spacing="12">
                         <Label Text="Vista:"
                                FontSize="14"
                                TextColor="#555"/>
-                        <VerticalStackLayout Spacing="10">
+                        <VerticalStackLayout Spacing="6">
                             <buttons:SfRadioButton Text="Agenda"
                                                    IsChecked="{Binding IsAgendaSelected}"
                                                    CheckedColor="#008347"
@@ -184,18 +184,18 @@
                         <Label Text="Tipos de evento:"
                                FontSize="14"
                                TextColor="#555"
-                               Margin="0,10,0,0"/>
+                               Margin="0,8,0,0"/>
 
                         <FlexLayout Direction="Row"
                                     Wrap="Wrap"
                                     AlignItems="Center"
                                     JustifyContent="Start"
-                                    Margin="0,8,0,0">
+                                    Margin="0,6,0,0">
                             <Border Stroke="#32CD32"
                                     StrokeThickness="2"
                                     BackgroundColor="Transparent"
-                                    Padding="16,8"
-                                    Margin="0,0,10,10">
+                                    Padding="12,6"
+                                    Margin="0,0,8,8">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="20"/>
                                 </Border.StrokeShape>
@@ -232,8 +232,8 @@
                             <Border Stroke="#00FF00"
                                     StrokeThickness="2"
                                     BackgroundColor="Transparent"
-                                    Padding="16,8"
-                                    Margin="0,0,10,10">
+                                    Padding="12,6"
+                                    Margin="0,0,8,8">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="20"/>
                                 </Border.StrokeShape>
@@ -270,8 +270,8 @@
                             <Border Stroke="#CA4327"
                                     StrokeThickness="2"
                                     BackgroundColor="Transparent"
-                                    Padding="16,8"
-                                    Margin="0,0,10,10">
+                                    Padding="12,6"
+                                    Margin="0,0,8,8">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="20"/>
                                 </Border.StrokeShape>
@@ -308,8 +308,8 @@
                             <Border Stroke="#008000"
                                     StrokeThickness="2"
                                     BackgroundColor="Transparent"
-                                    Padding="16,8"
-                                    Margin="0,0,10,10">
+                                    Padding="12,6"
+                                    Margin="0,0,8,8">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="20"/>
                                 </Border.StrokeShape>
@@ -346,8 +346,8 @@
                             <Border Stroke="#F08080"
                                     StrokeThickness="2"
                                     BackgroundColor="Transparent"
-                                    Padding="16,8"
-                                    Margin="0,0,10,10">
+                                    Padding="12,6"
+                                    Margin="0,0,8,8">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="20"/>
                                 </Border.StrokeShape>
@@ -384,8 +384,8 @@
                             <Border Stroke="#FFA500"
                                     StrokeThickness="2"
                                     BackgroundColor="Transparent"
-                                    Padding="16,8"
-                                    Margin="0,0,10,10">
+                                    Padding="12,6"
+                                    Margin="0,0,8,8">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="20"/>
                                 </Border.StrokeShape>
@@ -420,9 +420,66 @@
                             </Border>
                         </FlexLayout>
 
+                        <VerticalStackLayout Spacing="8"
+                                             IsVisible="{Binding HasChildFilters}">
+                            <Label Text="Hijos:"
+                                   FontSize="14"
+                                   TextColor="#555"
+                                   Margin="0,8,0,0"/>
+
+                            <FlexLayout Direction="Row"
+                                        Wrap="Wrap"
+                                        AlignItems="Center"
+                                        JustifyContent="Start"
+                                        Margin="0,6,0,0"
+                                        BindableLayout.ItemsSource="{Binding ChildFilters}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Stroke="{Binding AccentBrush}"
+                                                StrokeThickness="2"
+                                                BackgroundColor="Transparent"
+                                                Padding="12,6"
+                                                Margin="0,0,8,8">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="20"/>
+                                            </Border.StrokeShape>
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border"
+                                                             Binding="{Binding IsSelected}"
+                                                             Value="True">
+                                                    <Setter Property="BackgroundColor"
+                                                            Value="{Binding AccentColor}"/>
+                                                    <Setter Property="StrokeThickness"
+                                                            Value="0"/>
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={x:Reference calendarFilterPopup}, Path=BindingContext.ToggleChildFilterCommand}"
+                                                                      CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
+                                            <Label Text="{Binding DisplayName}"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   HorizontalTextAlignment="Center"
+                                                   TextColor="{Binding AccentColor}">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label"
+                                                                 Binding="{Binding IsSelected}"
+                                                                 Value="True">
+                                                        <Setter Property="TextColor"
+                                                                Value="White"/>
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </FlexLayout>
+                        </VerticalStackLayout>
+
                         <Grid ColumnDefinitions="*,Auto"
-                              ColumnSpacing="12"
-                              Margin="0,10,0,0">
+                              ColumnSpacing="10"
+                              Margin="0,8,0,0">
                             <Button Text="Cancelar"
                                     Grid.Column="0"
                                     BackgroundColor="#cccccc"

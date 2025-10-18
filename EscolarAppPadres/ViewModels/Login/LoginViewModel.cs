@@ -238,8 +238,14 @@ namespace EscolarAppPadres.ViewModels.Login
                                 hijosConColor.Add(new HijoConColor
                                 {
                                     AlumnoId = hijo.AlumnoId,
-                                    NombreCompleto = hijo.NombreCompleto,
-                                    Matricula = hijo.Matricula,
+                                    NombreCompleto = hijo.NombreCompleto ?? string.Empty,
+                                    Matricula = hijo.Matricula ?? string.Empty,
+                                    NivelId = hijo.NivelId,
+                                    Nivel = hijo.Nivel ?? string.Empty,
+                                    GradoId = hijo.GradoId,
+                                    Grado = hijo.Grado ?? string.Empty,
+                                    GrupoId = hijo.GrupoId,
+                                    Grupo = hijo.Grupo ?? string.Empty,
                                     ColorHex = colorSeleccionado
                                 });
                             }
@@ -321,7 +327,7 @@ namespace EscolarAppPadres.ViewModels.Login
             IsNavigating = false;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null!)
         {

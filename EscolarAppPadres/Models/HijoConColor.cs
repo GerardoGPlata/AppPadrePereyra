@@ -12,6 +12,12 @@ namespace EscolarAppPadres.Models
         public int AlumnoId { get; set; }
         public string NombreCompleto { get; set; } = string.Empty;
         public string Matricula { get; set; } = string.Empty;
+        public int NivelId { get; set; }
+        public string Nivel { get; set; } = string.Empty;
+        public int GradoId { get; set; }
+        public string Grado { get; set; } = string.Empty;
+        public int GrupoId { get; set; }
+        public string Grupo { get; set; } = string.Empty;
         private Color _color = Colors.Transparent; // respaldo inicial
         public Color Color
         {

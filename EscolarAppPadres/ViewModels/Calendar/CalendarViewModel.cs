@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -15,7 +16,9 @@ using EscolarAppPadres.Models;
 using EscolarAppPadres.Services;
 using EscolarAppPadres.Views.Calendar;
 using EscolarAppPadres.Views.FiltersPopup;
+using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Storage;
 using Plugin.Maui.Calendar.Enums;
 using Plugin.Maui.Calendar.Models;
 using Syncfusion.Maui.Scheduler;
@@ -66,6 +69,7 @@ namespace EscolarAppPadres.ViewModels.Calendar
         private List<Event> _allEvents = new();
         private bool _suppressFilterRefresh;
         private CancellationTokenSource? _filterCts;
+        private readonly ObservableCollection<ChildLevelFilterOption> _childFilters = new();
 
         public ObservableCollection<Event> Eventos
         {
@@ -77,11 +81,17 @@ namespace EscolarAppPadres.ViewModels.Calendar
             }
         }
 
+        public ObservableCollection<ChildLevelFilterOption> ChildFilters => _childFilters;
+
+        public bool HasChildFilters => _childFilters.Any();
+
         public CalendarViewModel()
         {
             _eventService = new EventService();
             _selectedCalendarLayout = WeekLayout.Month;
             _schedulerViewMode = SchedulerView.Month;
+
+            _childFilters.CollectionChanged += (_, __) => OnPropertyChanged(nameof(HasChildFilters));
 
             _suppressFilterRefresh = true;
             _isEventoChecked = true;
@@ -108,6 +118,7 @@ namespace EscolarAppPadres.ViewModels.Calendar
 
             // Iniciar carga asíncrona sin esperar
             Task.Run(async () => await LoadEventsAsync());
+            Task.Run(async () => await LoadChildFiltersAsync());
         }
 
         private CancellationTokenSource _loadEventsCts;
@@ -223,6 +234,7 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 ColorIndicador = evento.Color ?? "#32CD32"
             };
         }
+
         public ObservableCollection<RemindNotificationOptions> RemindNotificationOptions
         {
             get => _remindNotificationOptions;
@@ -231,6 +243,123 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 _remindNotificationOptions = value;
                 OnPropertyChanged(nameof(RemindNotificationOptions));
             }
+        }
+
+        private async Task LoadChildFiltersAsync()
+        {
+            try
+            {
+                string? childrenJson = null;
+
+                try
+                {
+                    childrenJson = await SecureStorage.GetAsync("Hijos");
+                }
+                catch (Exception secureStorageEx)
+                {
+                    Console.WriteLine($"No se pudo obtener Hijos de SecureStorage: {secureStorageEx.Message}");
+                }
+
+                if (string.IsNullOrWhiteSpace(childrenJson))
+                {
+                    childrenJson = Preferences.Get("Hijos", string.Empty);
+                }
+
+                if (string.IsNullOrWhiteSpace(childrenJson))
+                {
+                    return;
+                }
+
+                var hijos = JsonSerializer.Deserialize<List<HijoConColor>>(childrenJson);
+
+                if (hijos == null || hijos.Count == 0)
+                {
+                    return;
+                }
+
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    _suppressFilterRefresh = true;
+
+                    var selectionMap = _childFilters.ToDictionary(filter => filter.AlumnoId, filter => filter.IsSelected);
+
+                    foreach (var option in _childFilters)
+                    {
+                        option.PropertyChanged -= ChildFilterOptionOnPropertyChanged;
+                    }
+
+                    _childFilters.Clear();
+
+                    foreach (var hijo in hijos)
+                    {
+                        var nivelId = hijo.NivelId.ToString(CultureInfo.InvariantCulture);
+                        var colorHex = string.IsNullOrWhiteSpace(hijo.ColorHex) ? "#3c9c4c" : hijo.ColorHex;
+                        Color accentColor;
+
+                        try
+                        {
+                            accentColor = Color.FromArgb(colorHex);
+                        }
+                        catch
+                        {
+                            accentColor = Color.FromArgb("#3c9c4c");
+                        }
+
+                        var option = new ChildLevelFilterOption(
+                            hijo.AlumnoId,
+                            nivelId,
+                            BuildChildDisplayName(hijo),
+                            accentColor,
+                            hijo.Nivel ?? string.Empty);
+
+                        if (selectionMap.TryGetValue(option.AlumnoId, out var wasSelected))
+                        {
+                            option.IsSelected = wasSelected;
+                        }
+
+                        option.PropertyChanged += ChildFilterOptionOnPropertyChanged;
+                        _childFilters.Add(option);
+                    }
+
+                    _suppressFilterRefresh = false;
+                    OnPropertyChanged(nameof(ChildFilters));
+                    OnPropertyChanged(nameof(HasChildFilters));
+                    ApplyFiltersCalendar();
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al cargar filtros de hijos: {ex.Message}");
+            }
+        }
+
+        private void ChildFilterOptionOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ChildLevelFilterOption.IsSelected) && !_suppressFilterRefresh)
+            {
+                ApplyFiltersCalendar();
+            }
+        }
+
+        private static string BuildChildDisplayName(HijoConColor hijo)
+        {
+            if (!string.IsNullOrWhiteSpace(hijo.NombreCompleto))
+            {
+                return hijo.NombreCompleto;
+            }
+
+            var parts = new[]
+            {
+                hijo.Nivel,
+                hijo.Grado,
+                hijo.Grupo
+            }
+            .Where(part => !string.IsNullOrWhiteSpace(part))
+            .Select(part => part!.Trim());
+
+            var fallback = string.Join(" ", parts);
+
+            return string.IsNullOrWhiteSpace(fallback) ? "Alumno" : fallback;
         }
 
         public RemindNotificationOptions SelectedNotification
@@ -612,9 +741,10 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 }
             }
         }
-
         private ICommand? _toggleEventFilterCommand;
+        private ICommand? _toggleChildFilterCommand;
         public ICommand ToggleEventFilterCommand => _toggleEventFilterCommand ??= new Command<string>(ToggleEventFilter);
+        public ICommand ToggleChildFilterCommand => _toggleChildFilterCommand ??= new Command<ChildLevelFilterOption>(ToggleChildFilter);
         public ICommand ApplyFiltersCalendarCommand => new Command(ApplyFiltersCalendar);
         public ICommand OpenFilterPopupCalendarCommand => new Command(async () => await OpenFilterPopupCalendarAsync());
         public ICommand CloseFilterPopupCalendarCommand => new Command(() => IsFilterPopupOpen = false);
@@ -667,7 +797,34 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 return Enumerable.Empty<Event>();
             }
 
-            return source.Where(e => activeTypes.Contains(e.TipoEventoId));
+            var activeLevels = GetActiveLevelIds();
+
+            if (_childFilters.Any() && activeLevels.Count == 0)
+            {
+                return Enumerable.Empty<Event>();
+            }
+
+            return source.Where(e =>
+            {
+                if (!activeTypes.Contains(e.TipoEventoId))
+                {
+                    return false;
+                }
+
+                var nivelIdsRaw = e.NivelId;
+
+                if (string.IsNullOrWhiteSpace(nivelIdsRaw))
+                {
+                    return true;
+                }
+
+                var eventLevels = nivelIdsRaw
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(id => id.Trim())
+                    .Where(id => !string.IsNullOrWhiteSpace(id));
+
+                return eventLevels.Any(levelId => activeLevels.Contains(levelId));
+            });
         }
 
         private HashSet<EventTypeEnum> GetActiveEventTypes()
@@ -680,6 +837,23 @@ namespace EscolarAppPadres.ViewModels.Calendar
             if (IsTareasChecked) set.Add(EventTypeEnum.Homework);
             if (IsBecasChecked) set.Add(EventTypeEnum.Scholarship);
             if (IsAdmisionesChecked) set.Add(EventTypeEnum.Admission);
+
+            return set;
+        }
+
+        private HashSet<string> GetActiveLevelIds()
+        {
+            var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var filter in _childFilters)
+            {
+                var nivelId = filter.NivelId?.Trim();
+
+                if (filter.IsSelected && !string.IsNullOrWhiteSpace(nivelId))
+                {
+                    set.Add(nivelId);
+                }
+            }
 
             return set;
         }
@@ -960,6 +1134,11 @@ namespace EscolarAppPadres.ViewModels.Calendar
             }
         }
 
+        private void ToggleChildFilter(ChildLevelFilterOption option)
+        {
+            option.IsSelected = !option.IsSelected;
+        }
+
         public SchedulerView SchedulerViewMode
         {
             get => _schedulerViewMode;
@@ -997,8 +1176,8 @@ namespace EscolarAppPadres.ViewModels.Calendar
 
         public async Task OpenFilterPopupCalendarAsync()
         {
+            await LoadChildFiltersAsync();
             IsFilterPopupOpen = true;
-            await Task.CompletedTask;
         }
 
         public async Task NavigateToEventCalendarAsync(EventModel selectedEvent)
@@ -1024,6 +1203,48 @@ namespace EscolarAppPadres.ViewModels.Calendar
 
                 await PopupFilterReadEventCalendarView.ShowPopupFilterEventCalendarReminderIfNotOpen(this, Event.Nombre!, Event.Descripcion!, FechaHoraInicio, FechaHoraFin);
             }
+        }
+
+        public sealed class ChildLevelFilterOption : INotifyPropertyChanged
+        {
+            private bool _isSelected = true;
+
+            public ChildLevelFilterOption(int alumnoId, string nivelId, string displayName, Color accentColor, string nivelName)
+            {
+                AlumnoId = alumnoId;
+                NivelId = nivelId;
+                DisplayName = string.IsNullOrWhiteSpace(displayName) ? nivelName : displayName;
+                AccentColor = accentColor;
+                AccentBrush = new SolidColorBrush(accentColor);
+                ColorHex = AccentColor.ToHex();
+                NivelName = nivelName;
+            }
+
+            public int AlumnoId { get; }
+            public string NivelId { get; }
+            public string NivelName { get; }
+            public string DisplayName { get; }
+            public Color AccentColor { get; }
+            public Brush AccentBrush { get; }
+            public string ColorHex { get; }
+
+            public bool IsSelected
+            {
+                get => _isSelected;
+                set
+                {
+                    if (_isSelected != value)
+                    {
+                        _isSelected = value;
+                        OnPropertyChanged(nameof(IsSelected));
+                    }
+                }
+            }
+
+            public event PropertyChangedEventHandler? PropertyChanged;
+
+            private void OnPropertyChanged(string propertyName)
+                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private sealed class CalendarSnapshot

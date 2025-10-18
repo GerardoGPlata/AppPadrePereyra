@@ -20,5 +20,11 @@ namespace EscolarAppPadres.Models
         public string? NombreTutor { get; set; }
         public string? CorreoTutor { get; set; }
         public string? NombreCompleto { get; set; }
+        public int NivelId { get; set; }
+        public string? Nivel { get; set; }
+        public int GradoId { get; set; }
+        public string? Grado { get; set; }
+        public int GrupoId { get; set; }
+        public string? Grupo { get; set; }
     }
 }

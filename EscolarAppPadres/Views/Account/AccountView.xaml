@@ -76,10 +76,23 @@
                                                      VerticalOptions="Center">
                                             <Label Text="{Binding NombreCompleto}"
                                                    FontAttributes="Bold"
-                                                   TextColor="#333"/>
+                                                   TextColor="#888"
+                                                   FontSize="12"/>
                                             <Label Text="{Binding Matricula, StringFormat='Matrícula: {0}'}"
                                                    FontSize="12"
                                                    TextColor="#888"/>
+                                            <Label FontSize="12"
+                                                   TextColor="#888"
+                                                   TextTransform="Uppercase">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding Nivel}"/>
+                                                        <Span Text=" "/>
+                                                        <Span Text="{Binding Grado}"/>
+                                                        <Span Text="{Binding Grupo}"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
                                         </StackLayout>
                                     </Grid>
                                 </DataTemplate>

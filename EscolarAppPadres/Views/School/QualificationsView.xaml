@@ -83,9 +83,10 @@
             <Frame BackgroundColor="#008347"
                    CornerRadius="20"
                    HasShadow="True"
-                   Padding="8,4"
+                   Padding="10,4"
                    HeightRequest="50"
-                   WidthRequest="280"
+                   MinimumWidthRequest="320"
+                   WidthRequest="{OnIdiom Phone=340, Tablet=480, Desktop=420}"
                    HorizontalOptions="Center">
                 <Grid ColumnDefinitions="*,Auto"
                       VerticalOptions="Center"
