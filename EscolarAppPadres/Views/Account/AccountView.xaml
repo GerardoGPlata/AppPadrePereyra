@@ -83,12 +83,15 @@
                                                    TextColor="#888"/>
                                             <Label FontSize="12"
                                                    TextColor="#888"
-                                                   TextTransform="Uppercase">
+                                                   TextTransform="Uppercase"
+                                                   LineBreakMode="WordWrap"
+                                                   MaxLines="2">
                                                 <Label.FormattedText>
                                                     <FormattedString>
                                                         <Span Text="{Binding Nivel}"/>
                                                         <Span Text=" "/>
                                                         <Span Text="{Binding Grado}"/>
+                                                        <Span Text=" "/>
                                                         <Span Text="{Binding Grupo}"/>
                                                     </FormattedString>
                                                 </Label.FormattedText>

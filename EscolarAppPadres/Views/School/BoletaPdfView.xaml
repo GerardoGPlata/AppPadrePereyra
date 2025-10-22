@@ -5,7 +5,7 @@
              x:Class="EscolarAppPadres.Views.School.BoletaPdfView"
              Title="Boleta">
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Compartir"
+        <ToolbarItem Text="Descargar"
                      Order="Primary"
                      Priority="0"
                      Clicked="OnShareClicked"/>
@@ -13,5 +13,5 @@
     <syncfusionPdf:SfPdfViewer x:Name="pdfViewer"
                                HorizontalOptions="Fill"
                                VerticalOptions="Fill"
-            ShowToolbars="False"/>
+                               ShowToolbars="False"/>
 </ContentPage>

@@ -804,7 +804,7 @@ namespace EscolarAppPadres.ViewModels.Calendar
                 return Enumerable.Empty<Event>();
             }
 
-            return source.Where(e =>
+            var filtered = source.Where(e =>
             {
                 if (!activeTypes.Contains(e.TipoEventoId))
                 {
@@ -825,6 +825,43 @@ namespace EscolarAppPadres.ViewModels.Calendar
 
                 return eventLevels.Any(levelId => activeLevels.Contains(levelId));
             });
+
+            return filtered
+                .GroupBy(BuildEventDedupKey)
+                .Select(group => group.First());
+        }
+
+        private static string BuildEventDedupKey(Event evt)
+        {
+            if (evt.EventoId != 0)
+            {
+                return $"ID:{evt.EventoId}";
+            }
+
+            var start = evt.DateInicio.ToString("O", CultureInfo.InvariantCulture);
+            var end = (evt.DateFin ?? evt.DateInicio).ToString("O", CultureInfo.InvariantCulture);
+            var tipo = ((int)evt.TipoEventoId).ToString(CultureInfo.InvariantCulture);
+            var nombre = evt.Nombre ?? string.Empty;
+            var levelsKey = BuildLevelsKey(evt.NivelId);
+
+            return $"ALT:{tipo}|{levelsKey}|{nombre}|{start}|{end}";
+        }
+
+        private static string BuildLevelsKey(string? rawNivelIds)
+        {
+            if (string.IsNullOrWhiteSpace(rawNivelIds))
+            {
+                return "NO_LEVEL";
+            }
+
+            var ids = rawNivelIds
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(id => id.Trim())
+                .Where(id => id.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(id => id, StringComparer.OrdinalIgnoreCase);
+
+            return string.Join("|", ids);
         }
 
         private HashSet<EventTypeEnum> GetActiveEventTypes()
@@ -1029,6 +1066,24 @@ namespace EscolarAppPadres.ViewModels.Calendar
 
         private IEnumerable<(DateTime Start, DateTime End)> GenerateDailySegments(Event evento)
         {
+            if (evento.TipoEventoId == EventTypeEnum.Admission)
+            {
+                var start = evento.DateInicio.TimeOfDay != TimeSpan.Zero
+                    ? evento.DateInicio
+                    : evento.DateInicio.Date.AddHours(8);
+
+                var endCandidate = evento.DateFin.HasValue && evento.DateFin.Value.Date == evento.DateInicio.Date && evento.DateFin.Value.TimeOfDay != TimeSpan.Zero
+                    ? evento.DateFin.Value
+                    : start.AddHours(1);
+
+                if (endCandidate <= start)
+                {
+                    endCandidate = start.AddHours(1);
+                }
+
+                return new[] { (start, endCandidate) };
+            }
+
             var segments = new List<(DateTime Start, DateTime End)>();
 
             bool hasEnd = evento.DateFin.HasValue;
@@ -1291,7 +1346,7 @@ namespace EscolarAppPadres.ViewModels.Calendar
             public bool IsAllDay { get; }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null!)
         {

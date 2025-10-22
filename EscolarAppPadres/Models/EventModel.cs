@@ -32,7 +32,7 @@
             get
             {
                 var date = FechaInicio ?? DateTime.Today;
-                var time = HoraInicio ?? new TimeSpan(8, 0, 0);
+                var time = HoraInicio ?? (IsAllDay ? TimeSpan.Zero : new TimeSpan(8, 0, 0));
                 return date.Date + time;
             }
         }
@@ -42,16 +42,27 @@
             get
             {
                 var start = StartDateTime;
-                var endDate = FechaFin ?? FechaInicio ?? start.Date;
-                var endTime = HoraFin ?? TimeSpan.Zero;
+                if (IsAllDay)
+                {
+                    var lastDate = (FechaFin ?? FechaInicio ?? start.Date).Date;
+                    return lastDate.AddDays(1);
+                }
 
-                // Si no hay hora fin, usar 1 hora después del inicio
-                var end = endTime == TimeSpan.Zero && (!FechaFin.HasValue || endDate.Date == start.Date)
-                    ? start.AddHours(1)
-                    : endDate.Date + (endTime == TimeSpan.Zero ? new TimeSpan(9, 0, 0) : endTime);
+                var endDate = (FechaFin ?? FechaInicio ?? start.Date).Date;
+                var endTime = HoraFin;
+
+                if (!endTime.HasValue || endTime.Value == TimeSpan.Zero)
+                {
+                    var baseTime = HoraInicio ?? new TimeSpan(8, 0, 0);
+                    endTime = baseTime.Add(TimeSpan.FromHours(1));
+                }
+
+                var end = endDate + endTime.Value;
 
                 if (end <= start)
+                {
                     end = start.AddHours(1);
+                }
 
                 return end;
             }
