@@ -8,19 +8,40 @@
              xmlns:buttons="clr-namespace:Syncfusion.Maui.Buttons;assembly=Syncfusion.Maui.Buttons"
              Title="CALENDARIO">
 
-    <ContentPage.ToolbarItems>
-        <ToolbarItem IconImageSource="filter_outline"
-                     Text="Filtrar"
-                     Priority="0"
-                     Order="Primary"
-                     Command="{Binding OpenFilterPopupCalendarCommand}"/>
-    </ContentPage.ToolbarItems>
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="Auto,*,Auto"
+              HeightRequest="48"
+              Padding="0"
+              VerticalOptions="Center">
+            <BoxView Grid.Column="0"
+                     WidthRequest="44"
+                     Opacity="0"
+                     InputTransparent="True"/>
+
+            <Label Grid.Column="1"
+                   Text="CALENDARIO"
+                   FontAttributes="Bold"
+                   FontSize="18"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   VerticalOptions="Center"
+                   TextColor="White"/>
+
+            <ImageButton Grid.Column="2"
+                         WidthRequest="44"
+                         HeightRequest="44"
+                         BackgroundColor="Transparent"
+                         Padding="0"
+                         Source="filter_outline"
+                         Command="{Binding OpenFilterPopupCalendarCommand}"/>
+        </Grid>
+    </Shell.TitleView>
 
     <AbsoluteLayout>
         <ScrollView AbsoluteLayout.LayoutFlags="All"
                     AbsoluteLayout.LayoutBounds="0,0,1,1"
-                    HorizontalOptions="FillAndExpand"
-                    VerticalOptions="FillAndExpand">
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Fill">
             <Grid>
                 <scheduler:SfScheduler x:Name="Scheduler"
                                        IsVisible="{Binding IsCalendarVisible}"
@@ -78,7 +99,7 @@
                                            FontSize="16"
                                            FontAttributes="Bold"
                                            TextColor="Black"
-                                           HorizontalOptions="CenterAndExpand"/>
+                                           HorizontalOptions="Center"/>
 
                                     <Border Grid.Row="1"
                                             BackgroundColor="{Binding ColorIndicador}"

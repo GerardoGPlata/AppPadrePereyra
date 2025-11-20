@@ -54,15 +54,45 @@ namespace EscolarAppPadres
             // (versión 11 de iso y superior)
             if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
             {
-                // Cambiar el color de la barra de navegación (parte inferior)
-                UINavigationBar.Appearance.BarTintColor = UIColor.White;
+                var toolbarBackgroundColor = UIColor.FromRGB(0x00, 0x83, 0x47);
+                var toolbarForegroundColor = UIColor.White;
 
-                // Cambiar el color de los íconos y el texto de la barra de navegación a oscuro
-                UINavigationBar.Appearance.TintColor = UIColor.Black;
-                UINavigationBar.Appearance.TitleTextAttributes = new UIStringAttributes
+#pragma warning disable CA1416
+                if (UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
                 {
-                    ForegroundColor = UIColor.Black
-                };
+                    var navigationBarAppearance = new UINavigationBarAppearance();
+                    navigationBarAppearance.ConfigureWithOpaqueBackground();
+                    navigationBarAppearance.BackgroundColor = toolbarBackgroundColor;
+                    navigationBarAppearance.TitleTextAttributes = new UIStringAttributes
+                    {
+                        ForegroundColor = toolbarForegroundColor
+                    };
+                    navigationBarAppearance.LargeTitleTextAttributes = new UIStringAttributes
+                    {
+                        ForegroundColor = toolbarForegroundColor
+                    };
+
+                    UINavigationBar.Appearance.StandardAppearance = navigationBarAppearance;
+                    UINavigationBar.Appearance.CompactAppearance = navigationBarAppearance;
+                    UINavigationBar.Appearance.ScrollEdgeAppearance = navigationBarAppearance;
+                }
+                else
+                {
+                    UINavigationBar.Appearance.BarTintColor = toolbarBackgroundColor;
+                    UINavigationBar.Appearance.TitleTextAttributes = new UIStringAttributes
+                    {
+                        ForegroundColor = toolbarForegroundColor
+                    };
+                    UINavigationBar.Appearance.LargeTitleTextAttributes = new UIStringAttributes
+                    {
+                        ForegroundColor = toolbarForegroundColor
+                    };
+                }
+
+                UINavigationBar.Appearance.TintColor = toolbarForegroundColor;
+                UIBarButtonItem.Appearance.TintColor = toolbarForegroundColor;
+                UINavigationBar.Appearance.PrefersLargeTitles = false;
+#pragma warning restore CA1416
             }
 
             return base.FinishedLaunching(application, launchOptions);
