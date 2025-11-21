@@ -569,5 +569,80 @@
                 </DataTemplate>
             </syncfusion:SfPopup.ContentTemplate>
         </syncfusion:SfPopup>
+
+        <!-- Popup de advertencia de pagos vencidos -->
+        <syncfusion:SfPopup x:Name="overdueWarningPopup"
+                            Grid.RowSpan="2"
+                            StaysOpen="True"
+                            OverlayMode="Blur"
+                            ShowCloseButton="True"
+                            IsOpen="{Binding IsOverdueWarningPopupOpen}"
+                            IsVisible="{Binding IsOverdueWarningPopupOpen}"
+                            AutoSizeMode="Height"
+                            AnimationMode="Fade"
+                            HeaderTitle="¡Atención!">
+            <syncfusion:SfPopup.Triggers>
+                <DataTrigger TargetType="syncfusion:SfPopup"
+                             Binding="{Binding IsOverdueWarningPopupOpen}"
+                             Value="False">
+                    <Setter Property="InputTransparent"
+                            Value="True"/>
+                </DataTrigger>
+                <DataTrigger TargetType="syncfusion:SfPopup"
+                             Binding="{Binding IsOverdueWarningPopupOpen}"
+                             Value="True">
+                    <Setter Property="InputTransparent"
+                            Value="False"/>
+                </DataTrigger>
+            </syncfusion:SfPopup.Triggers>
+            <syncfusion:SfPopup.PopupStyle>
+                <syncfusion:PopupStyle HeaderBackground="#D32F2F"
+                                       HeaderFontSize="16"
+                                       HeaderTextColor="White"
+                                       PopupBackground="White"
+                                       CloseButtonIcon="close_icon"
+                                       BlurIntensity="Dark"/>
+            </syncfusion:SfPopup.PopupStyle>
+            <syncfusion:SfPopup.ContentTemplate>
+                <DataTemplate>
+                    <VerticalStackLayout Padding="20"
+                            Spacing="15">
+                        <Label Text="{Binding OverdueStudentName, StringFormat='El alumno {0} tiene pagos vencidos que deben cubrirse primero:'}"
+                               TextColor="#333"
+                               FontSize="14"/>
+
+                        <CollectionView ItemsSource="{Binding OverduePaymentsList}"
+                                        HeightRequest="150">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*, Auto"
+                                            Padding="0,5">
+                                        <VerticalStackLayout Grid.Column="0">
+                                            <Label Text="{Binding Concepto}"
+                                                    FontAttributes="Bold"
+                                                    FontSize="13"/>
+                                            <Label Text="{Binding FechaLimiteFormateada}"
+                                                    FontSize="11"
+                                                    TextColor="#D32F2F"/>
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1"
+                                                Text="{Binding ImporteFormateado}"
+                                                TextColor="#D32F2F"
+                                                FontAttributes="Bold"
+                                                VerticalOptions="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <Button Text="ACEPTAR Y SELECCIONAR VENCIDOS"
+                                Command="{Binding AcceptOverdueSelectionCommand}"
+                                BackgroundColor="#D32F2F"
+                                TextColor="White"
+                                CornerRadius="8"/>
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </syncfusion:SfPopup.ContentTemplate>
+        </syncfusion:SfPopup>
     </Grid>
 </ContentPage>

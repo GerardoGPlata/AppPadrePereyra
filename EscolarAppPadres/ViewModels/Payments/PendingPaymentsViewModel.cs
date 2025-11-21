@@ -153,6 +153,7 @@ namespace EscolarAppPadres.ViewModels.Payments
         public ICommand ShowFilterCommand { get; }
         public ICommand CloseFilterPopupCommand { get; }
         public ICommand ApplyFilterCommand { get; }
+        public ICommand AcceptOverdueSelectionCommand { get; }
 
         public PendingPaymentsViewModel()
         {
@@ -166,6 +167,7 @@ namespace EscolarAppPadres.ViewModels.Payments
             ShowFilterCommand = new Command(ShowFilter);
             CloseFilterPopupCommand = new Command(CloseFilterPopup);
             ApplyFilterCommand = new Command(ApplyFilter);
+            AcceptOverdueSelectionCommand = new Command(AcceptOverdueSelection);
             PopupHeader = "DETALLE DE PAGO";
             _displayTitle = "Pagos Pendientes";
         }
@@ -698,6 +700,7 @@ namespace EscolarAppPadres.ViewModels.Payments
 
                     // Actualizar estado
                     SinResultados = !PendingPayments.Any();
+                    // UpdateSelectableStatus(); // Ya no se usa esta estrategia
                     CalcularTotal();
 
                     Console.WriteLine($"[DEBUG] Total de elementos en PendingPayments: {PendingPayments.Count}");
@@ -738,6 +741,27 @@ namespace EscolarAppPadres.ViewModels.Payments
         {
             if (e.PropertyName == nameof(PaymentItem.IsSelected))
             {
+                if (sender is PaymentItem item)
+                {
+                    if (item.IsSelected)
+                    {
+                        // Verificar lógica de pagos vencidos
+                        var studentPayments = PendingPayments.Where(p => p.Matricula == item.Matricula).ToList();
+                        var overduePayments = studentPayments.Where(p => p.EsFechaVencida).ToList();
+
+                        if (!item.EsFechaVencida && overduePayments.Any())
+                        {
+                            // Prevenir selección
+                            item.IsSelected = false;
+
+                            // Mostrar advertencia
+                            OverdueStudentName = item.Alumno;
+                            OverduePaymentsList = new ObservableCollection<PaymentItem>(overduePayments);
+                            IsOverdueWarningPopupOpen = true;
+                            return; // Detener cálculo
+                        }
+                    }
+                }
                 CalcularTotal();
             }
         }
@@ -774,8 +798,80 @@ namespace EscolarAppPadres.ViewModels.Payments
             await LoadPendingPaymentsAsync();
         }
 
+        private void UpdateSelectableStatus()
+        {
+            if (PendingPayments == null) return;
+
+            var groupedByStudent = PendingPayments.GroupBy(p => p.Matricula);
+
+            foreach (var group in groupedByStudent)
+            {
+                // Verificar si el estudiante tiene algún pago vencido
+                bool hasOverdue = group.Any(p => p.EsFechaVencida);
+
+                foreach (var payment in group)
+                {
+                    if (hasOverdue)
+                    {
+                        // Si tiene vencidos, solo puede seleccionar los vencidos
+                        payment.IsSelectable = payment.EsFechaVencida;
+
+                        // Si un pago no vencido estaba seleccionado, deseleccionarlo
+                        if (!payment.IsSelectable && payment.IsSelected)
+                        {
+                            payment.IsSelected = false;
+                        }
+                    }
+                    else
+                    {
+                        // Si no tiene vencidos, puede seleccionar cualquiera
+                        payment.IsSelectable = true;
+                    }
+                }
+            }
+        }
+
+        private bool _isOverdueWarningPopupOpen;
+        public bool IsOverdueWarningPopupOpen
+        {
+            get => _isOverdueWarningPopupOpen;
+            set { _isOverdueWarningPopupOpen = value; OnPropertyChanged(nameof(IsOverdueWarningPopupOpen)); }
+        }
+
+        private ObservableCollection<PaymentItem> _overduePaymentsList;
+        public ObservableCollection<PaymentItem> OverduePaymentsList
+        {
+            get => _overduePaymentsList;
+            set { _overduePaymentsList = value; OnPropertyChanged(nameof(OverduePaymentsList)); }
+        }
+
+        private string _overdueStudentName;
+        public string OverdueStudentName
+        {
+            get => _overdueStudentName;
+            set { _overdueStudentName = value; OnPropertyChanged(nameof(OverdueStudentName)); }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void AcceptOverdueSelection()
+        {
+            IsOverdueWarningPopupOpen = false;
+            if (OverduePaymentsList != null && OverduePaymentsList.Any())
+            {
+                foreach (var payment in OverduePaymentsList)
+                {
+                    // Buscar el objeto real en PendingPayments para asegurar que actualizamos la lista principal
+                    var originalPayment = PendingPayments.FirstOrDefault(p => p.DocumentoPorPagarId == payment.DocumentoPorPagarId);
+                    if (originalPayment != null)
+                    {
+                        originalPayment.IsSelected = true;
+                    }
+                }
+                CalcularTotal();
+            }
+        }
     }
 }

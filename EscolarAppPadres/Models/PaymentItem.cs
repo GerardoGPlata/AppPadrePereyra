@@ -8,6 +8,20 @@ namespace EscolarAppPadres.Models.Payments
 
         private bool _isSelected;
 
+        private bool _isSelectable = true;
+        public bool IsSelectable
+        {
+            get => _isSelectable;
+            set
+            {
+                if (_isSelectable != value)
+                {
+                    _isSelectable = value;
+                    OnPropertyChanged(nameof(IsSelectable));
+                }
+            }
+        }
+
         public bool IsSelected
         {
             get => _isSelected;
