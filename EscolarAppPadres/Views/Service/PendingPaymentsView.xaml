@@ -11,13 +11,34 @@
              Padding="{OnPlatform iOS='0,20,0,0', Android='0'}">
 
     <!-- Toolbar: Botón de filtro (solo visible en esta página) -->
-    <ContentPage.ToolbarItems>
-        <ToolbarItem IconImageSource="filter_outline"
-                     Text="Filtrar"
-                     Priority="0"
-                     Order="Primary"
-                     Command="{Binding ShowFilterCommand}"/>
-    </ContentPage.ToolbarItems>
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="Auto,*,Auto"
+              HeightRequest="48"
+              Padding="0"
+              VerticalOptions="Center">
+            <BoxView Grid.Column="0"
+                     WidthRequest="44"
+                     Opacity="0"
+                     InputTransparent="True"/>
+
+            <Label Grid.Column="1"
+                   Text="{Binding DisplayTitle}"
+                   FontAttributes="Bold"
+                   FontSize="18"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   VerticalOptions="Center"
+                   TextColor="White"/>
+
+            <ImageButton Grid.Column="2"
+                         WidthRequest="44"
+                         HeightRequest="44"
+                         BackgroundColor="Transparent"
+                         Padding="0"
+                         Source="filter_outline"
+                         Command="{Binding ShowFilterCommand}"/>
+        </Grid>
+    </Shell.TitleView>
 
     <ContentPage.Resources>
         <ResourceDictionary>
