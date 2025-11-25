@@ -605,37 +605,33 @@
             </syncfusion:SfPopup.PopupStyle>
             <syncfusion:SfPopup.ContentTemplate>
                 <DataTemplate>
-                    <VerticalStackLayout Padding="20"
-                            Spacing="15">
-                        <Label Text="{Binding OverdueStudentName, StringFormat='El alumno {0} tiene pagos vencidos que deben cubrirse primero:'}"
+                    <VerticalStackLayout Padding="20" Spacing="15">
+                        <Label Text="{Binding OverdueStudentName, StringFormat='El alumno {0} tiene pagos anteriores pendientes:'}"
                                TextColor="#333"
                                FontSize="14"/>
-
+                        
                         <CollectionView ItemsSource="{Binding OverduePaymentsList}"
                                         HeightRequest="150">
-                            <CollectionView.ItemTemplate>
+                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid ColumnDefinitions="*, Auto"
-                                            Padding="0,5">
+                                    <Grid ColumnDefinitions="*, Auto" Padding="0,5">
                                         <VerticalStackLayout Grid.Column="0">
-                                            <Label Text="{Binding Concepto}"
-                                                    FontAttributes="Bold"
-                                                    FontSize="13"/>
-                                            <Label Text="{Binding FechaLimiteFormateada}"
-                                                    FontSize="11"
-                                                    TextColor="#D32F2F"/>
+                                            <Label Text="{Binding Concepto}" FontAttributes="Bold" FontSize="13"/>
+                                            <Label Text="{Binding FechaLimiteFormateada}" FontSize="11" TextColor="#D32F2F"/>
                                         </VerticalStackLayout>
-                                        <Label Grid.Column="1"
-                                                Text="{Binding ImporteFormateado}"
-                                                TextColor="#D32F2F"
-                                                FontAttributes="Bold"
-                                                VerticalOptions="Center"/>
+                                        <Label Grid.Column="1" Text="{Binding ImporteFormateado}" TextColor="#D32F2F" FontAttributes="Bold" VerticalOptions="Center"/>
                                     </Grid>
                                 </DataTemplate>
-                            </CollectionView.ItemTemplate>
+                             </CollectionView.ItemTemplate>
                         </CollectionView>
 
-                        <Button Text="ACEPTAR Y SELECCIONAR VENCIDOS"
+                        <Label Text="{Binding OverdueWarningMessage}" 
+                               TextColor="#D32F2F" 
+                               FontAttributes="Bold" 
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+
+                        <Button Text="ACEPTAR"
                                 Command="{Binding AcceptOverdueSelectionCommand}"
                                 BackgroundColor="#D32F2F"
                                 TextColor="White"

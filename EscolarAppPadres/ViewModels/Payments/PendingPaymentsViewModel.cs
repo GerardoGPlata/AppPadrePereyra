@@ -745,18 +745,34 @@ namespace EscolarAppPadres.ViewModels.Payments
                 {
                     if (item.IsSelected)
                     {
-                        // Verificar lógica de pagos vencidos
-                        var studentPayments = PendingPayments.Where(p => p.Matricula == item.Matricula).ToList();
-                        var overduePayments = studentPayments.Where(p => p.EsFechaVencida).ToList();
+                        // Obtener todos los pagos pendientes del alumno ordenados por fecha
+                        // Asumimos que PendingPayments ya contiene solo pagos pendientes o filtramos por !IsPaid si es necesario
+                        // Pero la lista se llama PendingPayments, así que asumimos que son pendientes.
+                        // Sin embargo, para estar seguros usamos la fecha límite.
+                        var studentPayments = PendingPayments
+                            .Where(p => p.Matricula == item.Matricula)
+                            .OrderBy(p => p.FechaLimite)
+                            .ToList();
 
-                        if (!item.EsFechaVencida && overduePayments.Any())
+                        var oldestPayment = studentPayments.FirstOrDefault();
+
+                        // Si el pago seleccionado NO es el más antiguo
+                        if (oldestPayment != null && item.DocumentoPorPagarId != oldestPayment.DocumentoPorPagarId)
                         {
                             // Prevenir selección
                             item.IsSelected = false;
 
-                            // Mostrar advertencia
+                            // Identificar pagos anteriores al seleccionado (que deberían pagarse antes)
+                            var previousPayments = studentPayments
+                                .Where(p => p.FechaLimite < item.FechaLimite)
+                                .ToList();
+
+                            // Configurar popup
                             OverdueStudentName = item.Alumno;
-                            OverduePaymentsList = new ObservableCollection<PaymentItem>(overduePayments);
+                            OverduePaymentsList = new ObservableCollection<PaymentItem>(previousPayments);
+                            _oldestPaymentToSelect = oldestPayment;
+                            OverdueWarningMessage = $"Se seleccionará el adeudo más antiguo: {oldestPayment.Concepto}";
+                            
                             IsOverdueWarningPopupOpen = true;
                             return; // Detener cálculo
                         }
@@ -852,6 +868,15 @@ namespace EscolarAppPadres.ViewModels.Payments
             set { _overdueStudentName = value; OnPropertyChanged(nameof(OverdueStudentName)); }
         }
 
+        private PaymentItem _oldestPaymentToSelect;
+
+        private string _overdueWarningMessage;
+        public string OverdueWarningMessage
+        {
+            get => _overdueWarningMessage;
+            set { _overdueWarningMessage = value; OnPropertyChanged(nameof(OverdueWarningMessage)); }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -859,17 +884,15 @@ namespace EscolarAppPadres.ViewModels.Payments
         private void AcceptOverdueSelection()
         {
             IsOverdueWarningPopupOpen = false;
-            if (OverduePaymentsList != null && OverduePaymentsList.Any())
+            if (_oldestPaymentToSelect != null)
             {
-                foreach (var payment in OverduePaymentsList)
+                // Buscar el objeto real en PendingPayments para asegurar que actualizamos la lista principal
+                var target = PendingPayments.FirstOrDefault(p => p.DocumentoPorPagarId == _oldestPaymentToSelect.DocumentoPorPagarId);
+                if (target != null)
                 {
-                    // Buscar el objeto real en PendingPayments para asegurar que actualizamos la lista principal
-                    var originalPayment = PendingPayments.FirstOrDefault(p => p.DocumentoPorPagarId == payment.DocumentoPorPagarId);
-                    if (originalPayment != null)
-                    {
-                        originalPayment.IsSelected = true;
-                    }
+                    target.IsSelected = true;
                 }
+                _oldestPaymentToSelect = null;
                 CalcularTotal();
             }
         }

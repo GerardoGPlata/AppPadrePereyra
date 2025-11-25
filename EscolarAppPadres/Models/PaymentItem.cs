@@ -137,5 +137,17 @@ namespace EscolarAppPadres.Models.Payments
                 return 0;
             }
         }
+
+        public DateTime FechaLimite
+        {
+            get
+            {
+                if (DateTime.TryParse(FechaLimiteFormato, out DateTime fecha))
+                {
+                    return fecha;
+                }
+                return DateTime.MaxValue;
+            }
+        }
     }
 }
