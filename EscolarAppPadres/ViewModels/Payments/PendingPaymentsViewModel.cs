@@ -772,7 +772,7 @@ namespace EscolarAppPadres.ViewModels.Payments
                             OverduePaymentsList = new ObservableCollection<PaymentItem>(previousPayments);
                             _oldestPaymentToSelect = oldestPayment;
                             OverdueWarningMessage = $"Se seleccionará el adeudo más antiguo: {oldestPayment.Concepto}";
-                            
+
                             IsOverdueWarningPopupOpen = true;
                             return; // Detener cálculo
                         }
