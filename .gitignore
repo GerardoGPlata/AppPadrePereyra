@@ -76,3 +76,4 @@ secrets.json
 
 # MAUI Hot Reload cache
 .maui-cache/
+*.keystore
